@@ -84,9 +84,30 @@
                     {% endfor %}
                 </div>
 
-                <div class="flex items-center justify-between mt-5 pt-4 border-t border-cream-200">
-                    <span class="text-sm font-bold text-coffee-700">Total</span>
-                    <span class="font-serif-title text-2xl font-bold text-coffee-900">$ {{ carrito.obtener_precio_total|floatformat:2 }}</span>
+                <div class="space-y-2 mt-5 pt-4 border-t border-cream-200 text-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-coffee-600">Modalidad</span>
+                        <span class="font-semibold text-coffee-900">
+                            {% if modalidad_entrega == 'DELIVERY' %}Delivery{% else %}Retiro en el local{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <span class="text-coffee-600">Subtotal</span>
+                        <span class="font-semibold text-coffee-900">$ {{ subtotal|floatformat:2 }}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <span class="text-coffee-600">Envío</span>
+                        <span class="font-semibold text-coffee-900">
+                            {% if costo_envio > 0 %}$ {{ costo_envio|floatformat:2 }}{% else %}Gratis{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2 border-t border-cream-200">
+                        <span class="font-bold text-coffee-700">Total</span>
+                        <span class="font-serif-title text-2xl font-bold text-coffee-900">$ {{ total|floatformat:2 }}</span>
+                    </div>
                 </div>
             </aside>
         </div>
