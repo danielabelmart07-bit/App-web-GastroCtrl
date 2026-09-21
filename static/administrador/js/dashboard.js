@@ -661,9 +661,46 @@ function renderCustomersTable() {
     `).join('');
 }
 
-function saveSettings(e) {
+async function saveSettings(e) {
     e.preventDefault();
-    showToast('Configuración guardada correctamente');
+
+    const input = document.getElementById('settingDeliveryFee');
+    const costoEnvio = Number(input?.value);
+
+    if (!Number.isFinite(costoEnvio) || costoEnvio < 0) {
+        showToast('Ingresá un costo de envío válido.', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/gestion/api/configuracion/envio/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': obtenerCsrfTokenAdmin(),
+            },
+            body: JSON.stringify({ costo_envio: costoEnvio }),
+        });
+
+        const data = await response.json();
+
+        if (data.status !== 'ok') {
+            throw new Error(data.mensaje || 'No se pudo guardar la configuración.');
+        }
+
+        showToast('Costo de envío guardado correctamente');
+    } catch (error) {
+        console.error('Error al guardar configuración:', error);
+        showToast('No se pudo guardar el costo de envío.', 'error');
+    }
+}
+
+function obtenerCsrfTokenAdmin() {
+    const cookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='));
+
+    return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
 }
 
 function goToStore() {
