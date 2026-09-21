@@ -664,6 +664,10 @@ function saveSettings(e) {
     showToast('Configuración guardada correctamente');
 }
 
+function goToStore() {
+    window.location.href = '/';
+}
+
 function openLogoutModal() {
     document.getElementById('logoutModal').classList.remove('hidden');
 }
@@ -674,7 +678,7 @@ function closeLogoutModal() {
 
 function confirmLogout() {
     closeLogoutModal();
-    showToast('Sesión cerrada correctamente', 'info');
+    window.location.href = '/';
 }
 
 function showToast(message, type = 'success') {

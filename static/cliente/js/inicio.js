@@ -202,18 +202,39 @@ function closeModal(modal) {
 
 function handleLogin(e) {
     e.preventDefault();
-    const inputVal = document.getElementById('adminUserInput').value.trim();
-    if (inputVal) {
-        adminName = inputVal;
+
+    const usernameInput = document.getElementById('adminUserInput');
+    const passwordInput = document.getElementById('adminPasswordInput');
+    const errorMessage = document.getElementById('adminLoginError');
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!username || !password) {
+        errorMessage.textContent = 'Completá usuario y contraseña para continuar.';
+        errorMessage.classList.remove('hidden');
+        return;
     }
+
+    errorMessage.classList.add('hidden');
+
+    adminName = username;
     isAdminLoggedIn = true;
-    adminNameDisplay.textContent = `Admin: ${adminName}`;
-    
+
+    if (adminNameDisplay) {
+        adminNameDisplay.textContent = `Admin: ${adminName}`;
+    }
+
     loggedOutView.classList.add('hidden');
     loggedInView.classList.remove('hidden');
 
     closeModal(loginModal);
-    showToast(`¡Bienvenida de nuevo, ${adminName}!`);
+
+    const adminUrl = loginModal.dataset.adminUrl;
+
+    if (adminUrl) {
+        window.location.href = adminUrl;
+    }
 }
 
 function openCart() {

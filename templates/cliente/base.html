@@ -285,6 +285,119 @@
         </div>
     </footer>
 
+    <!-- MODAL DE ACCESO ADMINISTRATIVO -->
+<div
+    id="loginModal"
+    data-admin-url="{% url 'administrador:dashboard' %}"
+    class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm pointer-events-none opacity-0 transition-opacity duration-300"
+    aria-hidden="true"
+>
+    <div
+        class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-cream-200/80 overflow-hidden transform scale-95 transition-transform duration-300"
+    >
+        <!-- Encabezado -->
+        <div class="px-6 py-5 border-b border-cream-200 bg-cream-50/60">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-coffee-500/10 border border-coffee-500/20 flex items-center justify-center text-coffee-600">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="font-serif-title text-xl font-bold text-coffee-900">
+                            Acceso administrativo
+                        </h2>
+                        <p class="text-xs text-coffee-600 mt-0.5">
+                            Ingresá para acceder al panel de control
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    id="closeLoginModalBtn"
+                    class="w-9 h-9 rounded-full bg-cream-100 hover:bg-cream-200 text-coffee-800 flex items-center justify-center transition-colors"
+                    aria-label="Cerrar acceso administrativo"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <form
+            id="adminLoginForm"
+            onsubmit="handleLogin(event)"
+            class="p-6 space-y-5"
+        >
+            <!-- Usuario -->
+            <div>
+                <label
+                    for="adminUserInput"
+                    class="block text-xs font-bold uppercase tracking-wider text-coffee-700 mb-2"
+                >
+                    Usuario
+                </label>
+
+                <div class="relative">
+                    <i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-coffee-500"></i>
+
+                    <input
+                        type="text"
+                        id="adminUserInput"
+                        name="username"
+                        autocomplete="username"
+                        placeholder="Usuario administrador"
+                        class="w-full pl-11 pr-4 py-3 rounded-2xl border border-cream-200 bg-cream-50/50 text-sm text-coffee-900 placeholder:text-coffee-500/50 focus:outline-none focus:ring-2 focus:ring-coffee-500/20 focus:border-coffee-500 transition-all"
+                    >
+                </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div>
+                <label
+                    for="adminPasswordInput"
+                    class="block text-xs font-bold uppercase tracking-wider text-coffee-700 mb-2"
+                >
+                    Contraseña
+                </label>
+
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-coffee-500"></i>
+
+                    <input
+                        type="password"
+                        id="adminPasswordInput"
+                        name="password"
+                        autocomplete="current-password"
+                        placeholder="••••••••"
+                        class="w-full pl-11 pr-4 py-3 rounded-2xl border border-cream-200 bg-cream-50/50 text-sm text-coffee-900 placeholder:text-coffee-500/50 focus:outline-none focus:ring-2 focus:ring-coffee-500/20 focus:border-coffee-500 transition-all"
+                    >
+                </div>
+            </div>
+
+            <!-- Mensaje -->
+            <p
+                id="adminLoginError"
+                class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2"
+            ></p>
+
+            <!-- Botón -->
+            <button
+                type="submit"
+                class="w-full py-3.5 rounded-2xl bg-coffee-600 hover:bg-coffee-700 active:scale-[0.98] text-white text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2"
+            >
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>Ingresar al panel</span>
+            </button>
+
+            <p class="text-[10px] text-center text-coffee-600/60 leading-relaxed">
+                Acceso administrativo de demostración para la versión actual del proyecto.
+            </p>
+        </form>
+    </div>
+</div>
+
     <script>
     window.CARRITO_URLS = {
         api: "{% url 'cliente:api_carrito' %}",
