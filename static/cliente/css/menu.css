@@ -60,3 +60,31 @@ body {
     border-color: #8c6343 !important;
     box-shadow: 0 2px 8px rgba(140, 99, 67, 0.25);
 }
+
+/* Responsive: conserva el diseño y evita desbordamientos en pantallas pequeñas */
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+video,
+svg,
+canvas {
+    max-width: 100%;
+}
+
+@media (max-width: 640px) {
+    h1,
+    h2,
+    h3 {
+        overflow-wrap: anywhere;
+    }
+
+    .overflow-x-auto {
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+}
