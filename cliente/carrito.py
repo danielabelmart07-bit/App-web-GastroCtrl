@@ -64,6 +64,17 @@ class Carrito:
         self.session['carrito'] = {}
         self.guardar()
 
+    def obtener_modalidad_entrega(self):
+        """Obtiene la modalidad elegida por el cliente."""
+        return self.session.get('modalidad_entrega', 'RETIRO')
+
+    def establecer_modalidad_entrega(self, modalidad):
+        """Guarda la modalidad de entrega elegida por el cliente."""
+        if modalidad not in ('RETIRO', 'DELIVERY'):
+            modalidad = 'RETIRO'
+        self.session['modalidad_entrega'] = modalidad
+        self.guardar()
+
     def obtener_total_unidades(self):
         """
         Calcula la suma total de ítems individuales en el carrito.
