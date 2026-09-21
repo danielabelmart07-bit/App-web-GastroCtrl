@@ -1,344 +1,402 @@
 {% extends 'cliente/base.html' %}
+
 {% load static %}
 
 {% block title %}GastroCtrl | Inicio{% endblock %}
 
 {% block content %}
 
-        <!-- HERO SECTION -->
-        <section id="inicio" class="relative overflow-hidden py-12 md:py-20 lg:py-24 bg-gradient-to-b from-cream-100/60 via-cream-50 to-cream-50">
-            
-            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-cream-200/40 blur-3xl pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-coffee-500/5 blur-3xl pointer-events-none"></div>
+<!-- HERO SECTION -->
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-                    
-                    <!-- Left Hero Content -->
-                    <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
-                        
-                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-coffee-500/10 border border-coffee-500/20 text-coffee-700 text-xs sm:text-sm font-semibold tracking-wide">
-                            <i class="fa-solid fa-sparkles text-terracotta"></i>
-                            <span>Horneado artesanal cada mañana</span>
-                        </div>
+<section id="inicio" class="relative overflow-hidden py-12 md:py-20 lg:py-24 bg-gradient-to-b from-cream-100/60 via-cream-50 to-cream-50">
 
-                        <h1 class="font-serif-title text-4xl sm:text-5xl lg:text-6xl font-bold text-coffee-900 leading-[1.15] tracking-tight">
-                            Sabor artesanal en <span class="text-coffee-600 italic font-normal">cada detalle</span>
-                        </h1>
+    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-cream-200/40 blur-3xl pointer-events-none"></div>
 
-                        <p class="text-base sm:text-lg text-coffee-800/80 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                            Sumérgete en la calidez de nuestra pastelería de autor y el aroma del café recién tostado. Creamos momentos de tranquilidad con recetas tradicionales y masa madre natural.
-                        </p>
+    <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-coffee-500/5 blur-3xl pointer-events-none"></div>
 
-                        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                            <a href={% url 'cliente:menu' %} class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-coffee-600 hover:bg-coffee-700 text-white font-medium text-base shadow-lg shadow-coffee-600/20 hover:shadow-xl hover:shadow-coffee-600/30 transition-all duration-300 transform hover:-translate-y-0.5 cursor-default">
-                                <span>Ver Menú</span>
-                            </a>
-                        </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-                        <!-- Stats/Features -->
-                        <div class="pt-8 border-t border-cream-200/80 grid grid-cols-3 gap-4 text-center lg:text-left max-w-md mx-auto lg:mx-0">
-                            <div>
-                                <p class="font-serif-title font-bold text-xl sm:text-2xl text-coffee-900">100%</p>
-                                <p class="text-xs text-coffee-700/80">Artesanal</p>
-                            </div>
-                            <div>
-                                <p class="font-serif-title font-bold text-xl sm:text-2xl text-coffee-900">48 hrs</p>
-                                <p class="text-xs text-coffee-700/80">Fermentación</p>
-                            </div>
-                            <div>
-                                <p class="font-serif-title font-bold text-xl sm:text-2xl text-coffee-900">Specialty</p>
-                                <p class="text-xs text-coffee-700/80">Café de Origen</p>
-                            </div>
-                        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
+            <!-- Left Hero Content -->
+
+            <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-coffee-500/10 border border-coffee-500/20 text-coffee-700 text-xs sm:text-sm font-semibold tracking-wide">
+
+                    <i class="fa-solid fa-sparkles text-terracotta"></i>
+
+                    <span>Horneado artesanal cada mañana</span>
+
+                </div>
+
+                <h1 class="font-serif-title text-4xl sm:text-5xl lg:text-6xl font-bold text-coffee-900 leading-[1.15] tracking-tight">
+
+                    Sabor artesanal en <span class="text-coffee-600 italic font-normal">cada detalle</span>
+
+                </h1>
+
+                <p class="text-base sm:text-lg text-coffee-800/80 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+
+                    Sumérgete en la calidez de nuestra pastelería de autor y el aroma del café recién tostado. Creamos momentos de tranquilidad con recetas tradicionales y masa madre natural.
+
+                </p>
+
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+
+                    <a href="{% url 'cliente:menu' %}"
+                       class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-coffee-600 hover:bg-coffee-700 text-white font-medium text-base shadow-lg shadow-coffee-600/20 hover:shadow-xl hover:shadow-coffee-600/30 transition-all duration-300 transform hover:-translate-y-0.5">
+
+                        <span>Ver Menú</span>
+
+                    </a>
+
+                </div>
+
+                <!-- Stats/Features -->
+
+                <div class="pt-8 border-t border-cream-200/80 grid grid-cols-3 gap-4 text-center lg:text-left max-w-md mx-auto lg:mx-0">
+
+                    <div>
+                        <p class="font-serif-title font-bold text-xl sm:text-2xl text-coffee-900">100%</p>
+                        <p class="text-xs text-coffee-700/80">Artesanal</p>
                     </div>
 
-                    <!-- Right Hero Image -->
-                    <div class="lg:col-span-6 relative">
-                        <div class="relative mx-auto max-w-md lg:max-w-none">
-                            <div class="aspect-[4/3] sm:aspect-[5/4] lg:aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-white transform lg:rotate-1 hover:rotate-0 transition-transform duration-500">
-                                <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=1200" 
-                                    alt="Mesa artesanal de panadería y café" 
-                                    class="w-full h-full object-cover object-center scale-105 hover:scale-100 transition-transform duration-700">
-                            </div>
+                    <div>
+                        <p class="font-serif-title font-bold text-xl sm:text-2xl text-coffee-900">48 hrs</p>
+                        <p class="text-xs text-coffee-700/80">Fermentación</p>
+                    </div>
 
-                            <div class="absolute -bottom-6 -left-4 sm:-left-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-cream-200 flex items-center gap-3 max-w-xs">
-                                <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-mug-hot text-xl"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-semibold text-coffee-900">Especialidad de la Casa</p>
-                                    <p class="text-xs text-coffee-700/80">Latte artesanal & Croissant recién horneado</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div>
+                        <p class="font-serif-title font-bold text-xl sm:text-2xl text-coffee-900">Specialty</p>
+                        <p class="text-xs text-coffee-700/80">Café de Origen</p>
                     </div>
 
                 </div>
+
             </div>
-        </section>
 
-        <!-- ARTISANAL VALUES BANNER -->
-        <section id="nosotros" class="py-12 bg-white border-y border-cream-200/60">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    
-                    <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-cream-50 transition-colors">
-                        <div class="w-12 h-12 rounded-2xl bg-cream-100 text-coffee-600 flex items-center justify-center shrink-0 text-xl">
-                            <i class="fa-solid fa-wheat-awn"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-serif-title font-semibold text-lg text-coffee-900">Ingredientes Orgánicos</h3>
-                            <p class="text-sm text-coffee-700/80 mt-1">Harinas seleccionadas sin conservantes y manteca de alta calidad.</p>
-                        </div>
+            <!-- Right Hero Image -->
+
+            <div class="lg:col-span-6 relative">
+
+                <div class="relative mx-auto max-w-md lg:max-w-none">
+
+                    <div class="aspect-[4/3] sm:aspect-[5/4] lg:aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-white transform lg:rotate-1 hover:rotate-0 transition-transform duration-500">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=1200"
+                            alt="Mesa artesanal de panadería y café"
+                            class="w-full h-full object-cover object-center scale-105 hover:scale-100 transition-transform duration-700"
+                        >
+
                     </div>
 
-                    <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-cream-50 transition-colors">
-                        <div class="w-12 h-12 rounded-2xl bg-cream-100 text-coffee-600 flex items-center justify-center shrink-0 text-xl">
-                            <i class="fa-solid fa-mug-saucer"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-serif-title font-semibold text-lg text-coffee-900">Café de Tueste Fresco</h3>
-                            <p class="text-sm text-coffee-700/80 mt-1">Granos de fincas sustentables extractados a la temperatura ideal.</p>
-                        </div>
-                    </div>
+                    <div class="absolute -bottom-6 -left-4 sm:-left-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-cream-200 flex items-center gap-3 max-w-xs">
 
-                    <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-cream-50 transition-colors">
-                        <div class="w-12 h-12 rounded-2xl bg-cream-100 text-coffee-600 flex items-center justify-center shrink-0 text-xl">
-                            <i class="fa-solid fa-heart"></i>
+                        <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+
+                            <i class="fa-solid fa-mug-hot text-xl"></i>
+
                         </div>
+
                         <div>
-                            <h3 class="font-serif-title font-semibold text-lg text-coffee-900">Amor por los Detalles</h3>
-                            <p class="text-sm text-coffee-700/80 mt-1">Ambiente acogedor pensado para brindarte paz y buen sabor.</p>
+
+                            <p class="text-xs font-semibold text-coffee-900">
+                                Especialidad de la Casa
+                            </p>
+
+                            <p class="text-xs text-coffee-700/80">
+                                Latte artesanal & Croissant recién horneado
+                            </p>
+
                         </div>
+
                     </div>
 
                 </div>
-            </div>
-        </section>
 
-        <!-- FEATURED PRODUCTS SECTION -->
-        <section id="destacados" class="py-16 sm:py-24 bg-cream-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
-                <!-- Section Header -->
-                <div class="text-center max-w-2xl mx-auto mb-12">
-                    <span class="text-xs uppercase tracking-widest text-coffee-600 font-bold">Nuestra Selección</span>
-                    <h2 class="font-serif-title text-3xl sm:text-4xl font-bold text-coffee-900 mt-2">Productos Destacados</h2>
-                    <p class="text-coffee-700/80 text-sm sm:text-base mt-3">
-                        Preparados diariamente con dedicación para deleitar tu paladar.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ARTISANAL VALUES BANNER -->
+
+<section id="nosotros" class="py-12 bg-white border-y border-cream-200/60">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-cream-50 transition-colors">
+
+                <div class="w-12 h-12 rounded-2xl bg-cream-100 text-coffee-600 flex items-center justify-center shrink-0 text-xl">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="font-serif-title font-semibold text-lg text-coffee-900">
+                        Ingredientes Orgánicos
+                    </h3>
+
+                    <p class="text-sm text-coffee-700/80 mt-1">
+                        Harinas seleccionadas sin conservantes y manteca de alta calidad.
                     </p>
 
-                    <!-- Filter Category Buttons -->
-                    <div class="flex flex-wrap items-center justify-center gap-2 mt-8">
-                        <button class="filter-btn active px-5 py-2 rounded-full text-xs sm:text-sm font-semibold bg-coffee-600 text-white transition-all shadow-sm" data-category="todos">
-                            Todos
-                        </button>
-                        <button class="filter-btn px-5 py-2 rounded-full text-xs sm:text-sm font-semibold bg-white text-coffee-800 hover:bg-cream-200/60 transition-all border border-cream-200" data-category="pasteleria">
-                            Pastelería
-                        </button>
-                        <button class="filter-btn px-5 py-2 rounded-full text-xs sm:text-sm font-semibold bg-white text-coffee-800 hover:bg-cream-200/60 transition-all border border-cream-200" data-category="panaderia">
-                            Panadería
-                        </button>
-                        <button class="filter-btn px-5 py-2 rounded-full text-xs sm:text-sm font-semibold bg-white text-coffee-800 hover:bg-cream-200/60 transition-all border border-cream-200" data-category="cafeteria">
-                            Cafetería
-                        </button>
-                    </div>
                 </div>
 
-                <!-- Products Grid -->
-                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    
-                    <!-- Product Card 1 -->
-                    <div class="product-card bg-white rounded-3xl overflow-hidden border border-cream-200/80 hover-lift flex flex-col justify-between" data-category="pasteleria">
-                        <div class="relative overflow-hidden aspect-[4/3] group">
-                            <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80&w=800" 
-                                alt="Croissant de Almendras" 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-coffee-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                                Pastelería
-                            </span>
-                        </div>
-                        <div class="p-6 flex-grow flex flex-col justify-between">
-                            <div>
-                                <h3 class="font-serif-title text-xl font-bold text-coffee-900">Croissant de Almendras</h3>
-                                <p class="text-xs text-coffee-700/80 mt-2 line-clamp-2 leading-relaxed">
-                                    Croissant artesanal francés relleno de crema frangipane de almendras y espolvoreado con azúcar impalpable.
-                                </p>
-                            </div>
-                            <div class="mt-6 flex items-center justify-between pt-4 border-t border-cream-100">
-                                <div>
-                                    <span class="text-xs text-gray-400 block">Precio</span>
-                                    <span class="font-bold text-lg text-coffee-900">$3.200</span>
-                                </div>
-                                <button onclick="addToCart(1, 'Croissant de Almendras', 3200, 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80&w=200')" 
-                                        class="px-4 py-2.5 rounded-full bg-cream-100 hover:bg-coffee-600 text-coffee-900 hover:text-white text-xs font-bold transition-all duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-plus text-[10px]"></i>
-                                    <span>Agregar</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+            </div>
 
-                    <!-- Product Card 2 -->
-                    <div class="product-card bg-white rounded-3xl overflow-hidden border border-cream-200/80 hover-lift flex flex-col justify-between" data-category="pasteleria">
-                        <div class="relative overflow-hidden aspect-[4/3] group">
-                            <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&q=80&w=800" 
-                                alt="Tarta de Frutillas" 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-coffee-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                                Pastelería
-                            </span>
-                        </div>
-                        <div class="p-6 flex-grow flex flex-col justify-between">
-                            <div>
-                                <h3 class="font-serif-title text-xl font-bold text-coffee-900">Tarta de Frutillas y Crema</h3>
-                                <p class="text-xs text-coffee-700/80 mt-2 line-clamp-2 leading-relaxed">
-                                    Masa sablée crocante, suave crema pastelera a la vainilla de Madagascar y frutillas frescas de estación.
-                                </p>
-                            </div>
-                            <div class="mt-6 flex items-center justify-between pt-4 border-t border-cream-100">
-                                <div>
-                                    <span class="text-xs text-gray-400 block">Precio</span>
-                                    <span class="font-bold text-lg text-coffee-900">$4.500</span>
-                                </div>
-                                <button onclick="addToCart(2, 'Tarta de Frutillas y Crema', 4500, 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&q=80&w=200')" 
-                                        class="px-4 py-2.5 rounded-full bg-cream-100 hover:bg-coffee-600 text-coffee-900 hover:text-white text-xs font-bold transition-all duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-plus text-[10px]"></i>
-                                    <span>Agregar</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Product Card 3 -->
-                    <div class="product-card bg-white rounded-3xl overflow-hidden border border-cream-200/80 hover-lift flex flex-col justify-between" data-category="cafeteria">
-                        <div class="relative overflow-hidden aspect-[4/3] group">
-                            <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&q=80&w=800" 
-                                alt="Café Latte Especialidad" 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-coffee-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                                Cafetería
-                            </span>
-                        </div>
-                        <div class="p-6 flex-grow flex flex-col justify-between">
-                            <div>
-                                <h3 class="font-serif-title text-xl font-bold text-coffee-900">Café Latte Especialidad</h3>
-                                <p class="text-xs text-coffee-700/80 mt-2 line-clamp-2 leading-relaxed">
-                                    Doble shot de espresso de grano colombiano con leche cremada textura terciopelo y delicado latte art.
-                                </p>
-                            </div>
-                            <div class="mt-6 flex items-center justify-between pt-4 border-t border-cream-100">
-                                <div>
-                                    <span class="text-xs text-gray-400 block">Precio</span>
-                                    <span class="font-bold text-lg text-coffee-900">$2.800</span>
-                                </div>
-                                <button onclick="addToCart(3, 'Café Latte Especialidad', 2800, 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&q=80&w=200')" 
-                                        class="px-4 py-2.5 rounded-full bg-cream-100 hover:bg-coffee-600 text-coffee-900 hover:text-white text-xs font-bold transition-all duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-plus text-[10px]"></i>
-                                    <span>Agregar</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+            <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-cream-50 transition-colors">
 
-                    <!-- Product Card 4 -->
-                    <div class="product-card bg-white rounded-3xl overflow-hidden border border-cream-200/80 hover-lift flex flex-col justify-between" data-category="pasteleria">
-                        <div class="relative overflow-hidden aspect-[4/3] group">
-                            <img src="https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&q=80&w=800" 
-                                alt="Cheesecake Frutos Rojos" 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-coffee-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                                Pastelería
-                            </span>
-                        </div>
-                        <div class="p-6 flex-grow flex flex-col justify-between">
-                            <div>
-                                <h3 class="font-serif-title text-xl font-bold text-coffee-900">Cheesecake Frutos Rojos</h3>
-                                <p class="text-xs text-coffee-700/80 mt-2 line-clamp-2 leading-relaxed">
-                                    Textura suave y cremosa al estilo New York, sobre galleta de mantequilla con reducción artesanal de frutos del bosque.
-                                </p>
-                            </div>
-                            <div class="mt-6 flex items-center justify-between pt-4 border-t border-cream-100">
-                                <div>
-                                    <span class="text-xs text-gray-400 block">Precio</span>
-                                    <span class="font-bold text-lg text-coffee-900">$4.800</span>
-                                </div>
-                                <button onclick="addToCart(4, 'Cheesecake Frutos Rojos', 4800, 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&q=80&w=200')" 
-                                        class="px-4 py-2.5 rounded-full bg-cream-100 hover:bg-coffee-600 text-coffee-900 hover:text-white text-xs font-bold transition-all duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-plus text-[10px]"></i>
-                                    <span>Agregar</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="w-12 h-12 rounded-2xl bg-cream-100 text-coffee-600 flex items-center justify-center shrink-0 text-xl">
+                    <i class="fa-solid fa-mug-saucer"></i>
+                </div>
 
-                    <!-- Product Card 5 -->
-                    <div class="product-card bg-white rounded-3xl overflow-hidden border border-cream-200/80 hover-lift flex flex-col justify-between" data-category="panaderia">
-                        <div class="relative overflow-hidden aspect-[4/3] group">
-                            <img src="https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?auto=format&fit=crop&q=80&w=800" 
-                                alt="Pan de Masa Madre" 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-coffee-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                                Panadería
-                            </span>
-                        </div>
-                        <div class="p-6 flex-grow flex flex-col justify-between">
-                            <div>
-                                <h3 class="font-serif-title text-xl font-bold text-coffee-900">Pan de Masa Madre Tradicional</h3>
-                                <p class="text-xs text-coffee-700/80 mt-2 line-clamp-2 leading-relaxed">
-                                    Hogaza rústica elaborada con fermentación lenta de 48 horas. Corteza crujiente y miga aireada e hidratada.
-                                </p>
-                            </div>
-                            <div class="mt-6 flex items-center justify-between pt-4 border-t border-cream-100">
-                                <div>
-                                    <span class="text-xs text-gray-400 block">Precio</span>
-                                    <span class="font-bold text-lg text-coffee-900">$3.600</span>
-                                </div>
-                                <button onclick="addToCart(5, 'Pan de Masa Madre Tradicional', 3600, 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?auto=format&fit=crop&q=80&w=200')" 
-                                        class="px-4 py-2.5 rounded-full bg-cream-100 hover:bg-coffee-600 text-coffee-900 hover:text-white text-xs font-bold transition-all duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-plus text-[10px]"></i>
-                                    <span>Agregar</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div>
 
-                    <!-- Product Card 6 -->
-                    <div class="product-card bg-white rounded-3xl overflow-hidden border border-cream-200/80 hover-lift flex flex-col justify-between" data-category="pasteleria">
-                        <div class="relative overflow-hidden aspect-[4/3] group">
-                            <img src="https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&q=80&w=800" 
-                                alt="Box Macarons Artesanales" 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-coffee-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                                Pastelería
-                            </span>
-                        </div>
-                        <div class="p-6 flex-grow flex flex-col justify-between">
-                            <div>
-                                <h3 class="font-serif-title text-xl font-bold text-coffee-900">Box Macarons (6 Unidades)</h3>
-                                <p class="text-xs text-coffee-700/80 mt-2 line-clamp-2 leading-relaxed">
-                                    Caja regalo con surtido de macarons franceses: pistacho, maracuyá, frambuesa, ganache belga y avellanas.
-                                </p>
-                            </div>
-                            <div class="mt-6 flex items-center justify-between pt-4 border-t border-cream-100">
-                                <div>
-                                    <span class="text-xs text-gray-400 block">Precio</span>
-                                    <span class="font-bold text-lg text-coffee-900">$5.200</span>
-                                </div>
-                                <button onclick="addToCart(6, 'Box Macarons (6 Unidades)', 5200, 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&q=80&w=200')" 
-                                        class="px-4 py-2.5 rounded-full bg-cream-100 hover:bg-coffee-600 text-coffee-900 hover:text-white text-xs font-bold transition-all duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-plus text-[10px]"></i>
-                                    <span>Agregar</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <h3 class="font-serif-title font-semibold text-lg text-coffee-900">
+                        Café de Tueste Fresco
+                    </h3>
+
+                    <p class="text-sm text-coffee-700/80 mt-1">
+                        Granos de fincas sustentables extractados a la temperatura ideal.
+                    </p>
 
                 </div>
 
             </div>
-        </section>
+
+
+            <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-cream-50 transition-colors">
+
+                <div class="w-12 h-12 rounded-2xl bg-cream-100 text-coffee-600 flex items-center justify-center shrink-0 text-xl">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="font-serif-title font-semibold text-lg text-coffee-900">
+                        Amor por los Detalles
+                    </h3>
+
+                    <p class="text-sm text-coffee-700/80 mt-1">
+                        Ambiente acogedor pensado para brindarte paz y buen sabor.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- FEATURED PRODUCTS SECTION -->
+
+<section id="destacados" class="py-16 sm:py-24 bg-cream-50">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Section Header -->
+
+        <div class="text-center max-w-2xl mx-auto mb-12">
+
+            <span class="text-xs uppercase tracking-widest text-coffee-600 font-bold">
+                Nuestra Selección
+            </span>
+
+            <h2 class="font-serif-title text-3xl sm:text-4xl font-bold text-coffee-900 mt-2">
+                Productos Destacados
+            </h2>
+
+            <p class="text-coffee-700/80 text-sm sm:text-base mt-3">
+                Preparados diariamente con dedicación para deleitar tu paladar.
+            </p>
+
+
+            <!-- Filter Category Buttons -->
+
+            <div class="flex flex-wrap items-center justify-center gap-2 mt-8">
+
+                <button
+                    type="button"
+                    class="filter-btn active px-5 py-2 rounded-full text-xs sm:text-sm font-semibold bg-coffee-600 text-white transition-all shadow-sm"
+                    data-category="todos"
+                >
+                    Todos
+                </button>
+
+
+                {% regroup productos_destacados by categoria as categorias_destacadas %}
+
+                {% for grupo in categorias_destacadas %}
+
+                    <button
+                        type="button"
+                        class="filter-btn px-5 py-2 rounded-full text-xs sm:text-sm font-semibold bg-white text-coffee-800 hover:bg-cream-200/60 transition-all border border-cream-200"
+                        data-category="{{ grupo.grouper.slug }}"
+                    >
+                        {{ grupo.grouper.nombre }}
+                    </button>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Products Grid -->
+
+        <div
+            id="productsGrid"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+
+            {% for producto in productos_destacados %}
+
+                <div
+                    class="product-card bg-white rounded-3xl overflow-hidden border border-cream-200/80 hover-lift flex flex-col justify-between"
+                    data-category="{{ producto.categoria.slug }}"
+                >
+
+                    <!-- Product Image -->
+
+                    <div class="relative overflow-hidden aspect-[4/3] group">
+
+                        {% if producto.imagen %}
+
+                            <img
+                                src="{{ producto.imagen.url }}"
+                                alt="{{ producto.nombre }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            >
+
+                        {% else %}
+
+                            <img
+                                src="{% static 'cliente/img/placeholder.jpg' %}"
+                                alt="Imagen no disponible para {{ producto.nombre }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            >
+
+                        {% endif %}
+
+
+                        <!-- Category -->
+
+                        <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-coffee-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+
+                            {{ producto.categoria.nombre }}
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- Product Information -->
+
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+
+                        <div>
+
+                            <h3 class="font-serif-title text-xl font-bold text-coffee-900">
+                                {{ producto.nombre }}
+                            </h3>
+
+                            <p class="text-xs text-coffee-700/80 mt-2 line-clamp-2 leading-relaxed">
+                                {{ producto.descripcion|default:"Sin descripción disponible." }}
+                            </p>
+
+                        </div>
+
+
+                        <!-- Price + Cart -->
+
+                        <div class="mt-6 flex items-center justify-between pt-4 border-t border-cream-100">
+
+                            <div>
+
+                                <span class="text-xs text-gray-400 block">
+                                    Precio
+                                </span>
+
+                                <span class="font-bold text-lg text-coffee-900">
+                                    ${{ producto.precio|floatformat:0 }}
+                                </span>
+
+                            </div>
+
+
+                            <button
+                                type="button"
+                                onclick="addToCart(
+                                    {{ producto.id }},
+                                    '{{ producto.nombre|escapejs }}',
+                                    {{ producto.precio }},
+                                    '{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'cliente/img/placeholder.jpg' %}{% endif %}'
+                                )"
+                                class="px-4 py-2.5 rounded-full bg-cream-100 hover:bg-coffee-600 text-coffee-900 hover:text-white text-xs font-bold transition-all duration-200 flex items-center gap-2"
+                            >
+
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+
+                                <span>Agregar</span>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% empty %}
+
+                <!-- Empty State -->
+
+                <div class="col-span-full text-center py-16">
+
+                    <div class="w-16 h-16 mx-auto rounded-full bg-cream-100 text-coffee-500 flex items-center justify-center text-2xl mb-4">
+
+                        <i class="fa-solid fa-mug-hot"></i>
+
+                    </div>
+
+                    <h3 class="font-serif-title text-2xl font-bold text-coffee-900">
+                        Próximamente
+                    </h3>
+
+                    <p class="text-sm text-coffee-700/80 mt-2">
+                        Todavía no hay productos destacados disponibles.
+                    </p>
+
+                    <a
+                        href="{% url 'cliente:menu' %}"
+                        class="inline-flex items-center gap-2 mt-6 px-6 py-2.5 rounded-full bg-coffee-600 hover:bg-coffee-700 text-white font-semibold text-xs transition-all"
+                    >
+                        Ver Menú
+                    </a>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
 
 {% endblock %}

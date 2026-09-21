@@ -69,72 +69,100 @@ document.addEventListener('DOMContentLoaded', () => {
     mobileMenuBtn = document.getElementById('mobileMenuBtn');
     mobileMenu = document.getElementById('mobileMenu');
 
-    // Event Listeners del Perfil
-    profileBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isHidden = profileDropdown.classList.contains('hidden');
-        if (isHidden) {
-            profileDropdown.classList.remove('hidden');
-            setTimeout(() => {
-                profileDropdown.classList.remove('opacity-0', 'scale-95');
-            }, 10);
-        } else {
-            closeProfileDropdown();
-        }
-    });
+        // Event Listeners del Perfil
+    if (profileBtn && profileDropdown) {
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
 
-    document.addEventListener('click', (e) => {
-        if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
-            closeProfileDropdown();
-        }
-    });
+            const isHidden = profileDropdown.classList.contains('hidden');
+
+            if (isHidden) {
+                profileDropdown.classList.remove('hidden');
+
+                setTimeout(() => {
+                    profileDropdown.classList.remove('opacity-0', 'scale-95');
+                }, 10);
+            } else {
+                closeProfileDropdown();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+                closeProfileDropdown();
+            }
+        });
+    }
 
     // Modal de Login Admin
-    openAdminLoginBtn.addEventListener('click', () => {
-        closeProfileDropdown();
-        openModal(loginModal);
-    });
+    if (openAdminLoginBtn && loginModal) {
+        openAdminLoginBtn.addEventListener('click', () => {
+            closeProfileDropdown();
+            openModal(loginModal);
+        });
+    }
 
-    closeLoginModalBtn.addEventListener('click', () => {
-        closeModal(loginModal);
-    });
+    if (closeLoginModalBtn && loginModal) {
+        closeLoginModalBtn.addEventListener('click', () => {
+            closeModal(loginModal);
+        });
+    }
 
     // Logout
-    logoutBtn.addEventListener('click', () => {
-        isAdminLoggedIn = false;
-        loggedOutView.classList.remove('hidden');
-        loggedInView.classList.add('hidden');
-        closeProfileDropdown();
-        showToast('Sesión de administración cerrada');
-    });
+    if (logoutBtn && loggedOutView && loggedInView) {
+        logoutBtn.addEventListener('click', () => {
+            isAdminLoggedIn = false;
+            loggedOutView.classList.remove('hidden');
+            loggedInView.classList.add('hidden');
+            closeProfileDropdown();
+            showToast('Sesión de administración cerrada');
+        });
+    }
 
     // Controles del Carrito Drawer
-    cartBtn.addEventListener('click', openCart);
-    closeCartBtn.addEventListener('click', closeCart);
-    cartBackdrop.addEventListener('click', closeCart);
+    if (cartBtn) {
+        cartBtn.addEventListener('click', openCart);
+    }
+
+    if (closeCartBtn) {
+        closeCartBtn.addEventListener('click', closeCart);
+    }
+
+    if (cartBackdrop) {
+        cartBackdrop.addEventListener('click', closeCart);
+    }
 
     // Menú Mobile
-    mobileMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
 
-    // Filtros de Categorías
+        // Filtros de Categorías
     const filterBtns = document.querySelectorAll('.filter-btn');
     const productCards = document.querySelectorAll('.product-card');
 
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+
+            // Cambiar estado visual del botón seleccionado
             filterBtns.forEach(b => {
                 b.classList.remove('active', 'bg-coffee-600', 'text-white');
                 b.classList.add('bg-white', 'text-coffee-800');
             });
+
             btn.classList.add('active', 'bg-coffee-600', 'text-white');
             btn.classList.remove('bg-white', 'text-coffee-800');
 
+            // Obtener categoría seleccionada
             const category = btn.getAttribute('data-category');
 
+            // Mostrar u ocultar productos
             productCards.forEach(card => {
-                if (category === 'todos' || card.getAttribute('data-category') === category) {
+                const productCategory = card.getAttribute('data-category');
+
+                if (category === 'todos' || productCategory === category) {
                     card.style.display = 'flex';
                 } else {
                     card.style.display = 'none';
@@ -145,7 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Renderizado inicial del carrito
     updateCartUI();
-});
+});   
+
 
 /* ==========================================================================
    Funciones Auxiliares y Globales
