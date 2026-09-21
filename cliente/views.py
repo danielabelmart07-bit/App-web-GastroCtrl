@@ -107,7 +107,10 @@ def checkout(request):
             return render(
                 request,
                 'cliente/pedido_confirmado.html',
-                {'pedido': pedido}
+                {
+                    'pedido': pedido,
+                    'subtotal': pedido.monto_total - pedido.costo_envio,
+                }
             )
     else:
         form = PedidoForm()
