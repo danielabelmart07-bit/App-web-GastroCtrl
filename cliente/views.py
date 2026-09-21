@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
 from .models import Categoria, Producto, Pedido, DetallePedido
+from .carrito import Carrito
+from .forms import PedidoForm
 
 def checkout(request):
     """Procesa la compra guardando el Pedido, transfiere los productos del carrito y descuenta el stock."""
