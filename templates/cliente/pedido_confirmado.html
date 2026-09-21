@@ -108,7 +108,7 @@
                             <div class="flex justify-between">
                                 <span class="text-coffee-500">Subtotal</span>
                                 <span class="font-semibold text-coffee-900">
-                                    $ {{ pedido.monto_total|add:"-"|floatformat:2 }}
+                                    $ {{ subtotal|floatformat:2 }}
                                 </span>
                             </div>
 
@@ -165,7 +165,7 @@ window.PEDIDO_CONFIRMADO = {
     codigo: "{{ pedido.codigo_seguimiento|escapejs }}",
     estado: "{{ pedido.get_estado_display|escapejs }}",
     monto_total: "{{ pedido.monto_total }}",
-    subtotal: "{{ pedido.monto_total|add:'-' }}",
+    subtotal: "{{ subtotal }}",
     costo_envio: "{{ pedido.costo_envio }}",
     modalidad_entrega: "{{ pedido.get_modalidad_entrega_display|escapejs }}",
     cliente: "{{ pedido.nombre_cliente|escapejs }}",
