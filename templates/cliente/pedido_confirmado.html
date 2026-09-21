@@ -1,161 +1,160 @@
 {% extends 'cliente/base.html' %}
 
-{% block title %}Pedido confirmado | GastroCtrl{% endblock %}
+{% block title %}Comprobante #{{ pedido.codigo_seguimiento }} | GastroCtrl{% endblock %}
 
 {% block content %}
-<section class="min-h-[75vh] py-10 sm:py-16">
+<section class="min-h-[78vh] py-8 sm:py-12">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
 
-        <div class="bg-white rounded-[2rem] border border-cream-200 shadow-sm overflow-hidden">
+        <!-- Comprobante -->
+        <article id="comprobantePedido" class="bg-white border border-cream-200 shadow-lg shadow-coffee-900/5 overflow-hidden">
 
-            <!-- Encabezado -->
-            <div class="px-6 sm:px-10 pt-8 sm:pt-10 pb-7 text-center border-b border-cream-200">
-                <div class="w-16 h-16 mx-auto rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-2xl">
-                    <i class="fa-solid fa-check"></i>
+            <!-- Marca -->
+            <header class="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 text-center border-b border-dashed border-cream-300">
+                <div class="inline-flex items-center justify-center w-11 h-11 rounded-full bg-coffee-900 text-cream-50 mb-3">
+                    <i class="fa-solid fa-mug-hot text-sm"></i>
                 </div>
 
-                <p class="text-[10px] uppercase tracking-[0.25em] text-coffee-500 font-bold mt-5">
-                    Compra realizada
+                <p class="font-serif-title text-2xl sm:text-3xl font-bold text-coffee-900 tracking-wide">
+                    GastroCtrl
+                </p>
+                <p class="text-[10px] uppercase tracking-[0.28em] text-coffee-500 font-bold mt-1">
+                    Café &amp; Pastelería Artesanal
                 </p>
 
-                <h1 class="font-serif-title text-3xl sm:text-4xl font-bold text-coffee-900 mt-2">
-                    ¡Pedido confirmado!
-                </h1>
-
-                <p class="text-sm text-coffee-700/70 mt-3 max-w-md mx-auto">
-                    Tu pedido fue registrado correctamente. Guardá el código para consultar su estado.
-                </p>
-            </div>
-
-            <!-- Código y estado -->
-            <div class="px-6 sm:px-10 py-7">
-                <div class="rounded-2xl bg-cream-50 border border-cream-200 p-5 sm:p-6 text-center">
-                    <p class="text-[10px] uppercase tracking-[0.18em] text-coffee-500 font-bold">
-                        Código de seguimiento
+                <div class="mt-6">
+                    <p class="text-[11px] uppercase tracking-[0.3em] text-coffee-500 font-bold">
+                        Comprobante de compra
                     </p>
-
-                    <p class="font-serif-title text-3xl sm:text-4xl font-bold text-coffee-900 mt-2 tracking-wide">
+                    <p class="font-serif-title text-2xl sm:text-3xl font-bold text-coffee-900 mt-2">
                         #{{ pedido.codigo_seguimiento }}
                     </p>
+                </div>
+            </header>
 
-                    <div class="inline-flex items-center gap-2 mt-4 px-3 py-1.5 rounded-full bg-white border border-cream-200 text-xs font-bold text-coffee-800">
-                        <i class="fa-solid fa-clock text-coffee-500"></i>
-                        {{ pedido.get_estado_display }}
+            <!-- Datos -->
+            <div class="px-6 sm:px-10 py-5 border-b border-dashed border-cream-300">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-coffee-500 font-bold">Fecha y hora</p>
+                        <p class="font-semibold text-coffee-900 mt-1">{{ pedido.creado_en|date:"d/m/Y H:i" }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-coffee-500 font-bold">Modalidad</p>
+                        <p class="font-semibold text-coffee-900 mt-1">{{ pedido.get_modalidad_entrega_display }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-coffee-500 font-bold">Estado</p>
+                        <p class="font-semibold text-coffee-900 mt-1">{{ pedido.get_estado_display }}</p>
                     </div>
                 </div>
 
-                <!-- Datos del pedido -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                {% if pedido.modalidad_entrega == 'DELIVERY' %}
+                <div class="mt-4 pt-4 border-t border-cream-200">
+                    <p class="text-[10px] uppercase tracking-wider text-coffee-500 font-bold">Dirección de entrega</p>
+                    <p class="font-semibold text-coffee-900 mt-1">{{ pedido.direccion }}</p>
+                </div>
+                {% endif %}
+            </div>
 
-                    <div class="rounded-2xl border border-cream-200 p-5">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-9 h-9 rounded-xl bg-cream-100 text-coffee-700 flex items-center justify-center">
-                                <i class="fa-solid fa-truck"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] uppercase tracking-wider text-coffee-500 font-bold">Entrega</p>
-                                <p class="text-sm font-bold text-coffee-900">
-                                    {{ pedido.get_modalidad_entrega_display }}
-                                </p>
-                            </div>
+            <!-- Productos -->
+            <div class="px-6 sm:px-10 py-6">
+                <div class="grid grid-cols-[minmax(0,1fr)_52px_92px_100px] sm:grid-cols-[minmax(0,1fr)_60px_110px_120px] gap-3 pb-3 border-b border-coffee-900 text-[10px] uppercase tracking-wider text-coffee-500 font-bold">
+                    <span>Producto</span>
+                    <span class="text-center">Cant.</span>
+                    <span class="text-right">Precio unit.</span>
+                    <span class="text-right">Subtotal</span>
+                </div>
+
+                <div class="divide-y divide-cream-100">
+                    {% for detalle in pedido.detalles.all %}
+                    <div class="grid grid-cols-[minmax(0,1fr)_52px_92px_100px] sm:grid-cols-[minmax(0,1fr)_60px_110px_120px] gap-3 py-4 text-sm items-center">
+                        <div class="min-w-0">
+                            <p class="font-semibold text-coffee-900 break-words">
+                                {{ detalle.producto.nombre|default:"Producto" }}
+                            </p>
                         </div>
 
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between gap-4">
-                                <span class="text-coffee-500">Envío</span>
-                                <span class="font-semibold text-coffee-900">
-                                    {% if pedido.costo_envio > 0 %}$ {{ pedido.costo_envio|floatformat:2 }}{% else %}Gratis{% endif %}
-                                </span>
-                            </div>
+                        <span class="text-center text-coffee-700">
+                            {{ detalle.cantidad }}
+                        </span>
 
-                            {% if pedido.modalidad_entrega == 'DELIVERY' %}
-                            <div class="pt-2 border-t border-cream-200">
-                                <span class="text-coffee-500 text-xs">Dirección</span>
-                                <p class="font-semibold text-coffee-900 mt-0.5">{{ pedido.direccion }}</p>
-                            </div>
+                        <span class="text-right text-coffee-700 whitespace-nowrap">
+                            $ {{ detalle.precio_unitario|floatformat:2 }}
+                        </span>
+
+                        <span class="text-right font-semibold text-coffee-900 whitespace-nowrap">
+                            $ {{ detalle.subtotal|floatformat:2 }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Totales -->
+                <div class="mt-5 ml-auto w-full sm:max-w-sm border-t border-cream-300 pt-4 space-y-2.5 text-sm">
+                    <div class="flex justify-between gap-4">
+                        <span class="text-coffee-500">Subtotal</span>
+                        <span class="font-semibold text-coffee-900">$ {{ subtotal|floatformat:2 }}</span>
+                    </div>
+
+                    <div class="flex justify-between gap-4">
+                        <span class="text-coffee-500">Envío</span>
+                        <span class="font-semibold text-coffee-900">
+                            {% if pedido.costo_envio > 0 %}
+                                $ {{ pedido.costo_envio|floatformat:2 }}
+                            {% else %}
+                                Gratis
                             {% endif %}
-                        </div>
+                        </span>
                     </div>
 
-                    <div class="rounded-2xl border border-cream-200 p-5">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-9 h-9 rounded-xl bg-cream-100 text-coffee-700 flex items-center justify-center">
-                                <i class="fa-solid fa-receipt"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] uppercase tracking-wider text-coffee-500 font-bold">Resumen de compra</p>
-                                <p class="text-sm font-bold text-coffee-900">Detalle del pedido</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-2.5">
-                            {% for detalle in pedido.detalles.all %}
-                            <div class="flex items-start justify-between gap-4 text-sm">
-                                <div class="min-w-0">
-                                    <p class="font-semibold text-coffee-800 truncate">
-                                        {{ detalle.producto.nombre|default:"Producto" }}
-                                    </p>
-                                    <p class="text-xs text-coffee-500">Cantidad: {{ detalle.cantidad }}</p>
-                                </div>
-                                <span class="font-bold text-coffee-900 whitespace-nowrap">
-                                    $ {{ detalle.subtotal|floatformat:2 }}
-                                </span>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mt-4 pt-3 border-t border-cream-200 space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-coffee-500">Subtotal</span>
-                                <span class="font-semibold text-coffee-900">
-                                    $ {{ subtotal|floatformat:2 }}
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between">
-                                <span class="text-coffee-500">Envío</span>
-                                <span class="font-semibold text-coffee-900">
-                                    {% if pedido.costo_envio > 0 %}$ {{ pedido.costo_envio|floatformat:2 }}{% else %}Gratis{% endif %}
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between items-center pt-2 border-t border-cream-200">
-                                <span class="font-bold text-coffee-800">Total</span>
-                                <span class="font-serif-title text-xl font-bold text-coffee-900">
-                                    $ {{ pedido.monto_total|floatformat:2 }}
-                                </span>
-                            </div>
-                        </div>
+                    <div class="flex justify-between items-center gap-4 pt-3 mt-1 border-t-2 border-coffee-900">
+                        <span class="text-base font-bold uppercase tracking-wide text-coffee-900">Total final</span>
+                        <span class="font-serif-title text-2xl font-bold text-coffee-900 whitespace-nowrap">
+                            $ {{ pedido.monto_total|floatformat:2 }}
+                        </span>
                     </div>
-                </div>
-
-                <!-- Acciones -->
-                <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button
-                        type="button"
-                        onclick="descargarComprobantePedido()"
-                        class="px-5 py-3.5 rounded-2xl bg-coffee-600 hover:bg-coffee-700 text-white text-sm font-bold transition-colors shadow-sm"
-                    >
-                        <i class="fa-solid fa-file-pdf mr-2"></i>
-                        Descargar comprobante
-                    </button>
-
-                    <button
-                        type="button"
-                        onclick="abrirSeguimientoDesdeConfirmacion()"
-                        class="px-5 py-3.5 rounded-2xl bg-cream-100 hover:bg-cream-200 text-coffee-800 text-sm font-bold transition-colors border border-cream-200"
-                    >
-                        <i class="fa-solid fa-location-dot mr-2"></i>
-                        Seguir pedido
-                    </button>
-                </div>
-
-                <div class="text-center mt-5">
-                    <a href="{% url 'cliente:menu' %}" class="text-sm font-semibold text-coffee-600 hover:text-coffee-900 transition-colors">
-                        Volver al menú
-                    </a>
                 </div>
             </div>
+
+            <!-- Pie -->
+            <footer class="px-6 sm:px-10 py-6 bg-cream-50 border-t border-dashed border-cream-300 text-center">
+                <p class="text-sm font-semibold text-coffee-900">
+                    ¡Gracias por elegir GastroCtrl!
+                </p>
+                <p class="text-xs text-coffee-500 mt-1">
+                    Conservá este comprobante para consultar el estado de tu pedido.
+                </p>
+            </footer>
+        </article>
+
+        <!-- Acciones -->
+        <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+                type="button"
+                onclick="descargarComprobantePedido()"
+                class="px-5 py-3.5 rounded-2xl bg-coffee-600 hover:bg-coffee-700 text-white text-sm font-bold transition-colors shadow-sm"
+            >
+                <i class="fa-solid fa-file-pdf mr-2"></i>
+                Descargar comprobante
+            </button>
+
+            <button
+                type="button"
+                onclick="abrirSeguimientoDesdeConfirmacion()"
+                class="px-5 py-3.5 rounded-2xl bg-cream-100 hover:bg-cream-200 text-coffee-800 text-sm font-bold transition-colors border border-cream-200"
+            >
+                <i class="fa-solid fa-location-dot mr-2"></i>
+                Seguir pedido
+            </button>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{% url 'cliente:menu' %}" class="text-sm font-semibold text-coffee-600 hover:text-coffee-900 transition-colors">
+                Volver al menú
+            </a>
         </div>
     </div>
 </section>
@@ -174,6 +173,7 @@ window.PEDIDO_CONFIRMADO = {
         {
             producto: "{{ detalle.producto.nombre|default:'Producto'|escapejs }}",
             cantidad: {{ detalle.cantidad }},
+            precio_unitario: "{{ detalle.precio_unitario }}",
             subtotal: "{{ detalle.subtotal }}"
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
