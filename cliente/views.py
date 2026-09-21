@@ -84,7 +84,7 @@ def consultar_estado_pedido_api(request, codigo):
     try:
         pedido = Pedido.objects.get(codigo_seguimiento__iexact=codigo.strip())
         detalles = [
-            {'producto': d.producto.nombre if d.producto else 'Producto', 'cantidad': d.cantidad}
+            {'producto': d.producto.nombre if d.producto else 'Producto', 'cantidad': d.cantidad, 'subtotal': float(d.subtotal())}
             for d in pedido.detalles.all()
         ]
         response = JsonResponse({
