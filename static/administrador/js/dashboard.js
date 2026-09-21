@@ -45,12 +45,8 @@ let categories = [
     { id: 4, name: "Bebidas Frías", slug: "bebidas", icon: "fa-glass-water", count: 6, desc: "Cold brew, limonadas y smoothies" }
 ];
 
-let orders = [
-    { id: "#ORD-8942", customer: "Camila Torres", items: "2x Flat White, 1x Croissant Almendras", total: 8800, type: "Takeaway", status: "preparacion", time: "Hace 5 min" },
-    { id: "#ORD-8941", customer: "Lucas Benítez", items: "1x Cheesecake Dulce de Leche, 1x Capuchino", total: 7700, type: "Mesa 4", status: "pendiente", time: "Hace 12 min" },
-    { id: "#ORD-8940", customer: "Martín Gómez", items: "1x Pan Masa Madre, 2x Medialunas", total: 5400, type: "Delivery", status: "listo", time: "Hace 18 min" },
-    { id: "#ORD-8939", customer: "Sofía Rossi", items: "1x Tarta Frutos Rojos", total: 4500, type: "Mesa 2", status: "preparacion", time: "Hace 22 min" },
-    { id: "#ORD-8938", customer: "Diego Fernández", items: "2x Espresso Doble, 2x Scone de Queso", total: 6800, type: "Takeaway", status: "entregado", time: "Hace 35 min" }
+let orders = (window.ADMIN_PEDIDOS && window.ADMIN_PEDIDOS.length) ? window.ADMIN_PEDIDOS : [
+    { id: '#ORD-8942', codigo: 'ORD-8942', customer: 'Camila Torres', items: '2x Flat White, 1x Croissant Almendras', total: 8800, type: 'Takeaway', status: 'en_preparacion', time: 'Hace 5 min' }
 ];
 
 let inventoryItems = [
@@ -266,7 +262,7 @@ function getStatusBadgeHTML(status) {
     switch(status) {
         case 'pendiente':
             return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap"><i class="fa-regular fa-clock text-[10px]"></i> Pendiente</span>`;
-        case 'preparacion':
+        case 'en_preparacion':
             return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 whitespace-nowrap"><i class="fa-solid fa-fire-burner text-[10px]"></i> En preparación</span>`;
         case 'listo':
             return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap"><i class="fa-solid fa-circle-check text-[10px]"></i> Listo</span>`;
@@ -515,6 +511,11 @@ function saveRestock(event) {
     renderDashboardViews();
 }
 
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[2]) : null;
+}
+
 function openOrderDetailModal(orderId) {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
@@ -533,14 +534,36 @@ function closeOrderDetailModal() {
     document.getElementById('orderDetailModal').classList.add('hidden');
 }
 
-function updateOrderStatusFromModal() {
-    if (!currentActiveOrder) return;
+async function updateOrderStatusFromModal() {
+    if (!currentActiveOrder || !window.ADMIN_PEDIDOS_URL) return;
+
     const newStatus = document.getElementById('modalOrderStatusSelect').value;
-    currentActiveOrder.status = newStatus;
-    
-    showToast(`Estado de ${currentActiveOrder.id} cambiado a ${newStatus}`);
-    renderDashboardViews();
-    renderOrdersWorkflow();
+    const url = window.ADMIN_PEDIDOS_URL.replace('__CODIGO__', encodeURIComponent(currentActiveOrder.codigo));
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ estado: newStatus })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.status !== 'ok') {
+            throw new Error(data.mensaje || 'No se pudo actualizar el estado.');
+        }
+
+        currentActiveOrder.status = data.estado.toLowerCase();
+        showToast('Estado actualizado: ' + data.estado_display);
+        renderDashboardViews();
+        renderOrdersWorkflow();
+    } catch (error) {
+        showToast(error.message, 'info');
+        console.error('Error al actualizar estado:', error);
+    }
 }
 
 function renderCategoriesGrid() {
