@@ -15,6 +15,12 @@ def checkout(request):
     if len(carrito.carrito) == 0:
         return redirect('cliente:menu')
 
+    configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
+    modalidad = carrito.obtener_modalidad_entrega()
+    costo_envio = configuracion.costo_envio if modalidad == 'DELIVERY' else 0
+    subtotal = carrito.obtener_precio_total()
+    total = subtotal + costo_envio
+
     if request.method == 'POST':
         form = PedidoForm(request.POST)
 
@@ -45,7 +51,14 @@ def checkout(request):
                 return render(
                     request,
                     'cliente/checkout.html',
-                    {'form': form, 'carrito': carrito}
+                    {
+                        'form': form,
+                        'carrito': carrito,
+                        'subtotal': subtotal,
+                        'costo_envio': costo_envio,
+                        'total': total,
+                        'modalidad_entrega': modalidad,
+                    }
                 )
 
             with transaction.atomic():
@@ -87,7 +100,14 @@ def checkout(request):
     return render(
         request,
         'cliente/checkout.html',
-        {'form': form, 'carrito': carrito}
+        {
+            'form': form,
+            'carrito': carrito,
+            'subtotal': subtotal,
+            'costo_envio': costo_envio,
+            'total': total,
+            'modalidad_entrega': modalidad,
+        }
     )
 
 def consultar_estado_pedido_api(request, codigo):
