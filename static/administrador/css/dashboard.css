@@ -1,0 +1,60 @@
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #fcfaf7;
+    color: #332013;
+}
+
+.font-serif-title {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Glassmorphism elements */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f7f3ed;
+}
+::-webkit-scrollbar-thumb {
+    background: #d4c2ae;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #a67c52;
+}
+
+/* Hover elevation effect */
+.hover-lift {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px -6px rgba(140, 99, 67, 0.12);
+}
+
+/* Animations */
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(14px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: slideUpFade 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Nav Link Active State */
+.nav-item-active {
+    background-color: #8c6343 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(140, 99, 67, 0.22);
+}
+.nav-item-active i, .nav-item-active span {
+    color: #ffffff !important;
+}
