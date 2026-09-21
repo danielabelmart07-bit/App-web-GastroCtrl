@@ -585,15 +585,27 @@ async function buscarEstadoPedido() {
 
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 rounded-xl bg-white border border-cream-200 p-3 space-y-2">
 
-                    <p class="text-[10px] uppercase tracking-wider text-gray-400">
-                        Total
-                    </p>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-coffee-600">Modalidad</span>
+                        <span class="font-semibold text-coffee-900">${escapeHtml(data.modalidad_entrega)}</span>
+                    </div>
 
-                    <p class="text-lg font-bold text-coffee-900">
-                        $${formatearPrecio(data.monto_total)}
-                    </p>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-coffee-600">Subtotal</span>
+                        <span class="font-semibold text-coffee-900">${formatearPrecio(data.subtotal)}</span>
+                    </div>
+
+                    <div class="flex justify-between text-xs">
+                        <span class="text-coffee-600">Envío</span>
+                        <span class="font-semibold text-coffee-900">${data.costo_envio > 0 ? "$" + formatearPrecio(data.costo_envio) : "Gratis"}</span>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2 border-t border-cream-200">
+                        <span class="text-sm font-bold text-coffee-700">Total</span>
+                        <span class="text-lg font-bold text-coffee-900">${formatearPrecio(data.monto_total)}</span>
+                    </div>
 
                 </div>
 
