@@ -580,50 +580,125 @@ function descargarComprobanteUltimoPedido() {
 
 function descargarComprobante(pedido) {
     if (!window.jspdf || !window.jspdf.jsPDF) {
-        alert("No se pudo cargar el generador de comprobantes.");
+        alert('No se pudo cargar el generador de comprobantes.');
         return;
     }
 
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    const coffee = [51, 32, 19];
+    const brown = [140, 99, 67];
+    const cream = [247, 243, 237];
+    const light = [252, 250, 247];
+    const green = [22, 101, 52];
+    const darkGray = [95, 84, 74];
     let y = 22;
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.text("GastroCtrl", 20, y);
-    y += 9;
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text("Comprobante de pedido", 20, y);
-    y += 14;
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("Pedido #" + pedido.codigo, 20, y);
-    y += 7;
-    doc.setFont("helvetica", "normal");
-    doc.text("Estado: " + (pedido.estado || "Pendiente"), 20, y);
-    y += 12;
-    doc.setFont("helvetica", "bold");
-    doc.text("Productos", 20, y);
-    y += 8;
-    doc.setFont("helvetica", "normal");
+    // Encabezado premium
+    doc.setFillColor(...coffee);
+    doc.roundedRect(15, 12, 180, 38, 5, 5, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text('GastroCtrl', 25, 28);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('CAFE & PASTELERIA ARTESANAL', 25, 35);
+    doc.setFontSize(10);
+    doc.text('COMPROBANTE DE PEDIDO', 182, 28, { align: 'right' });
 
-    (pedido.detalles || []).forEach(detalle => {
-        doc.text(String(detalle.producto || "Producto") + " x" + String(detalle.cantidad || 1), 20, y);
-        y += 7;
+    y = 64;
+    doc.setTextColor(...coffee);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Pedido #' + String(pedido.codigo || '---'), 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...darkGray);
+    doc.text('Conserva este codigo para consultar el estado de tu pedido.', 20, y + 7);
+
+    // Estado
+    doc.setFillColor(...cream);
+    doc.roundedRect(140, 56, 50, 20, 4, 4, 'F');
+    doc.setTextColor(...brown);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.text('ESTADO', 165, 63, { align: 'center' });
+    doc.setTextColor(...coffee);
+    doc.setFontSize(10);
+    doc.text(String(pedido.estado || 'Pendiente'), 165, 70, { align: 'center' });
+
+    y = 92;
+    doc.setFillColor(...light);
+    doc.roundedRect(15, y - 8, 180, 18, 3, 3, 'F');
+    doc.setTextColor(...darkGray);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('Gracias por elegir GastroCtrl. Este comprobante resume tu compra.', 20, y + 3);
+
+    y = 123;
+    doc.setTextColor(...coffee);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Detalle de la compra', 20, y);
+    y += 9;
+
+    // Cabecera de tabla
+    doc.setFillColor(...coffee);
+    doc.roundedRect(15, y - 6, 180, 10, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.text('PRODUCTO', 20, y);
+    doc.text('CANT.', 145, y);
+    doc.text('SUBTOTAL', 188, y, { align: 'right' });
+    y += 10;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...coffee);
+
+    (pedido.detalles || []).forEach((detalle, index) => {
+        if (index % 2 === 0) {
+            doc.setFillColor(...light);
+            doc.roundedRect(15, y - 6, 180, 10, 2, 2, 'F');
+        }
+
+        const nombre = String(detalle.producto || 'Producto');
+        const cantidad = String(detalle.cantidad || 1);
+        const subtotal = detalle.subtotal !== undefined ? '$' + formatearPrecio(detalle.subtotal) : '';
+
+        doc.text(nombre.substring(0, 55), 20, y);
+        doc.text(cantidad, 148, y, { align: 'center' });
+        doc.text(subtotal, 188, y, { align: 'right' });
+        y += 10;
+
+        if (y > 265) {
+            doc.addPage();
+            y = 25;
+        }
     });
 
+    // Total destacado
     y += 5;
-    doc.line(20, y, 190, y);
-    y += 10;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text("Total: $" + formatearPrecio(pedido.monto_total || 0), 20, y);
-    y += 15;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text("Conservá este código para consultar el estado de tu pedido.", 20, y);
-    doc.save("comprobante-" + String(pedido.codigo || "pedido") + ".pdf");
+    doc.setFillColor(...brown);
+    doc.roundedRect(115, y, 80, 25, 4, 4, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('TOTAL DEL PEDIDO', 155, y + 8, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.text('$' + formatearPrecio(pedido.monto_total || 0), 155, y + 18, { align: 'center' });
+
+    // Pie
+    doc.setTextColor(...darkGray);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('GastroCtrl | Cafe & Pasteleria Artesanal', 20, 282);
+    doc.text('Gracias por tu compra.', 190, 282, { align: 'right' });
+
+    doc.save('comprobante-' + String(pedido.codigo || 'pedido') + '.pdf');
 }
 
 
