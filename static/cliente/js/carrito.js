@@ -35,9 +35,9 @@ const CARRITO_URLS = window.CARRITO_URLS || {};
 // ELEMENTOS DEL DOM
 // ============================================================
 
-const cartBtn = document.getElementById('cartBtn');
-const cartCount = document.getElementById('cartCount');
-const drawerCarrito = document.getElementById('drawerCarrito');
+let cartBtn;
+let cartCount;
+let drawerCarrito;
 
 
 // ============================================================
@@ -94,9 +94,7 @@ function cerrarCarrito() {
 }
 
 
-if (cartBtn) {
-    cartBtn.addEventListener('click', abrirCarrito);
-}
+
 
 
 // ============================================================
@@ -594,5 +592,16 @@ function escapeHtml(value) {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // El drawer está dentro de base.html, pero se encuentra
+    // después de los scripts. Por eso los elementos se obtienen
+    // cuando el DOM ya está completamente cargado.
+    cartBtn = document.getElementById('cartBtn');
+    cartCount = document.getElementById('cartCount');
+    drawerCarrito = document.getElementById('drawerCarrito');
+
+    if (cartBtn) {
+        cartBtn.addEventListener('click', abrirCarrito);
+    }
+
     cargarCarrito();
 });
