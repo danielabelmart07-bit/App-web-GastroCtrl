@@ -1,3 +1,4 @@
 from django.shortcuts import render
 
-# Create your views here.
+def dashboard(request):
+    return render(request, 'administrador/index.html')              #Vista principal del panel administrativo de GastroCtrl.
