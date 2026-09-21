@@ -71,7 +71,7 @@ def checkout(request):
                         'carrito': carrito,
                         'subtotal': subtotal,
                         'costo_envio': costo_envio,
-                        'total': total,
+                        'total': subtotal + costo_envio,
                         'modalidad_entrega': modalidad,
                     }
                 )
