@@ -11,3 +11,9 @@ urlpatterns = [
         name='actualizar_estado_pedido',
     ),
 ]
+
+    path(
+        'api/configuracion/envio/',
+        views.actualizar_configuracion_envio,
+        name='actualizar_configuracion_envio',
+    ),
