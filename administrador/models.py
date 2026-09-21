@@ -18,3 +18,20 @@ class BitacoraAccion(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} - {self.accion} ({self.fecha_hora.strftime('%d/%m/%Y %H:%M')})"
+
+class ConfiguracionSistema(models.Model):
+    """Configuración general utilizada por la tienda pública."""
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    costo_envio = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=800,
+        verbose_name="Costo de envío delivery ($)"
+    )
+
+    class Meta:
+        verbose_name = "Configuración del Sistema"
+        verbose_name_plural = "Configuración del Sistema"
+
+    def __str__(self):
+        return "Configuración de GastroCtrl"
