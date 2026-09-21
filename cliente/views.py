@@ -1,47 +1,83 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
+from django.db import transaction
 from .models import Categoria, Producto, Pedido, DetallePedido
 from .carrito import Carrito
 from .forms import PedidoForm
 
 def checkout(request):
-    """Procesa la compra guardando el Pedido, transfiere los productos del carrito y descuenta el stock."""
+    """Valida el carrito, crea el pedido y descuenta el stock de forma atómica."""
     carrito = Carrito(request)
+
     if len(carrito.carrito) == 0:
         return redirect('cliente:menu')
 
     if request.method == 'POST':
         form = PedidoForm(request.POST)
+
         if form.is_valid():
-            pedido = form.save(commit=False)
-            pedido.monto_total = carrito.obtener_precio_total()
-            pedido.save()
+            productos_pedido = []
+            total = 0
 
             for item in carrito:
-                producto = get_object_or_404(Producto, id=item['producto_id'])
-                
-                DetallePedido.objects.create(
-                    pedido=pedido,
-                    producto=producto,
-                    precio_unitario=item['precio_decimal'],
-                    cantidad=item['cantidad']
+                producto = get_object_or_404(
+                    Producto,
+                    id=item['producto_id'],
+                    activo=True
                 )
 
-                # Descontar stock del inventario
-                if hasattr(producto, 'inventario'):
-                    producto.inventario.cantidad_disponible = max(
-                        0, producto.inventario.cantidad_disponible - item['cantidad']
-                    )
-                    producto.inventario.save()
+                cantidad = item['cantidad']
 
-            carrito.limpiar()
-            return render(request, 'cliente/pedido_confirmado.html', {'pedido': pedido})
+                if hasattr(producto, 'inventario') and cantidad > producto.inventario.cantidad_disponible:
+                    form.add_error(
+                        None,
+                        f'No hay stock suficiente de "{producto.nombre}". '
+                        f'Disponibles: {producto.inventario.cantidad_disponible}.'
+                    )
+
+                productos_pedido.append((producto, cantidad))
+                total += producto.precio * cantidad
+
+            if form.errors:
+                return render(
+                    request,
+                    'cliente/checkout.html',
+                    {'form': form, 'carrito': carrito}
+                )
+
+            with transaction.atomic():
+                pedido = form.save(commit=False)
+                pedido.monto_total = total
+                pedido.save()
+
+                for producto, cantidad in productos_pedido:
+                    DetallePedido.objects.create(
+                        pedido=pedido,
+                        producto=producto,
+                        precio_unitario=producto.precio,
+                        cantidad=cantidad
+                    )
+
+                    if hasattr(producto, 'inventario'):
+                        producto.inventario.cantidad_disponible -= cantidad
+                        producto.inventario.save(update_fields=['cantidad_disponible'])
+
+                carrito.limpiar()
+
+            return render(
+                request,
+                'cliente/pedido_confirmado.html',
+                {'pedido': pedido}
+            )
     else:
         form = PedidoForm()
 
-    return render(request, 'cliente/checkout.html', {'form': form, 'carrito': carrito})
-
+    return render(
+        request,
+        'cliente/checkout.html',
+        {'form': form, 'carrito': carrito}
+    )
 
 def consultar_estado_pedido_api(request, codigo):
     """Endpoint AJAX que consulta el estado del pedido para la pestaña 'Seguir pedido' del drawer."""
