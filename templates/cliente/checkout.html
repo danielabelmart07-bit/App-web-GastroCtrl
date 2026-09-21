@@ -4,6 +4,42 @@
 
 {% block content %}
 <section class="min-h-[70vh] py-10 sm:py-14">
+    <style>
+        .checkout-field input,
+        .checkout-field textarea,
+        .checkout-field select {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1.5px solid #d6c7b8 !important;
+            border-radius: 0.9rem !important;
+            background: #fffdf9 !important;
+            color: #3f2a1d !important;
+            padding: 0.8rem 0.95rem !important;
+            font-size: 0.875rem !important;
+            line-height: 1.5 !important;
+            outline: none !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        .checkout-field input:hover,
+        .checkout-field textarea:hover,
+        .checkout-field select:hover {
+            border-color: #b99f88 !important;
+        }
+
+        .checkout-field input:focus,
+        .checkout-field textarea:focus,
+        .checkout-field select:focus {
+            border-color: #b45309 !important;
+            background: #ffffff !important;
+            box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.10) !important;
+        }
+
+        .checkout-field textarea {
+            min-height: 138px;
+            resize: vertical;
+        }
+    </style>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-8">
             <p class="text-xs uppercase tracking-[0.2em] text-coffee-500 font-bold">Checkout</p>
@@ -21,41 +57,45 @@
             <div class="lg:col-span-3 bg-white rounded-3xl border border-cream-200 p-5 sm:p-7 shadow-sm">
                 <h2 class="font-serif-title text-xl font-bold text-coffee-900 mb-6">Datos de entrega</h2>
 
-                <form method="post" class="space-y-5">
+                <form method="post" class="space-y-6">
                     {% csrf_token %}
 
-                    <div>
-                        <label for="{{ form.nombre_cliente.id_for_label }}" class="block text-xs font-bold text-coffee-800 mb-2">Nombre completo</label>
-                        {{ form.nombre_cliente }}
-                        {% for error in form.nombre_cliente.errors %}
-                            <p class="text-xs text-red-600 mt-1">{{ error }}</p>
-                        {% endfor %}
-                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-7 gap-y-6 items-start">
+                        <div class="space-y-6">
+                            <div>
+                                <label for="{{ form.nombre_cliente.id_for_label }}" class="block text-xs font-bold text-coffee-800 mb-2">Nombre completo</label>
+                                <div class="checkout-field">{{ form.nombre_cliente }}</div>
+                                {% for error in form.nombre_cliente.errors %}
+                                    <p class="text-xs text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="{{ form.telefono.id_for_label }}" class="block text-xs font-bold text-coffee-800 mb-2">Teléfono / WhatsApp</label>
-                            {{ form.telefono }}
-                            {% for error in form.telefono.errors %}
-                                <p class="text-xs text-red-600 mt-1">{{ error }}</p>
-                            {% endfor %}
+                            <div>
+                                <label for="{{ form.telefono.id_for_label }}" class="block text-xs font-bold text-coffee-800 mb-2">Teléfono / WhatsApp</label>
+                                <div class="checkout-field">{{ form.telefono }}</div>
+                                {% for error in form.telefono.errors %}
+                                    <p class="text-xs text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
                         </div>
 
-                        <div>
-                            <label for="{{ form.direccion.id_for_label }}" class="block text-xs font-bold text-coffee-800 mb-2">Dirección</label>
-                            {{ form.direccion }}
-                            {% for error in form.direccion.errors %}
-                                <p class="text-xs text-red-600 mt-1">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
+                        <div class="space-y-6">
+                            <div>
+                                <label for="{{ form.direccion.id_for_label }}" class="block text-xs font-bold text-coffee-800 mb-2">Dirección</label>
+                                <div class="checkout-field">{{ form.direccion }}</div>
+                                {% for error in form.direccion.errors %}
+                                    <p class="text-xs text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
 
-                    <div>
-                        <label for="{{ form.notas.id_for_label }}" class="block text-xs font-bold text-coffee-800 mb-2">Notas del pedido</label>
-                        {{ form.notas }}
-                        {% for error in form.notas.errors %}
-                            <p class="text-xs text-red-600 mt-1">{{ error }}</p>
-                        {% endfor %}
+                            <div>
+                                <label for="{{ form.notas.id_for_label }}" class="block text-xs font-bold text-coffee-800 mb-2">Notas del pedido</label>
+                                <div class="checkout-field">{{ form.notas }}</div>
+                                {% for error in form.notas.errors %}
+                                    <p class="text-xs text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
 
                     <div class="pt-2 flex flex-col sm:flex-row gap-3">
