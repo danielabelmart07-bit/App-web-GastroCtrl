@@ -27,10 +27,15 @@ def dashboard(request):
         for pedido in pedidos
     ]
 
+    configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
+
     return render(
         request,
         'administrador/index.html',
-        {'pedidos_json': json.dumps(pedidos_data)}
+        {
+            'pedidos_json': json.dumps(pedidos_data),
+            'costo_envio': configuracion.costo_envio,
+        }
     )
 
 
