@@ -83,7 +83,24 @@ class Pedido(models.Model):
     direccion = models.CharField(max_length=255, verbose_name="Dirección de entrega")
     notas = models.TextField(blank=True, null=True, verbose_name="Notas (opcional)")
     
+    MODALIDADES_ENTREGA = (
+        ('RETIRO', 'Retiro en el local'),
+        ('DELIVERY', 'Delivery a domicilio'),
+    )
+
     monto_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Total ($)")
+    modalidad_entrega = models.CharField(
+        max_length=10,
+        choices=MODALIDADES_ENTREGA,
+        default='RETIRO',
+        verbose_name="Modalidad de entrega"
+    )
+    costo_envio = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Costo de envío ($)"
+    )
     estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE', verbose_name="Estado del Pedido")
     creado_en = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
 
