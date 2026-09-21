@@ -206,7 +206,7 @@ function toggleMobileSidebar() {
 function renderDashboardViews() {
     // Actualizar contadores
     const pendingCount = orders.filter(o => o.status === 'pendiente').length;
-    const prepCount = orders.filter(o => o.status === 'preparacion').length;
+    const prepCount = orders.filter(o => o.status === 'en_preparacion').length;
     const readyCount = orders.filter(o => o.status === 'listo').length;
 
     document.getElementById('dashPendingOrders').innerText = pendingCount;
