@@ -464,13 +464,14 @@ function renderInventoryTable() {
                 ${item.stock} ${item.unit}
             </td>
             <td class="py-3 px-3 text-coffee-500 whitespace-nowrap">${item.min} ${item.unit}</td>
-            <td class="py-3 px-3 whitespace-nowrap">
-                ${item.stock <= item.min ? 
-                    `<span class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-full text-[10px] leading-none font-bold bg-rose-50 text-rose-600 border border-rose-200 min-w-[92px]"><i class="fa-solid fa-triangle-exclamation text-[9px]"></i> Poco Stock</span>` : 
-                    `<span class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-full text-[10px] leading-none font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 min-w-[92px]"><i class="fa-solid fa-circle-check text-[9px]"></i> Suficiente</span>`}
+            <td class="py-3 px-3">
+                <span class="inventory-status-badge inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] leading-none font-bold ${item.stock <= item.min ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
+                    <i class="${item.stock <= item.min ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check'} text-[9px] shrink-0"></i>
+                    <span>${item.stock <= item.min ? 'Poco Stock' : 'Suficiente'}</span>
+                </span>
             </td>
-            <td class="py-3 px-3 whitespace-nowrap">
-                <button onclick="openRestockModal(${item.id})" class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap min-w-[104px] px-3 py-1.5 rounded-xl bg-coffee-600 hover:bg-coffee-700 text-white font-bold text-xs leading-none transition-colors shadow-2xs">
+            <td class="py-3 px-3">
+                <button onclick="openRestockModal(${item.id})" class="inventory-restock-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-coffee-600 hover:bg-coffee-700 text-white font-bold text-xs leading-none transition-colors shadow-2xs">
                     <i class="fa-solid fa-plus-circle text-[11px] shrink-0"></i>
                     <span>Reponer</span>
                 </button>
