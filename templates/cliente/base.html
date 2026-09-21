@@ -404,6 +404,7 @@
         agregar: "{% url 'cliente:agregar_al_carrito' 0 %}",
         restar: "{% url 'cliente:restar_del_carrito' 0 %}",
         eliminar: "{% url 'cliente:eliminar_del_carrito' 0 %}",
+        modalidad: "{% url 'cliente:actualizar_modalidad_carrito' %}",
         seguimiento: "{% url 'cliente:api_seguimiento_pedido' '__CODIGO__' %}"
     };
 </script>
@@ -525,6 +526,45 @@
             </div>
 
 
+            <!-- Modalidad de entrega -->
+            <div class="mb-5 p-4 rounded-2xl bg-cream-50 border border-cream-200">
+                <p class="text-xs font-bold text-coffee-900 mb-3">
+                    ¿Cómo querés recibir tu pedido?
+                </p>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button
+                        id="deliveryPickupBtn"
+                        type="button"
+                        onclick="seleccionarModalidadEntrega('RETIRO')"
+                        class="delivery-option-btn rounded-xl border border-coffee-600 bg-white px-3 py-3 text-left transition-all"
+                    >
+                        <span class="flex items-center gap-2 text-xs font-bold text-coffee-900">
+                            <i class="fa-solid fa-store text-coffee-600"></i>
+                            Retirar en el local
+                        </span>
+                        <span class="block text-[10px] text-coffee-600 mt-1">
+                            Sin costo de envío
+                        </span>
+                    </button>
+
+                    <button
+                        id="deliveryHomeBtn"
+                        type="button"
+                        onclick="seleccionarModalidadEntrega('DELIVERY')"
+                        class="delivery-option-btn rounded-xl border border-cream-200 bg-white px-3 py-3 text-left transition-all"
+                    >
+                        <span class="flex items-center gap-2 text-xs font-bold text-coffee-900">
+                            <i class="fa-solid fa-motorcycle text-coffee-600"></i>
+                            Delivery
+                        </span>
+                        <span class="block text-[10px] text-coffee-600 mt-1">
+                            Envío a domicilio
+                        </span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Productos -->
             <div
                 id="cartItems"
@@ -605,19 +645,21 @@
             class="border-t border-cream-200 px-5 py-4 bg-white"
         >
 
-            <div class="flex items-center justify-between mb-4">
+            <div class="space-y-2 mb-4 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-coffee-600">Subtotal</span>
+                    <span id="cartSubtotal" class="font-semibold text-coffee-900">$0</span>
+                </div>
 
-                <span class="text-sm text-coffee-700">
-                    Total
-                </span>
+                <div class="flex items-center justify-between">
+                    <span class="text-coffee-600">Envío</span>
+                    <span id="cartShipping" class="font-semibold text-coffee-900">$0</span>
+                </div>
 
-                <span
-                    id="cartTotal"
-                    class="text-xl font-bold text-coffee-900"
-                >
-                    $0
-                </span>
-
+                <div class="flex items-center justify-between pt-2 border-t border-cream-200">
+                    <span class="text-sm font-bold text-coffee-700">Total</span>
+                    <span id="cartTotal" class="text-xl font-bold text-coffee-900">$0</span>
+                </div>
             </div>
 
             <a
