@@ -2,6 +2,10 @@ from django import forms
 from .models import Pedido
 
 class PedidoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['direccion'].required = False
+
     class Meta:
         model = Pedido
         fields = ['nombre_cliente', 'telefono', 'direccion', 'notas']
