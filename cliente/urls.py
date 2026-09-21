@@ -16,6 +16,7 @@ urlpatterns = [
 
     # API del carrito
     path('api/carrito/', views.estado_carrito_api, name='api_carrito'),
+    path('api/carrito/modalidad/', views.actualizar_modalidad_carrito, name='actualizar_modalidad_carrito'),
 
     # Checkout
     path('checkout/', views.checkout, name='checkout'),
