@@ -569,6 +569,25 @@ async function buscarEstadoPedido() {
 
 
 // ============================================================
+// ACTUALIZACION AUTOMATICA DEL SEGUIMIENTO
+// ============================================================
+
+setInterval(() => {
+    const view = document.getElementById('trackingView');
+    const input = document.getElementById('trackingCode');
+
+    if (
+        view &&
+        !view.classList.contains('hidden') &&
+        input &&
+        input.value.trim()
+    ) {
+        buscarEstadoPedido();
+    }
+}, 10000);
+
+
+// ============================================================
 // DESCARGAR COMPROBANTE
 // ============================================================
 
