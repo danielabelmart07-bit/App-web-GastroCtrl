@@ -8,16 +8,20 @@
         .checkout-field input,
         .checkout-field textarea,
         .checkout-field select {
-            width: 100%;
-            box-sizing: border-box;
+            width: 100% !important;
+            height: 40px !important;
+            min-height: 40px !important;
+            max-height: 40px !important;
+            box-sizing: border-box !important;
             border: 1.5px solid #d6c7b8 !important;
             border-radius: 0.9rem !important;
             background: #fffdf9 !important;
             color: #3f2a1d !important;
-            padding: 0.8rem 0.95rem !important;
+            padding: 0.65rem 0.85rem !important;
             font-size: 0.875rem !important;
-            line-height: 1.5 !important;
+            line-height: 1.35 !important;
             outline: none !important;
+            display: block !important;
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
         }
 
@@ -36,12 +40,6 @@
         }
 
         .checkout-field textarea {
-            width: 100% !important;
-            height: 42px !important;
-            min-height: 42px !important;
-            max-height: 42px !important;
-            box-sizing: border-box !important;
-            padding: 0.8rem 0.95rem !important;
             resize: none !important;
             overflow: hidden !important;
         }
