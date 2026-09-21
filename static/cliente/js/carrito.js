@@ -148,6 +148,8 @@ function actualizarContador(totalUnidades) {
 function renderizarCarrito(data) {
     const container = document.getElementById('cartItems');
     const totalElement = document.getElementById('cartTotal');
+    const subtotalElement = document.getElementById('cartSubtotal');
+    const shippingElement = document.getElementById('cartShipping');
     const emptyElement = document.getElementById('cartEmpty');
     const checkoutBtn = document.getElementById('checkoutBtn');
 
@@ -165,9 +167,10 @@ function renderizarCarrito(data) {
             checkoutBtn.classList.add('hidden');
         }
 
-        if (totalElement) {
-            totalElement.textContent = '$0';
-        }
+        if (subtotalElement) subtotalElement.textContent = '$0';
+        if (shippingElement) shippingElement.textContent = '$0';
+        if (totalElement) totalElement.textContent = '$0';
+        actualizarBotonesModalidad(data.modalidad || 'RETIRO');
 
         return;
     }
@@ -257,10 +260,79 @@ function renderizarCarrito(data) {
         container.appendChild(itemElement);
     });
 
+    if (subtotalElement) {
+        subtotalElement.textContent = `${formatearPrecio(data.subtotal ?? data.precio_total)}`;
+    }
+
+    if (shippingElement) {
+        shippingElement.textContent =
+            data.envio > 0 ? `${formatearPrecio(data.envio)}` : 'Gratis';
+    }
+
     if (totalElement) {
         totalElement.textContent =
-            `$${formatearPrecio(data.precio_total)}`;
+            `${formatearPrecio(data.precio_total)}`;
     }
+
+    actualizarBotonesModalidad(data.modalidad || 'RETIRO');
+}
+
+function actualizarBotonesModalidad(modalidad) {
+    const pickup = document.getElementById('deliveryPickupBtn');
+    const delivery = document.getElementById('deliveryHomeBtn');
+
+    [pickup, delivery].forEach(btn => {
+        if (!btn) return;
+        btn.classList.remove('border-coffee-600', 'bg-cream-100', 'ring-1', 'ring-coffee-500');
+        btn.classList.add('border-cream-200', 'bg-white');
+    });
+
+    const active = modalidad === 'DELIVERY' ? delivery : pickup;
+    if (active) {
+        active.classList.remove('border-cream-200', 'bg-white');
+        active.classList.add('border-coffee-600', 'bg-cream-100', 'ring-1', 'ring-coffee-500');
+    }
+}
+
+async function seleccionarModalidadEntrega(modalidad) {
+    if (!CARRITO_URLS.modalidad) return;
+
+    try {
+        const response = await fetch(CARRITO_URLS.modalidad, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': obtenerCsrfToken(),
+            },
+            body: JSON.stringify({ modalidad }),
+        });
+
+        const data = await response.json();
+
+        if (data.status !== 'ok') {
+            throw new Error(data.mensaje || 'No se pudo actualizar la modalidad.');
+        }
+
+        const subtotalEl = document.getElementById('cartSubtotal');
+        const shippingEl = document.getElementById('cartShipping');
+        const totalEl = document.getElementById('cartTotal');
+
+        if (subtotalEl) subtotalEl.textContent = `${formatearPrecio(data.subtotal)}`;
+        if (shippingEl) shippingEl.textContent = data.envio > 0 ? `${formatearPrecio(data.envio)}` : 'Gratis';
+        if (totalEl) totalEl.textContent = `${formatearPrecio(data.total)}`;
+
+        actualizarBotonesModalidad(modalidad);
+    } catch (error) {
+        console.error('Error al cambiar modalidad:', error);
+    }
+}
+
+function obtenerCsrfToken() {
+    const cookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='));
+
+    return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
 }
 
 
