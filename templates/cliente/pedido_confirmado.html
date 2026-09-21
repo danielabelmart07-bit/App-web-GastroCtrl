@@ -39,9 +39,8 @@
 
             <!-- Mini resumen -->
             <div class="border-t border-cream-200 px-6 sm:px-8 py-6">
-                <div class="flex items-center justify-between mb-4">
+                <div class="mb-4">
                     <h2 class="text-sm font-bold text-coffee-900">Resumen de compra</h2>
-                    <span class="text-xs text-coffee-500">{{ pedido.detalles.all|length }} producto{{ pedido.detalles.all|length|pluralize:"s" }}</span>
                 </div>
 
                 <div class="space-y-3">
@@ -62,11 +61,29 @@
                     {% endfor %}
                 </div>
 
-                <div class="flex items-center justify-between border-t border-cream-200 mt-5 pt-4">
-                    <span class="text-sm font-bold text-coffee-900">Total</span>
-                    <span class="font-serif-title text-xl font-bold text-coffee-900">
-                        $ {{ pedido.monto_total|floatformat:2 }}
-                    </span>
+                <div class="border-t border-cream-200 mt-5 pt-4 space-y-2.5 text-sm">
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-coffee-500">Subtotal</span>
+                        <span class="font-semibold text-coffee-900">$ {{ subtotal|floatformat:2 }}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-coffee-500">Envío</span>
+                        <span class="font-semibold text-coffee-900">
+                            {% if pedido.costo_envio > 0 %}
+                                $ {{ pedido.costo_envio|floatformat:2 }}
+                            {% else %}
+                                Gratis
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 border-t-2 border-coffee-900 pt-3 mt-2">
+                        <span class="font-bold text-coffee-900">Total</span>
+                        <span class="font-serif-title text-xl font-bold text-coffee-900">
+                            $ {{ pedido.monto_total|floatformat:2 }}
+                        </span>
+                    </div>
                 </div>
             </div>
 
