@@ -445,6 +445,8 @@ function mostrarCarrito() {
 // BUSCAR ESTADO DEL PEDIDO
 // ============================================================
 
+let ultimoPedidoConsultado = null;
+
 async function buscarEstadoPedido() {
 
     const input = document.getElementById('trackingCode');
@@ -487,6 +489,8 @@ async function buscarEstadoPedido() {
                 data.mensaje || 'Pedido no encontrado.'
             );
         }
+
+        ultimoPedidoConsultado = data;
 
         result.innerHTML = `
             <div class="rounded-2xl bg-cream-50 border border-cream-200 p-4">
@@ -545,6 +549,11 @@ async function buscarEstadoPedido() {
 
                 </div>
 
+                <button type="button" onclick="descargarComprobanteUltimoPedido()" class="w-full mt-4 py-3 rounded-2xl bg-white border border-cream-300 hover:bg-cream-100 text-coffee-800 text-sm font-bold transition-colors">
+                    <i class="fa-solid fa-file-pdf mr-2"></i>
+                    Descargar comprobante
+                </button>
+
             </div>
         `;
 
@@ -556,6 +565,65 @@ async function buscarEstadoPedido() {
             </div>
         `;
     }
+}
+
+
+// ============================================================
+// DESCARGAR COMPROBANTE
+// ============================================================
+
+function descargarComprobanteUltimoPedido() {
+    if (ultimoPedidoConsultado) {
+        descargarComprobante(ultimoPedidoConsultado);
+    }
+}
+
+function descargarComprobante(pedido) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("No se pudo cargar el generador de comprobantes.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    let y = 22;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("GastroCtrl", 20, y);
+    y += 9;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Comprobante de pedido", 20, y);
+    y += 14;
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Pedido #" + pedido.codigo, 20, y);
+    y += 7;
+    doc.setFont("helvetica", "normal");
+    doc.text("Estado: " + (pedido.estado || "Pendiente"), 20, y);
+    y += 12;
+    doc.setFont("helvetica", "bold");
+    doc.text("Productos", 20, y);
+    y += 8;
+    doc.setFont("helvetica", "normal");
+
+    (pedido.detalles || []).forEach(detalle => {
+        doc.text(String(detalle.producto || "Producto") + " x" + String(detalle.cantidad || 1), 20, y);
+        y += 7;
+    });
+
+    y += 5;
+    doc.line(20, y, 190, y);
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("Total: $" + formatearPrecio(pedido.monto_total || 0), 20, y);
+    y += 15;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("Conservá este código para consultar el estado de tu pedido.", 20, y);
+    doc.save("comprobante-" + String(pedido.codigo || "pedido") + ".pdf");
 }
 
 
