@@ -35,9 +35,9 @@ const CARRITO_URLS = window.CARRITO_URLS || {};
 // ELEMENTOS DEL DOM
 // ============================================================
 
-let cartBtn;
-let cartCount;
-let drawerCarrito;
+let carritoCartBtn;
+let carritoCartCount;
+let carritoDrawer;
 
 
 // ============================================================
@@ -45,13 +45,13 @@ let drawerCarrito;
 // ============================================================
 
 function abrirCarrito() {
-    if (!drawerCarrito) return;
+    if (!carritoDrawer) return;
 
-    drawerCarrito.classList.remove('pointer-events-none');
-    drawerCarrito.setAttribute('aria-hidden', 'false');
+    carritoDrawer.classList.remove('pointer-events-none');
+    carritoDrawer.setAttribute('aria-hidden', 'false');
 
     const overlay = document.getElementById('cartOverlay');
-    const panel = drawerCarrito.querySelector('aside');
+    const panel = carritoDrawer.querySelector('aside');
 
     if (overlay) {
         overlay.classList.remove('opacity-0');
@@ -70,10 +70,10 @@ function abrirCarrito() {
 
 
 function cerrarCarrito() {
-    if (!drawerCarrito) return;
+    if (!carritoDrawer) return;
 
     const overlay = document.getElementById('cartOverlay');
-    const panel = drawerCarrito.querySelector('aside');
+    const panel = carritoDrawer.querySelector('aside');
 
     if (overlay) {
         overlay.classList.remove('opacity-100');
@@ -86,8 +86,8 @@ function cerrarCarrito() {
     }
 
     setTimeout(() => {
-        drawerCarrito.classList.add('pointer-events-none');
-        drawerCarrito.setAttribute('aria-hidden', 'true');
+        carritoDrawer.classList.add('pointer-events-none');
+        carritoDrawer.setAttribute('aria-hidden', 'true');
     }, 300);
 
     document.body.classList.remove('overflow-hidden');
@@ -129,14 +129,14 @@ async function cargarCarrito() {
 // ============================================================
 
 function actualizarContador(totalUnidades) {
-    if (!cartCount) return;
+    if (!carritoCartCount) return;
 
-    cartCount.textContent = totalUnidades;
+    carritoCartCount.textContent = totalUnidades;
 
     if (totalUnidades > 0) {
-        cartCount.classList.remove('hidden');
+        carritoCartCount.classList.remove('hidden');
     } else {
-        cartCount.classList.add('hidden');
+        carritoCartCount.classList.add('hidden');
     }
 }
 
@@ -595,12 +595,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // El drawer está dentro de base.html, pero se encuentra
     // después de los scripts. Por eso los elementos se obtienen
     // cuando el DOM ya está completamente cargado.
-    cartBtn = document.getElementById('cartBtn');
-    cartCount = document.getElementById('cartCount');
-    drawerCarrito = document.getElementById('drawerCarrito');
+    carritoCartBtn = document.getElementById('carritoCartBtn');
+    carritoCartCount = document.getElementById('carritoCartCount');
+    carritoDrawer = document.getElementById('carritoDrawer');
 
-    if (cartBtn) {
-        cartBtn.addEventListener('click', abrirCarrito);
+    if (carritoCartBtn) {
+        carritoCartBtn.addEventListener('click', abrirCarrito);
     }
 
     cargarCarrito();
