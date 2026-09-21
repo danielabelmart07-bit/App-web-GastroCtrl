@@ -36,8 +36,9 @@
         }
 
         .checkout-field textarea {
-            min-height: 138px;
-            resize: vertical;
+            height: 42px;
+            min-height: 42px;
+            resize: none;
         }
     </style>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,7 +99,7 @@
                         </div>
                     </div>
 
-                    <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                    <div class="pt-0 flex flex-col sm:flex-row gap-3">
                         <a href="{% url 'cliente:menu' %}" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-cream-100 hover:bg-cream-200 text-coffee-800 text-sm font-bold text-center transition-colors">
                             Volver al menú
                         </a>
