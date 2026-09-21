@@ -58,3 +58,87 @@ body {
 .nav-item-active i, .nav-item-active span {
     color: #ffffff !important;
 }
+
+
+/* ==========================================================================
+   RESPONSIVE GLOBAL - Mantiene el diseño original del panel
+   ========================================================================== */
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+video,
+svg,
+canvas {
+    max-width: 100%;
+}
+
+@media (max-width: 767px) {
+    #sidebarDrawer {
+        width: min(18rem, 86vw);
+    }
+
+    #pageTitle {
+        font-size: 1.25rem;
+        line-height: 1.2;
+    }
+
+    header {
+        gap: 0.75rem;
+    }
+
+    .overflow-x-auto {
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-content {
+        min-width: 0;
+    }
+
+    #toastNotification {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+    }
+
+    #toastContent {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    #productModal > div,
+    #categoryModal > div,
+    #orderDetailModal > div,
+    #restockModal > div,
+    #logoutModal > div {
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+
+    table {
+        min-width: 620px;
+    }
+}
+
+@media (max-width: 480px) {
+    #pageTitle {
+        font-size: 1.1rem;
+    }
+
+    main > header {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    main > div {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
