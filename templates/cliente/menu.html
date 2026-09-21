@@ -1,0 +1,120 @@
+{% extends 'cliente/base.html' %}
+{% load static %}
+
+{% block title %}GastroCtrl - Menú{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'cliente/css/menu.css' %}">
+{% endblock %}
+
+{% block content %}
+        
+        <!-- Menu hero header -->
+        <section class="relative overflow-hidden py-12 md:py-16 bg-gradient-to-b from-cream-100/70 via-cream-50 to-cream-50 border-b border-cream-200/60">
+            <div class="absolute top-0 right-10 w-72 h-72 rounded-full bg-cream-200/40 blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-64 h-64 rounded-full bg-coffee-500/5 blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-coffee-500/10 border border-coffee-500/20 text-coffee-700 text-xs sm:text-sm font-semibold tracking-wide mb-4">
+                    <i class="fa-solid fa-utensils text-terracotta"></i>
+                    <span>Catálogo Completo Horneado Hoy</span>
+                </div>
+
+                <h1 class="font-serif-title text-4xl sm:text-5xl lg:text-6xl font-bold text-coffee-900 tracking-tight">
+                    Nuestro Menú <span class="text-coffee-600 italic font-normal">Artesanal</span>
+                </h1>
+
+                <p class="text-base sm:text-lg text-coffee-800/80 max-w-2xl mx-auto mt-4 leading-relaxed font-normal">
+                    Explora nuestra variada selección de especialidades horneadas, pastelería fina de autor y café de especialidad recién tostado.
+                </p>
+            </div>
+        </section>
+
+        <!-- Search and filters section -->
+        <section class="py-8 bg-cream-50 sticky top-20 z-30 backdrop-blur-md bg-cream-50/90 border-b border-cream-200/60 shadow-2xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    
+                    <!-- Search input Box -->
+                    <div class="relative w-full lg:w-80 shrink-0">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-coffee-500 text-sm"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar por nombre o ingrediente..." 
+                            class="w-full pl-11 pr-10 py-3 rounded-full bg-white border border-cream-300 text-coffee-900 text-sm focus:outline-none focus:border-coffee-600 focus:ring-1 focus:ring-coffee-600 transition-all shadow-xs placeholder:text-gray-400">
+                        <button id="clearSearchBtn" class="hidden absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-coffee-900 p-1">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Filter Category pill buttons -->
+                    <div class="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 scrollbar-none py-1">
+                        <button class="category-btn filter-btn-active px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-white text-coffee-800 hover:bg-cream-200/60 transition-all border border-cream-200 shrink-0 flex items-center gap-2" data-category="todos">
+                            <i class="fa-solid fa-border-all text-xs"></i>
+                            <span>Todos</span>
+                        </button>
+                        <button class="category-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-white text-coffee-800 hover:bg-cream-200/60 transition-all border border-cream-200 shrink-0 flex items-center gap-2" data-category="panaderia">
+                            <i class="fa-solid fa-wheat-awn text-xs"></i>
+                            <span>Panadería</span>
+                        </button>
+                        <button class="category-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-white text-coffee-800 hover:bg-cream-200/60 transition-all border border-cream-200 shrink-0 flex items-center gap-2" data-category="cafeteria">
+                            <i class="fa-solid fa-mug-hot text-xs"></i>
+                            <span>Cafetería</span>
+                        </button>
+                        <button class="category-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-white text-coffee-800 hover:bg-cream-200/60 transition-all border border-cream-200 shrink-0 flex items-center gap-2" data-category="pasteleria">
+                            <i class="fa-solid fa-cake-candles text-xs"></i>
+                            <span>Pastelería</span>
+                        </button>
+                    </div>
+
+                    <!-- Sort Dropdown selector -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end text-xs text-coffee-700">
+                        <span class="shrink-0 font-medium hidden sm:inline">Ordenar:</span>
+                        <select id="sortSelect" class="w-full sm:w-auto px-4 py-2.5 rounded-full bg-white border border-cream-300 text-coffee-900 text-xs font-semibold focus:outline-none focus:border-coffee-600 shadow-xs cursor-pointer">
+                            <option value="featured">Recomendados</option>
+                            <option value="price-low">Precio: Menor a Mayor</option>
+                            <option value="price-high">Precio: Mayor a Menor</option>
+                            <option value="name-asc">Nombre: A - Z</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Active Filter indicator & Count -->
+                <div class="mt-4 flex items-center justify-between text-xs text-coffee-700/80 pt-3 border-t border-cream-200/50">
+                    <p id="productsCountText">Cargando catálogo...</p>
+                    <button id="resetFiltersBtn" class="hidden text-coffee-600 font-semibold hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-left text-[10px]"></i> Restablecer Filtros
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="py-12 sm:py-16 bg-cream-50 min-h-[500px]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <!-- Dynamic products Grid -->
+                <div id="menuProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                    <!-- Dynamic Rendering Of Menu Cards Via Javascript -->
+                </div>
+
+                <!-- Empty Search Results State -->
+                <div id="emptyState" class="hidden flex flex-col items-center justify-center text-center py-20 bg-white rounded-3xl border border-cream-200 p-8">
+                    <div class="w-16 h-16 rounded-full bg-cream-100 flex items-center justify-center text-coffee-500 text-2xl mb-4">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <h3 class="font-serif-title text-2xl font-bold text-coffee-900">No encontramos ningún producto</h3>
+                    <p class="text-sm text-coffee-700/80 mt-2 max-w-md">No hay resultados para la búsqueda actual. Intenta cambiar las palabras clave o seleccionar otra categoría.</p>
+                    <button onclick="resetAllFilters()" class="mt-6 px-6 py-2.5 rounded-full bg-coffee-600 hover:bg-coffee-700 text-white font-semibold text-xs transition-all shadow-sm">
+                        Ver Todos Los Productos
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'cliente/js/menu.js' %}"></script>
+{% endblock %}
