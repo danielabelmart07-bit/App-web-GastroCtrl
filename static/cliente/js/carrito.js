@@ -595,9 +595,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // El drawer está dentro de base.html, pero se encuentra
     // después de los scripts. Por eso los elementos se obtienen
     // cuando el DOM ya está completamente cargado.
-    carritoCartBtn = document.getElementById('carritoCartBtn');
-    carritoCartCount = document.getElementById('carritoCartCount');
-    carritoDrawer = document.getElementById('carritoDrawer');
+    carritoCartBtn = document.getElementById('cartBtn');
+    carritoCartCount = document.getElementById('cartCount');
+    carritoDrawer = document.getElementById('drawerCarrito');
 
     if (carritoCartBtn) {
         carritoCartBtn.addEventListener('click', abrirCarrito);
