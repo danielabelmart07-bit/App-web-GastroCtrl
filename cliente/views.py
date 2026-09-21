@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+import json
 from django.db.models import Q
 from django.db import transaction
 from .models import Categoria, Producto, Pedido, DetallePedido
+from administrador.models import ConfiguracionSistema
 from .carrito import Carrito
 from .forms import PedidoForm
 
@@ -47,8 +49,16 @@ def checkout(request):
                 )
 
             with transaction.atomic():
+                configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
+                modalidad = carrito.obtener_modalidad_entrega()
+                costo_envio = configuracion.costo_envio if modalidad == 'DELIVERY' else 0
+
                 pedido = form.save(commit=False)
-                pedido.monto_total = total
+                if modalidad == 'RETIRO':
+                    pedido.direccion = 'Retiro en el local'
+                pedido.monto_total = total + costo_envio
+                pedido.modalidad_entrega = modalidad
+                pedido.costo_envio = costo_envio
                 pedido.save()
 
                 for producto, cantidad in productos_pedido:
@@ -64,6 +74,7 @@ def checkout(request):
                         producto.inventario.save(update_fields=['cantidad_disponible'])
 
                 carrito.limpiar()
+            request.session.pop('modalidad_entrega', None)
 
             return render(
                 request,
