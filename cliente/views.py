@@ -25,6 +25,21 @@ def checkout(request):
         form = PedidoForm(request.POST)
 
         if form.is_valid():
+            if modalidad == 'DELIVERY' and not form.cleaned_data.get('direccion'):
+                form.add_error('direccion', 'Ingresá una dirección para recibir el pedido.')
+                return render(
+                    request,
+                    'cliente/checkout.html',
+                    {
+                        'form': form,
+                        'carrito': carrito,
+                        'subtotal': subtotal,
+                        'costo_envio': costo_envio,
+                        'total': total,
+                        'modalidad_entrega': modalidad,
+                    }
+                )
+
             productos_pedido = []
             total = 0
 
