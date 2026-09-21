@@ -284,10 +284,241 @@
         </div>
     </footer>
 
-    <script src="{% static 'cliente/js/inicio.js' %}"></script>
+    <script>
+    window.CARRITO_URLS = {
+        api: "{% url 'cliente:api_carrito' %}",
+        agregar: "{% url 'cliente:agregar_al_carrito' 0 %}",
+        restar: "{% url 'cliente:restar_del_carrito' 0 %}",
+        eliminar: "{% url 'cliente:eliminar_del_carrito' 0 %}",
+        seguimiento: "{% url 'cliente:api_seguimiento_pedido' '__CODIGO__' %}"
+    };
+</script>
 
-    {% block extra_js %}
-    {% endblock %}
+<script src="{% static 'cliente/js/inicio.js' %}"></script>
+<script src="{% static 'cliente/js/carrito.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
+
+    <div
+    id="drawerCarrito"
+    class="fixed inset-0 z-[100] pointer-events-none"
+    aria-hidden="true"
+>
+
+    <!-- Overlay -->
+    <div
+        id="cartOverlay"
+        onclick="cerrarCarrito()"
+        class="absolute inset-0 bg-black/30 backdrop-blur-sm opacity-0 transition-opacity duration-300"
+    ></div>
+
+
+    <!-- Panel -->
+    <aside
+        class="absolute top-0 right-0 h-full w-full sm:max-w-md bg-white shadow-2xl translate-x-full transition-transform duration-300 flex flex-col"
+    >
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-cream-200">
+
+            <div>
+                <h2 class="font-serif-title text-xl font-bold text-coffee-900">
+                    Tu pedido
+                </h2>
+
+                <p class="text-xs text-coffee-700/70 mt-0.5">
+                    Revisá tus productos antes de continuar
+                </p>
+            </div>
+
+            <button
+                type="button"
+                onclick="cerrarCarrito()"
+                class="w-9 h-9 rounded-full bg-cream-100 hover:bg-cream-200 text-coffee-800 transition-colors flex items-center justify-center"
+                aria-label="Cerrar carrito"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <!-- Tabs -->
+        <div class="px-5 pt-4">
+
+            <div class="grid grid-cols-2 gap-2 p-1 rounded-full bg-cream-100">
+
+                <button
+                    id="cartTab"
+                    type="button"
+                    onclick="mostrarCarrito()"
+                    class="bg-coffee-600 text-white rounded-full py-2.5 text-xs font-bold transition-colors"
+                >
+                    <i class="fa-solid fa-bag-shopping mr-1"></i>
+                    Mi Carrito
+                </button>
+
+                <button
+                    id="trackingTab"
+                    type="button"
+                    onclick="mostrarSeguimiento()"
+                    class="text-coffee-700 rounded-full py-2.5 text-xs font-bold hover:bg-white transition-colors"
+                >
+                    <i class="fa-solid fa-location-dot mr-1"></i>
+                    Seguir Pedido
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================================
+             VISTA CARRITO
+        ===================================================== -->
+
+        <div
+            id="cartView"
+            class="flex-1 overflow-y-auto px-5 py-5"
+        >
+
+            <!-- Carrito vacío -->
+            <div
+                id="cartEmpty"
+                class="hidden text-center py-12"
+            >
+
+                <div class="w-16 h-16 mx-auto rounded-full bg-cream-100 flex items-center justify-center text-coffee-500 text-2xl">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+
+                <h3 class="font-serif-title text-xl font-bold text-coffee-900 mt-4">
+                    Tu carrito está vacío
+                </h3>
+
+                <p class="text-sm text-coffee-700/70 mt-2">
+                    Agregá algunos productos de nuestro menú para comenzar.
+                </p>
+
+                <a
+                    href="{% url 'cliente:menu' %}"
+                    onclick="cerrarCarrito()"
+                    class="inline-flex mt-5 px-5 py-2.5 rounded-full bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-bold transition-colors"
+                >
+                    Ver Menú
+                </a>
+
+            </div>
+
+
+            <!-- Productos -->
+            <div
+                id="cartItems"
+                class="space-y-3"
+            ></div>
+
+        </div>
+
+
+        <!-- ====================================================
+             VISTA SEGUIMIENTO
+        ===================================================== -->
+
+        <div
+            id="trackingView"
+            class="hidden flex-1 overflow-y-auto px-5 py-5"
+        >
+
+            <div class="text-center mb-6">
+
+                <div class="w-14 h-14 mx-auto rounded-full bg-cream-100 flex items-center justify-center text-coffee-600 text-xl">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+
+                <h3 class="font-serif-title text-xl font-bold text-coffee-900 mt-4">
+                    Seguí tu pedido
+                </h3>
+
+                <p class="text-sm text-coffee-700/70 mt-2">
+                    Ingresá el código de seguimiento que recibiste al realizar tu pedido.
+                </p>
+
+            </div>
+
+
+            <div class="space-y-3">
+
+                <label
+                    for="trackingCode"
+                    class="block text-xs font-bold text-coffee-800"
+                >
+                    Código de seguimiento
+                </label>
+
+                <input
+                    id="trackingCode"
+                    type="text"
+                    placeholder="Ej: GH-7EA778"
+                    class="w-full px-4 py-3 rounded-2xl bg-white border border-cream-300 text-coffee-900 text-sm focus:outline-none focus:border-coffee-600 focus:ring-1 focus:ring-coffee-600"
+                >
+
+                <button
+                    type="button"
+                    onclick="buscarEstadoPedido()"
+                    class="w-full py-3 rounded-2xl bg-coffee-600 hover:bg-coffee-700 text-white text-sm font-bold transition-colors"
+                >
+                    <i class="fa-solid fa-magnifying-glass mr-2"></i>
+                    Consultar pedido
+                </button>
+
+            </div>
+
+
+            <div
+                id="trackingResult"
+                class="mt-5"
+            ></div>
+
+        </div>
+
+
+        <!-- ====================================================
+             FOOTER DEL CARRITO
+        ===================================================== -->
+
+        <div
+            id="cartFooter"
+            class="border-t border-cream-200 px-5 py-4 bg-white"
+        >
+
+            <div class="flex items-center justify-between mb-4">
+
+                <span class="text-sm text-coffee-700">
+                    Total
+                </span>
+
+                <span
+                    id="cartTotal"
+                    class="text-xl font-bold text-coffee-900"
+                >
+                    $0
+                </span>
+
+            </div>
+
+            <a
+                id="checkoutBtn"
+                href="{% url 'cliente:checkout' %}"
+                class="block w-full text-center py-3 rounded-2xl bg-coffee-600 hover:bg-coffee-700 text-white text-sm font-bold transition-colors"
+            >
+                Proceder al Checkout
+            </a>
+
+        </div>
+
+    </aside>
+
+</div>
 
 </body>
 </html>

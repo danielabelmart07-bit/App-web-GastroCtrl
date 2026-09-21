@@ -161,12 +161,7 @@ menuProductsGrid.innerHTML = filtered.map(item => `
 
                 <button
                     type="button"
-                    onclick="addToCart(
-                        ${item.id},
-                        '${escapeJsString(item.name)}',
-                        ${item.price},
-                        '${escapeJsString(item.image)}'
-                    )"
+                    onclick="agregarProductoAlCarrito(${item.id})"
                     class="px-4 py-2.5 rounded-full bg-cream-100 hover:bg-coffee-600 text-coffee-900 hover:text-white text-xs font-bold transition-all duration-200 flex items-center gap-2 group/btn"
                 >
 

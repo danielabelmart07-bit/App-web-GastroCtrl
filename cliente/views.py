@@ -1,8 +1,63 @@
-import json
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from .models import Producto
-from .carrito import Carrito
+from django.db.models import Q
+from .models import Categoria, Producto, Pedido, DetallePedido
+
+def checkout(request):
+    """Procesa la compra guardando el Pedido, transfiere los productos del carrito y descuenta el stock."""
+    carrito = Carrito(request)
+    if len(carrito.carrito) == 0:
+        return redirect('cliente:menu')
+
+    if request.method == 'POST':
+        form = PedidoForm(request.POST)
+        if form.is_valid():
+            pedido = form.save(commit=False)
+            pedido.monto_total = carrito.obtener_precio_total()
+            pedido.save()
+
+            for item in carrito:
+                producto = get_object_or_404(Producto, id=item['producto_id'])
+                
+                DetallePedido.objects.create(
+                    pedido=pedido,
+                    producto=producto,
+                    precio_unitario=item['precio_decimal'],
+                    cantidad=item['cantidad']
+                )
+
+                # Descontar stock del inventario
+                if hasattr(producto, 'inventario'):
+                    producto.inventario.cantidad_disponible = max(
+                        0, producto.inventario.cantidad_disponible - item['cantidad']
+                    )
+                    producto.inventario.save()
+
+            carrito.limpiar()
+            return render(request, 'cliente/pedido_confirmado.html', {'pedido': pedido})
+    else:
+        form = PedidoForm()
+
+    return render(request, 'cliente/checkout.html', {'form': form, 'carrito': carrito})
+
+
+def consultar_estado_pedido_api(request, codigo):
+    """Endpoint AJAX que consulta el estado del pedido para la pestaña 'Seguir pedido' del drawer."""
+    try:
+        pedido = Pedido.objects.get(codigo_seguimiento__iexact=codigo.strip())
+        detalles = [
+            {'producto': d.producto.nombre if d.producto else 'Producto', 'cantidad': d.cantidad}
+            for d in pedido.detalles.all()
+        ]
+        return JsonResponse({
+            'status': 'ok',
+            'codigo': pedido.codigo_seguimiento,
+            'estado': pedido.get_estado_display(),
+            'monto_total': float(pedido.monto_total),
+            'detalles': detalles
+        })
+    except Pedido.DoesNotExist:
+        return JsonResponse({'status': 'error', 'mensaje': 'Código de pedido no encontrado.'}, status=404)
 
 def agregar_al_carrito(request, producto_id):
     """
@@ -62,6 +117,28 @@ def ver_carrito(request):
     """
     carrito = Carrito(request)
     return render(request, 'cliente/carrito_detalle.html', {'carrito': carrito})
+
+def estado_carrito_api(request):
+    carrito = Carrito(request)
+
+    items = []
+
+    for item in carrito:
+        items.append({
+            'producto_id': item['producto_id'],
+            'nombre': item['nombre'],
+            'precio': float(item['precio_decimal']),
+            'cantidad': item['cantidad'],
+            'imagen': item['imagen'],
+            'subtotal': float(item['subtotal']),
+        })
+
+    return JsonResponse({
+        'status': 'ok',
+        'items': items,
+        'total_unidades': carrito.obtener_total_unidades(),
+        'precio_total': float(carrito.obtener_precio_total()),
+    })
 
 def home(request):
     productos_destacados = Producto.objects.filter(
