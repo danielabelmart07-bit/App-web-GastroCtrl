@@ -102,6 +102,9 @@ def consultar_estado_pedido_api(request, codigo):
             'status': 'ok',
             'codigo': pedido.codigo_seguimiento,
             'estado': pedido.get_estado_display(),
+            'modalidad_entrega': pedido.get_modalidad_entrega_display(),
+            'costo_envio': float(pedido.costo_envio),
+            'subtotal': float(pedido.monto_total - pedido.costo_envio),
             'monto_total': float(pedido.monto_total),
             'detalles': detalles
         })
@@ -235,3 +238,31 @@ def menu(request):
     }
 
     return render(request, 'cliente/menu.html', contexto)
+
+def actualizar_modalidad_carrito(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido.'}, status=405)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'mensaje': 'Solicitud inválida.'}, status=400)
+
+    modalidad = data.get('modalidad')
+    if modalidad not in ('RETIRO', 'DELIVERY'):
+        return JsonResponse({'status': 'error', 'mensaje': 'Modalidad inválida.'}, status=400)
+
+    carrito = Carrito(request)
+    carrito.establecer_modalidad_entrega(modalidad)
+
+    configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
+    subtotal = carrito.obtener_precio_total()
+    envio = configuracion.costo_envio if modalidad == 'DELIVERY' else 0
+
+    return JsonResponse({
+        'status': 'ok',
+        'modalidad': modalidad,
+        'subtotal': float(subtotal),
+        'envio': float(envio),
+        'total': float(subtotal + envio),
+    })
