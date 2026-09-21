@@ -458,20 +458,22 @@ function renderInventoryTable() {
 
     tbody.innerHTML = filtered.map(item => `
         <tr class="hover:bg-cream-50/80 transition-colors">
-            <td class="py-3 px-3 font-bold text-coffee-900">${item.name}</td>
-            <td class="py-3 px-3 text-coffee-600">${item.category}</td>
-            <td class="py-3 px-3 font-bold ${item.stock <= item.min ? 'text-rose-600' : 'text-coffee-900'}">
+            <td class="py-3 px-3 font-bold text-coffee-900 whitespace-nowrap">${item.name}</td>
+            <td class="py-3 px-3 text-coffee-600 whitespace-nowrap">${item.category}</td>
+            <td class="py-3 px-3 font-bold whitespace-nowrap ${item.stock <= item.min ? 'text-rose-600' : 'text-coffee-900'}">
                 ${item.stock} ${item.unit}
             </td>
-            <td class="py-3 px-3 text-coffee-500">${item.min} ${item.unit}</td>
+            <td class="py-3 px-3 text-coffee-500 whitespace-nowrap">${item.min} ${item.unit}</td>
             <td class="py-3 px-3">
-                ${item.stock <= item.min ? 
-                    `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200">Poco Stock</span>` : 
-                    `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Suficiente</span>`}
+                <span class="inventory-status-badge inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] leading-none font-bold ${item.stock <= item.min ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
+                    <i class="${item.stock <= item.min ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check'} text-[9px] shrink-0"></i>
+                    <span>${item.stock <= item.min ? 'Poco Stock' : 'Suficiente'}</span>
+                </span>
             </td>
             <td class="py-3 px-3">
-                <button onclick="openRestockModal(${item.id})" class="px-3 py-1.5 rounded-xl bg-coffee-600 hover:bg-coffee-700 text-white font-bold text-xs transition-colors shadow-2xs inline-flex items-center gap-1">
-                    <i class="fa-solid fa-plus-circle"></i> Reponer
+                <button onclick="openRestockModal(${item.id})" class="inventory-restock-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-coffee-600 hover:bg-coffee-700 text-white font-bold text-xs leading-none transition-colors shadow-2xs">
+                    <i class="fa-solid fa-plus-circle text-[11px] shrink-0"></i>
+                    <span>Reponer</span>
                 </button>
             </td>
         </tr>

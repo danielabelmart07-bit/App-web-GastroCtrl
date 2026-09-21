@@ -142,3 +142,33 @@ canvas {
         padding-right: 1rem;
     }
 }
+
+/* Inventory table controls - responsive */
+.inventory-status-badge,
+.inventory-restock-btn {
+    white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+    #section-inventory .overflow-x-auto {
+        border-radius: 0.75rem;
+    }
+
+    #section-inventory table {
+        min-width: 650px;
+    }
+
+    #section-inventory th,
+    #section-inventory td {
+        padding-left: 0.65rem;
+        padding-right: 0.65rem;
+    }
+
+    #section-inventory .inventory-status-badge {
+        min-width: 92px;
+    }
+
+    #section-inventory .inventory-restock-btn {
+        min-width: 96px;
+    }
+}
