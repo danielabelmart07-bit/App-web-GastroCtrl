@@ -207,11 +207,19 @@ def estado_carrito_api(request):
             'subtotal': float(item['subtotal']),
         })
 
+    configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
+    modalidad = carrito.obtener_modalidad_entrega()
+    subtotal = carrito.obtener_precio_total()
+    envio = configuracion.costo_envio if modalidad == 'DELIVERY' else 0
+
     return JsonResponse({
         'status': 'ok',
         'items': items,
         'total_unidades': carrito.obtener_total_unidades(),
-        'precio_total': float(carrito.obtener_precio_total()),
+        'modalidad': modalidad,
+        'subtotal': float(subtotal),
+        'envio': float(envio),
+        'precio_total': float(subtotal + envio),
     })
 
 def home(request):
