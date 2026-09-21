@@ -36,9 +36,20 @@
         }
 
         .checkout-field textarea {
-            height: 42px;
-            min-height: 42px;
-            resize: none;
+            height: 42px !important;
+            min-height: 42px !important;
+            max-height: 42px !important;
+            resize: none !important;
+            overflow: hidden !important;
+        }
+
+        .checkout-form-card {
+            height: fit-content;
+            align-self: start;
+        }
+
+        .checkout-actions {
+            margin-top: 1.5rem;
         }
     </style>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,7 +66,7 @@
         {% endif %}
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div class="lg:col-span-3 bg-white rounded-3xl border border-cream-200 p-5 sm:p-7 shadow-sm">
+            <div class="checkout-form-card lg:col-span-3 bg-white rounded-3xl border border-cream-200 p-5 sm:p-7 shadow-sm">
                 <h2 class="font-serif-title text-xl font-bold text-coffee-900 mb-6">Datos de entrega</h2>
 
                 <form method="post" class="space-y-6">
@@ -99,7 +110,7 @@
                         </div>
                     </div>
 
-                    <div class="pt-0 flex flex-col sm:flex-row gap-3">
+                    <div class="checkout-actions flex flex-col sm:flex-row gap-3">
                         <a href="{% url 'cliente:menu' %}" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-cream-100 hover:bg-cream-200 text-coffee-800 text-sm font-bold text-center transition-colors">
                             Volver al menú
                         </a>
