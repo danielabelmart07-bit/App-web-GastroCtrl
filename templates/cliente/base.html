@@ -87,7 +87,7 @@
                 <nav class="hidden md:flex items-center justify-center space-x-8 text-sm font-medium text-coffee-800">
                     <a href="{% url 'cliente:home' %}" class="hover:text-coffee-500 transition-colors">Inicio</a>
                     <a href="{% url 'cliente:menu' %}" class="hover:text-coffee-500 transition-colors">Menú</a>
-                    <a href="#destacados" class="hover:text-coffee-500 transition-colors">Destacados</a>
+                    <a href="{% url 'cliente:home' %}#destacados" class="hover:text-coffee-500 transition-colors">Destacados</a>
                     <a href="#contacto" class="hover:text-coffee-500 transition-colors">Contacto</a>
                 </nav>
 
@@ -158,7 +158,7 @@
             <div id="mobileMenu" class="hidden md:hidden border-t border-cream-200 py-4 px-2 space-y-3 bg-cream-50/80 rounded-b-2xl mb-2">
                 <a href="{% url 'cliente:home' %}" class="block px-4 py-2 text-coffee-800 hover:bg-cream-200/50 rounded-xl font-medium">Inicio</a>
                 <a href="{% url 'cliente:menu' %}" class="block px-4 py-2 text-coffee-800 hover:bg-cream-200/50 rounded-xl font-medium">Menú</a>
-                <a href="#destacados" class="block px-4 py-2 text-coffee-800 hover:bg-cream-200/50 rounded-xl font-medium">Destacados</a>
+                <a href="{% url 'cliente:home' %}#destacados" class="block px-4 py-2 text-coffee-800 hover:bg-cream-200/50 rounded-xl font-medium">Destacados</a>
                 <a href="#contacto" class="block px-4 py-2 text-coffee-800 hover:bg-cream-200/50 rounded-xl font-medium">Contacto</a>
             </div>
         </div>
