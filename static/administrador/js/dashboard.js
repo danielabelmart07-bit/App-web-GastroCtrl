@@ -652,7 +652,7 @@ function renderCustomersTable() {
             <td class="py-3 px-3 text-coffee-600">${c.email} <br> <span class="text-[10px]">${c.phone}</span></td>
             <td class="py-3 px-3 font-bold">${c.ordersCount} pedidos</td>
             <td class="py-3 px-3 font-bold text-coffee-900">$${c.spent.toLocaleString()}</td>
-            <td class="py-3 px-3 text-right">
+            <td class="py-3 px-3">
                 <button onclick="showToast('Mensaje enviado a ${c.name}', 'info')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-xs transition-colors border border-emerald-200 inline-flex items-center gap-1">
                     <i class="fa-brands fa-whatsapp text-xs"></i> Contactar
                 </button>
