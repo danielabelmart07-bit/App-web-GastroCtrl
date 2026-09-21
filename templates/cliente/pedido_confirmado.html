@@ -1,0 +1,109 @@
+{% extends 'cliente/base.html' %}
+
+{% block title %}Pedido confirmado | GastroCtrl{% endblock %}
+
+{% block content %}
+<section class="min-h-[70vh] py-10 sm:py-16">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6">
+        <div class="bg-white rounded-3xl border border-cream-200 shadow-sm p-6 sm:p-10 text-center">
+            <div class="w-16 h-16 mx-auto rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+
+            <p class="text-xs uppercase tracking-[0.2em] text-coffee-500 font-bold mt-6">Compra realizada</p>
+            <h1 class="font-serif-title text-3xl sm:text-4xl font-bold text-coffee-900 mt-2">¡Pedido confirmado!</h1>
+            <p class="text-sm text-coffee-700/70 mt-3">
+                Guardá tu código de seguimiento para consultar el estado de tu pedido.
+            </p>
+
+            <div class="mt-7 rounded-2xl bg-cream-50 border border-cream-200 p-5">
+                <p class="text-[10px] uppercase tracking-wider text-coffee-500 font-bold">Código de seguimiento</p>
+                <p class="font-serif-title text-3xl font-bold text-coffee-900 mt-1">#{{ pedido.codigo_seguimiento }}</p>
+                <p class="text-sm text-coffee-700 mt-3">Estado: <strong>{{ pedido.get_estado_display }}</strong></p>
+                <p class="text-lg font-bold text-coffee-900 mt-1">$ {{ pedido.monto_total|floatformat:2 }}</p>
+            </div>
+
+            <div class="mt-6 text-left rounded-2xl border border-cream-200 p-5">
+                <h2 class="font-serif-title text-lg font-bold text-coffee-900 mb-4">Detalle</h2>
+
+                <div class="space-y-3">
+                    {% for detalle in pedido.detalles.all %}
+                        <div class="flex items-center justify-between gap-4 text-sm">
+                            <span class="text-coffee-800">{{ detalle.producto.nombre|default:"Producto" }} × {{ detalle.cantidad }}</span>
+                            <span class="font-bold text-coffee-900">$ {{ detalle.subtotal|floatformat:2 }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-7 flex flex-col sm:flex-row gap-3">
+                <button
+                    type="button"
+                    onclick="descargarComprobantePedido()"
+                    class="flex-1 px-5 py-3 rounded-2xl bg-coffee-600 hover:bg-coffee-700 text-white text-sm font-bold transition-colors"
+                >
+                    <i class="fa-solid fa-file-pdf mr-2"></i>
+                    Descargar comprobante
+                </button>
+
+                <button
+                    type="button"
+                    onclick="abrirSeguimientoDesdeConfirmacion()"
+                    class="flex-1 px-5 py-3 rounded-2xl bg-cream-100 hover:bg-cream-200 text-coffee-800 text-sm font-bold transition-colors"
+                >
+                    <i class="fa-solid fa-location-dot mr-2"></i>
+                    Seguir pedido
+                </button>
+            </div>
+
+            <a href="{% url 'cliente:menu' %}" class="inline-block mt-5 text-sm font-semibold text-coffee-600 hover:text-coffee-900">
+                Volver al menú
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+window.PEDIDO_CONFIRMADO = {
+    codigo: "{{ pedido.codigo_seguimiento|escapejs }}",
+    estado: "{{ pedido.get_estado_display|escapejs }}",
+    monto_total: "{{ pedido.monto_total }}",
+    cliente: "{{ pedido.nombre_cliente|escapejs }}",
+    detalles: [
+        {% for detalle in pedido.detalles.all %}
+        {
+            producto: "{{ detalle.producto.nombre|default:'Producto'|escapejs }}",
+            cantidad: {{ detalle.cantidad }},
+            subtotal: "{{ detalle.subtotal }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+};
+
+function descargarComprobantePedido() {
+    if (typeof descargarComprobante === 'function') {
+        descargarComprobante(window.PEDIDO_CONFIRMADO);
+    }
+}
+
+function abrirSeguimientoDesdeConfirmacion() {
+    const cartButton = document.getElementById('cartBtn');
+
+    if (cartButton) {
+        cartButton.click();
+
+        setTimeout(() => {
+            if (typeof mostrarSeguimiento === 'function') {
+                mostrarSeguimiento();
+
+                const input = document.getElementById('trackingCode');
+                if (input) {
+                    input.value = window.PEDIDO_CONFIRMADO.codigo;
+                    buscarEstadoPedido();
+                }
+            }
+        }, 350);
+    }
+}
+</script>
+{% endblock %}
