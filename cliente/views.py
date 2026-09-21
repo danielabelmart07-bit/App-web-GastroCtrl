@@ -87,13 +87,15 @@ def consultar_estado_pedido_api(request, codigo):
             {'producto': d.producto.nombre if d.producto else 'Producto', 'cantidad': d.cantidad}
             for d in pedido.detalles.all()
         ]
-        return JsonResponse({
+        response = JsonResponse({
             'status': 'ok',
             'codigo': pedido.codigo_seguimiento,
             'estado': pedido.get_estado_display(),
             'monto_total': float(pedido.monto_total),
             'detalles': detalles
         })
+        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return response
     except Pedido.DoesNotExist:
         return JsonResponse({'status': 'error', 'mensaje': 'Código de pedido no encontrado.'}, status=404)
 
