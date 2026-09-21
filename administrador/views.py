@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
 from cliente.models import Pedido
+from .models import ConfiguracionSistema
 
 
 def dashboard(request):
@@ -64,4 +65,24 @@ def actualizar_estado_pedido(request, codigo):
         'codigo': pedido.codigo_seguimiento,
         'estado': pedido.estado,
         'estado_display': pedido.get_estado_display(),
+    })
+
+
+@require_POST
+def actualizar_configuracion_envio(request):
+    try:
+        data = json.loads(request.body or '{}')
+        costo = float(data.get('costo_envio', 800))
+        if costo < 0:
+            raise ValueError
+    except (json.JSONDecodeError, TypeError, ValueError):
+        return JsonResponse({'status': 'error', 'mensaje': 'Costo de envío inválido.'}, status=400)
+
+    configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
+    configuracion.costo_envio = costo
+    configuracion.save(update_fields=['costo_envio'])
+
+    return JsonResponse({
+        'status': 'ok',
+        'costo_envio': float(configuracion.costo_envio),
     })
