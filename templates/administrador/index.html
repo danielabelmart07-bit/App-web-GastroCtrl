@@ -831,6 +831,7 @@
     <script>
         window.ADMIN_PEDIDOS = {{ pedidos_json|safe }};
         window.ADMIN_PEDIDOS_URL = "{% url 'administrador:actualizar_estado_pedido' '__CODIGO__' %}";
+        window.ADMIN_PRODUCTOS = {{ productos_data|safe }};
     </script>
     <script src="{% static 'administrador/js/dashboard.js' %}"></script>
 </body>

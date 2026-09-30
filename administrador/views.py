@@ -4,12 +4,26 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
-from cliente.models import Pedido
+from cliente.models import Pedido, Producto
 from .models import ConfiguracionSistema
 
 
 def dashboard(request):
     pedidos = Pedido.objects.prefetch_related('detalles__producto').all()
+
+    productos = Producto.objects.select_related('categoria').all()
+
+    productos_data = [
+        {
+            'id': producto.id,
+            'name': producto.nombre,
+            'category': producto.categoria.slug,
+            'price': float(producto.precio),
+            'status': 'active' if producto.activo else 'inactive',
+            'image': producto.imagen.url if producto.imagen else '',
+        }
+        for producto in productos
+    ]
 
     pedidos_data = [
         {
@@ -34,6 +48,7 @@ def dashboard(request):
         'administrador/index.html',
         {
             'pedidos_json': json.dumps(pedidos_data),
+            'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,
         }
     )

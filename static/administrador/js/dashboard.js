@@ -1,4 +1,5 @@
-// Configuración Personalizada de Tailwind CSS
+console.log("PRODUCTOS DESDE DJANGO:", window.ADMIN_PRODUCTOS);
+
 tailwind.config = {
     theme: {
         extend: {
@@ -30,13 +31,7 @@ tailwind.config = {
 };
 
 // Estructuras de Datos / Estado de la App
-let products = [
-    { id: 1, name: "Croissant de Almendras", category: "pasteleria", price: 3200, stock: 12, status: "active", image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80&w=200" },
-    { id: 2, name: "Café Flat White 8oz", category: "cafeteria", price: 2800, stock: 45, status: "active", image: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?auto=format&fit=crop&q=80&w=200" },
-    { id: 3, name: "Tarta de Frutos Rojos", category: "pasteleria", price: 4500, stock: 3, status: "active", image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&q=80&w=200" },
-    { id: 4, name: "Pan de Masa Madre", category: "panaderia", price: 3800, stock: 2, status: "active", image: "https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?auto=format&fit=crop&q=80&w=200" },
-    { id: 5, name: "Cheesecake Dulce de Leche", category: "pasteleria", price: 4900, stock: 8, status: "active", image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&q=80&w=200" }
-];
+let products = window.ADMIN_PRODUCTOS;
 
 let categories = [
     { id: 1, name: "Pastelería", slug: "pasteleria", icon: "fa-cake-candles", count: 18, desc: "Tortas, tartas y alfajores artesanales" },
