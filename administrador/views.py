@@ -1,15 +1,19 @@
 import json
 
-from django.http import JsonResponse
+from django.http import JsonResponse, request
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
-
-from cliente.models import Pedido, Producto
+from cliente.models import Categoria, Pedido, Producto
 from .models import ConfiguracionSistema
+from django.db import transaction
+from .forms import ProductoForm
+from cliente.models import Inventario, Producto
 
 
 def dashboard(request):
     pedidos = Pedido.objects.prefetch_related('detalles__producto').all()
+
+    categorias = Categoria.objects.all()
 
     productos = Producto.objects.select_related('categoria').all()
 
@@ -18,7 +22,9 @@ def dashboard(request):
             'id': producto.id,
             'name': producto.nombre,
             'category': producto.categoria.slug,
+            'category_id': producto.categoria_id,
             'price': float(producto.precio),
+            'stock': producto.inventario.cantidad_disponible,
             'status': 'active' if producto.activo else 'inactive',
             'image': producto.imagen.url if producto.imagen else '',
         }
@@ -50,6 +56,7 @@ def dashboard(request):
             'pedidos_json': json.dumps(pedidos_data),
             'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,
+            'categorias': categorias,
         }
     )
 
@@ -105,4 +112,142 @@ def actualizar_configuracion_envio(request):
     return JsonResponse({
         'status': 'ok',
         'costo_envio': float(configuracion.costo_envio),
+    })
+
+@require_POST
+def crear_producto(request):
+    form = ProductoForm(request.POST, request.FILES)
+
+    if not form.is_valid():
+        return JsonResponse({
+            "status": "error",
+            "details": form.errors.get_json_data()
+        }, status=400)
+
+    try:
+        stock = int(request.POST.get("stock", 0))
+        if stock < 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        return JsonResponse({
+        "status": "error",
+        "mensaje": "El stock debe ser un entero igual o mayor que cero."
+    }, status=400)
+
+    try:
+        with transaction.atomic():
+            producto = form.save()
+
+            stock = int(request.POST.get("stock", 0))
+
+            if stock < 0:
+                return JsonResponse({
+                    "status": "error",
+                    "mensaje": "El stock no puede ser negativo."
+                }, status=400)
+
+            Inventario.objects.create(
+                producto=producto,
+                cantidad_disponible=stock
+            )
+
+    except (ValueError, TypeError):
+        return JsonResponse({
+            "status": "error",
+            "mensaje": "El stock debe ser un número entero válido."
+        }, status=400)
+
+    return JsonResponse({
+        "status": "ok",
+        "producto": {
+            "id": producto.id,
+            "nombre": producto.nombre,
+            "precio": float(producto.precio),
+            "stock": stock
+        }
+    })
+
+@require_POST
+def editar_producto(request):
+    producto_id = request.POST.get("id")
+
+    try:
+        producto_id = int(producto_id)
+    except (TypeError, ValueError):
+        return JsonResponse({
+            "status": "error",
+            "mensaje": "El identificador del producto no es valido"
+        }, status=400)
+
+    producto = get_object_or_404(Producto, pk=producto_id)
+
+    stock = None
+
+    if "stock" in request.POST:
+        try:
+            stock = int(request.POST.get("stock"))
+
+            if stock < 0:
+                raise ValueError
+
+        except (TypeError, ValueError):
+            return JsonResponse({
+                "status": "error",
+                "mensaje": "El stock debe ser un número entero igual o mayor que cero."
+            }, status=400)
+
+    form = ProductoForm(
+        request.POST,
+        request.FILES,
+        instance=producto
+    )
+
+    if not form.is_valid():
+        return JsonResponse({
+            "status": "error",
+            "details": form.errors.get_json_data()
+        }, status=400)
+
+    with transaction.atomic():
+        producto = form.save()
+
+        if stock is not None:
+            inventario, creado = Inventario.objects.get_or_create(
+                producto=producto,
+                defaults={'cantidad_disponible': stock}
+            )
+
+            if not creado:
+                inventario.cantidad_disponible = stock
+                inventario.save(update_fields=['cantidad_disponible'])
+
+    return JsonResponse({
+        "status": "ok",
+        "producto": {
+            "id": producto.id,
+            "nombre": producto.nombre,
+            "precio": float(producto.precio),
+            "stock": stock
+            }
+    })
+
+@require_POST
+def eliminar_producto(request):
+    producto_id = request.POST.get("id")
+
+    try:
+        producto_id = int(producto_id)
+    except (TypeError, ValueError):
+        return JsonResponse({
+            "status": "error",
+            "mensaje": "El identificador del producto no es valido"
+        }, status=400)
+
+    producto = get_object_or_404(Producto, pk=producto_id)
+
+    producto.delete()
+
+    return JsonResponse({
+        "status": "ok",
+        "mensaje": f"Producto '{producto.nombre}' eliminado correctamente."
     })

@@ -388,11 +388,11 @@ function openProductModal(productId = null) {
             document.getElementById('productModalTitle').innerText = "Editar Producto";
             document.getElementById('modalProductId').value = prod.id;
             document.getElementById('modalProdName').value = prod.name;
-            document.getElementById('modalProdCategory').value = prod.category;
+            document.getElementById('modalProdCategory').value = prod.category_id;
             document.getElementById('modalProdPrice').value = prod.price;
             document.getElementById('modalProdStock').value = prod.stock;
-            document.getElementById('modalProdStatus').value = prod.status;
-            document.getElementById('modalProdImage').value = prod.image;
+            document.getElementById('modalProdStatus').value =
+                prod.status === 'active' ? 'true' : 'false';
         }
     } else {
         document.getElementById('productModalTitle').innerText = "Nuevo Producto";
@@ -410,15 +410,133 @@ function editProduct(id) {
     openProductModal(id);
 }
 
+
 function deleteProduct(id) {
-    products = products.filter(p => p.id !== id);
-    renderProductsTable();
-    showToast('Producto eliminado correctamente', 'info');
+    const producto = products.find(p => p.id === id);
+
+    if (!producto) {
+        showToast('No se encontró el producto.');
+        return;
+    }
+
+    const confirmar = confirm(
+        `¿Estás seguro de que querés eliminar "${producto.name}"? Esta acción no se puede deshacer.`
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('id', id);
+
+    fetch(window.ADMIN_ELIMINAR_PRODUCTO_URL, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+    })
+    .then(async response => {
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.mensaje || 'No se pudo eliminar el producto.'
+            );
+        }
+
+        return data;
+    })
+    .then(data => {
+        showToast(data.mensaje || 'Producto eliminado correctamente');
+        setTimeout(() => window.location.reload(), 700);
+    })
+    .catch(error => {
+        showToast(error.message);
+    });
 }
 
 function saveProduct(event) {
     event.preventDefault();
     const id = document.getElementById('modalProductId').value;
+        if (!id) {
+        const form = document.getElementById('productForm');
+        const formData = new FormData(form);
+
+        fetch(window.ADMIN_CREAR_PRODUCTO_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+        })
+        .then(async response => {
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.mensaje || 'No se pudo crear el producto. Revisá los datos.'
+                );
+            }
+
+            return data;
+        })
+        .then(data => {
+            showToast('Producto creado correctamente');
+            closeProductModal();
+
+            // Recargar los productos reales que Django entrega al panel.
+            setTimeout(() => window.location.reload(), 700);
+        })
+        .catch(error => {
+            showToast(error.message);
+        });
+
+        return;
+    }
+
+
+        if (id) {
+            const form = document.getElementById('productForm');
+            const formData = new FormData(form);
+
+            formData.set('id', id);
+
+            fetch(window.ADMIN_EDITAR_PRODUCTO_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+        })
+        .then(async response => {
+            const data = await response.json();
+
+            if (!response.ok) {
+                const errores = data.details
+                    ? JSON.stringify(data.details)
+                    : data.mensaje || 'No se pudo editar el producto.';
+
+                throw new Error(errores);
+            }
+
+            return data;
+        })
+        .then(data => {
+            showToast('Producto actualizado correctamente');
+            closeProductModal();
+            setTimeout(() => window.location.reload(), 700);
+        })
+        .catch(error => {
+            showToast(error.message);
+        });
+
+        return;
+    }
+
+
+
     const name = document.getElementById('modalProdName').value;
     const category = document.getElementById('modalProdCategory').value;
     const price = parseFloat(document.getElementById('modalProdPrice').value);

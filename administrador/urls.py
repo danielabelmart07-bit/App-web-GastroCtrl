@@ -15,4 +15,19 @@ urlpatterns = [
         views.actualizar_configuracion_envio,
         name='actualizar_configuracion_envio',
     ),
+    path(
+        'api/productos/crear/',
+        views.crear_producto,
+        name='crear_producto',
+    ),
+    path(
+        'api/productos/editar/',
+        views.editar_producto,
+        name='editar_producto'
+    ),
+    path(
+        'api/productos/eliminar/',
+        views.eliminar_producto,
+        name='eliminar_producto'
+    )
 ]
