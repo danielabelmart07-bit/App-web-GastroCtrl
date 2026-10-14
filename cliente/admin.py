@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categoria, Producto, Inventario, Pedido, DetallePedido
+from .models import Categoria, Producto, Inventario, Insumo, Pedido, DetallePedido
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
@@ -26,6 +26,13 @@ class ProductoAdmin(admin.ModelAdmin):
 class InventarioAdmin(admin.ModelAdmin):
     list_display = ('producto', 'cantidad_disponible', 'stock_minimo')
     list_editable = ('cantidad_disponible', 'stock_minimo')
+
+@admin.register(Insumo)
+class InsumoAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'unidad_medida', 'cantidad_disponible', 'stock_minimo', 'activo')
+    list_filter = ('activo', 'unidad_medida')
+    search_fields = ('nombre',)
+    list_editable = ('cantidad_disponible', 'stock_minimo', 'activo')
 
 class DetallePedidoInline(admin.TabularInline):
     model = DetallePedido

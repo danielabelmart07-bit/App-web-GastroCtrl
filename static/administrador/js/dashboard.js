@@ -44,13 +44,14 @@ let orders = (window.ADMIN_PEDIDOS && window.ADMIN_PEDIDOS.length) ? window.ADMI
     { id: '#ORD-8942', codigo: 'ORD-8942', customer: 'Camila Torres', items: '2x Flat White, 1x Croissant Almendras', total: 8800, type: 'Takeaway', status: 'en_preparacion', time: 'Hace 5 min' }
 ];
 
-let inventoryItems = [
-    { id: 1, name: "Café en Grano Specialty (kg)", category: "Materia Prima", stock: 4.5, min: 10, unit: "kg" },
-    { id: 2, name: "Harina 0000 Pastelera (kg)", category: "Insumos Pastelería", stock: 8.0, min: 15, unit: "kg" },
-    { id: 3, name: "Manteca Extra Fina (kg)", category: "Lácteos", stock: 22.0, min: 10, unit: "kg" },
-    { id: 4, name: "Leche Entera (L)", category: "Lácteos", stock: 48.0, min: 20, unit: "L" },
-    { id: 5, name: "Frutos Rojos Congelados (kg)", category: "Frutas", stock: 3.2, min: 5, unit: "kg" }
-];
+let inventoryItems = (window.ADMIN_INSUMOS || []).map(insumo => ({
+    id: insumo.id,
+    name: insumo.nombre,
+    category: "Insumos",
+    stock: insumo.cantidad_disponible,
+    min: insumo.stock_minimo,
+    unit: insumo.unidad_medida,
+}));
 
 let customers = [
     { id: 1, name: "Camila Torres", email: "camila.t@gmail.com", phone: "+54 9 11 4521-8899", ordersCount: 14, spent: 48200 },

@@ -2,10 +2,10 @@ import uuid
 from django.db import models
 
 
+" CATEGORIA "
+
+
 class Categoria(models.Model):
-    """
-    Modelo para clasificar los productos del menú (Panadería, Cafetería, Pastelería, etc.)
-    """
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre de la categoría")
     slug = models.SlugField(max_length=100, unique=True, help_text="Identificador único para URLs (ej. panaderia)")
 
@@ -18,10 +18,10 @@ class Categoria(models.Model):
         return self.nombre
 
 
+" PRODUCTO "
+
+
 class Producto(models.Model):
-    """
-    Modelo principal para representar cada ítem del catálogo de GastroCtrl.
-    """
     categoria = models.ForeignKey(
         Categoria, 
         on_delete=models.CASCADE, 
@@ -46,6 +46,9 @@ class Producto(models.Model):
         return f"{self.nombre} (${self.precio})"
 
 
+" INVENTARIO "
+
+
 class Inventario(models.Model):
     """
     Modelo para gestionar las existencias y alertas de stock de cada producto.
@@ -67,6 +70,44 @@ class Inventario(models.Model):
         return f"Stock de {self.producto.nombre}: {self.cantidad_disponible} unidades"
 
 
+" INSUMOS "
+
+
+class Insumo(models.Model):
+    nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del insumo")
+    unidad_medida = models.CharField(max_length=50, verbose_name="Unidad de medida (ej. kg, litros, unidades)")
+
+    cantidad_disponible = models.DecimalField(
+        max_digits=10,
+        decimal_places=3,
+        default=0,
+        verbose_name="Cantidad disponible"
+    )
+
+    stock_minimo = models.DecimalField(
+        max_digits=10,
+        decimal_places=3,
+        default=0,
+        verbose_name="Stock mínimo de alerta"
+    )
+
+    activo = models.BooleanField(
+        default=True,
+        verbose_name="¿Está activo?"
+    )
+
+    class Meta:
+        verbose_name = "Insumo"
+        verbose_name_plural = "Insumos"
+        ordering = ['nombre']
+
+    def __str__(self):
+        return self.nombre
+
+
+" PEDIDO "
+
+
 class Pedido(models.Model):
     ESTADOS = (
         ('PENDIENTE', 'Pendiente'),
@@ -76,7 +117,6 @@ class Pedido(models.Model):
         ('CANCELADO', 'Cancelado'),
     )
 
-    # Genera un código corto único (ej: B7F92A88)
     codigo_seguimiento = models.CharField(max_length=10, unique=True, editable=False, verbose_name="Código de Seguimiento")
     nombre_cliente = models.CharField(max_length=100, verbose_name="Nombre completo")
     telefono = models.CharField(max_length=20, verbose_name="Teléfono / WhatsApp")
@@ -116,6 +156,9 @@ class Pedido(models.Model):
 
     def __str__(self):
         return f"Pedido #{self.codigo_seguimiento} - {self.nombre_cliente}"
+
+
+" DETALLE DEL PEDIDO "
 
 
 class DetallePedido(models.Model):

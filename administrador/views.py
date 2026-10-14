@@ -1,19 +1,33 @@
 import json
 
-from django.http import JsonResponse, request
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
-from cliente.models import Categoria, Pedido, Producto
+from cliente.models import Categoria, Pedido, Producto, Inventario, Insumo
 from .models import ConfiguracionSistema
 from django.db import transaction
 from .forms import ProductoForm
-from cliente.models import Inventario, Producto
+
 
 
 def dashboard(request):
     pedidos = Pedido.objects.prefetch_related('detalles__producto').all()
 
     categorias = Categoria.objects.all()
+
+    insumos = Insumo.objects.all()
+
+    insumos_data = [
+        {
+            'id': insumo.id,
+            'nombre': insumo.nombre,
+            'unidad_medida': insumo.unidad_medida,
+            'cantidad_disponible': float(insumo.cantidad_disponible),
+            'stock_minimo': float(insumo.stock_minimo),
+            'activo': insumo.activo,
+        }
+        for insumo in insumos
+    ]
 
     productos = Producto.objects.select_related('categoria').all()
 
@@ -57,6 +71,7 @@ def dashboard(request):
             'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,
             'categorias': categorias,
+            'insumos_data': json.dumps(insumos_data),
         }
     )
 
