@@ -22,3 +22,10 @@ media/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Entornos virtuales de Windows
+venv-windows/
+
+# Copias de seguridad locales
+*.backup
+media-backup.zip
