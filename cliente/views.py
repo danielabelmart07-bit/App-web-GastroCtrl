@@ -9,7 +9,6 @@ from .carrito import Carrito
 from .forms import PedidoForm
 
 def checkout(request):
-    """Valida el carrito, crea el pedido y descuenta el stock de forma atómica."""
     carrito = Carrito(request)
 
     if len(carrito.carrito) == 0:
@@ -52,12 +51,22 @@ def checkout(request):
 
                 cantidad = item['cantidad']
 
-                if hasattr(producto, 'inventario') and cantidad > producto.inventario.cantidad_disponible:
+                try:
+                    inventario = producto.inventario
+                except Producto.inventario.RelatedObjectDoesNotExist:
+                    form.add_error(
+                        None,
+                        f'El producto "{producto.nombre}" no tiene inventario registrado.'
+                    )
+                    continue
+
+                if cantidad > inventario.cantidad_disponible:
                     form.add_error(
                         None,
                         f'No hay stock suficiente de "{producto.nombre}". '
-                        f'Disponibles: {producto.inventario.cantidad_disponible}.'
+                        f'Disponibles: {inventario.cantidad_disponible}.'
                     )
+                    continue
 
                 productos_pedido.append((producto, cantidad))
                 total += producto.precio * cantidad
@@ -78,12 +87,41 @@ def checkout(request):
 
             with transaction.atomic():
                 configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
+
+                stock_insuficiente = False
+
+                for producto, cantidad in productos_pedido:
+                    inventario = producto.inventario
+                    inventario.refresh_from_db()
+
+                    if cantidad > inventario.cantidad_disponible:
+                        form.add_error(
+                            None,
+                            f'El stock de "{producto.nombre}" cambió. '
+                            f'Disponibles: {inventario.cantidad_disponible}.'
+                        )
+                        stock_insuficiente = True
+
+                if stock_insuficiente:
+                    return render(
+                        request,
+                        'cliente/checkout.html',
+                        {
+                            'form': form,
+                            'carrito': carrito,
+                            'subtotal': subtotal,
+                            'costo_envio': costo_envio,
+                            'total': subtotal + costo_envio,
+                            'modalidad_entrega': modalidad,
+                        }
+                    )
+
                 modalidad = carrito.obtener_modalidad_entrega()
                 costo_envio = configuracion.costo_envio if modalidad == 'DELIVERY' else 0
 
                 pedido = form.save(commit=False)
                 if modalidad == 'RETIRO':
-                    pedido.direccion = 'Retiro en el local'
+                    pedido.direccion = 'Retiro en local'
                 pedido.monto_total = total + costo_envio
                 pedido.modalidad_entrega = modalidad
                 pedido.costo_envio = costo_envio
@@ -93,16 +131,15 @@ def checkout(request):
                     DetallePedido.objects.create(
                         pedido=pedido,
                         producto=producto,
-                        precio_unitario=producto.precio,
-                        cantidad=cantidad
+                        cantidad=cantidad,
+                        precio_unitario=producto.precio
                     )
 
-                    if hasattr(producto, 'inventario'):
-                        producto.inventario.cantidad_disponible -= cantidad
-                        producto.inventario.save(update_fields=['cantidad_disponible'])
+                    inventario = producto.inventario
+                    inventario.cantidad_disponible -= cantidad
+                    inventario.save(update_fields=['cantidad_disponible'])
 
                 carrito.limpiar()
-            request.session.pop('modalidad_entrega', None)
 
             return render(
                 request,
@@ -152,9 +189,6 @@ def consultar_estado_pedido_api(request, codigo):
         return JsonResponse({'status': 'error', 'mensaje': 'Código de pedido no encontrado.'}, status=404)
 
 def agregar_al_carrito(request, producto_id):
-    """
-    Vista AJAX para agregar productos al carrito.
-    """
     if request.method == 'POST':
         carrito = Carrito(request)
         producto = get_object_or_404(Producto, id=producto_id, activo=True)
@@ -170,9 +204,6 @@ def agregar_al_carrito(request, producto_id):
 
 
 def restar_del_carrito(request, producto_id):
-    """
-    Vista AJAX para reducir la cantidad de un producto.
-    """
     if request.method == 'POST':
         carrito = Carrito(request)
         producto = get_object_or_404(Producto, id=producto_id)
@@ -187,9 +218,6 @@ def restar_del_carrito(request, producto_id):
 
 
 def eliminar_del_carrito(request, producto_id):
-    """
-    Vista AJAX para eliminar un producto del carrito.
-    """
     if request.method == 'POST':
         carrito = Carrito(request)
         producto = get_object_or_404(Producto, id=producto_id)
@@ -204,9 +232,6 @@ def eliminar_del_carrito(request, producto_id):
 
 
 def ver_carrito(request):
-    """
-    Vista para renderizar la página dedicada al resumen del carrito de compras.
-    """
     carrito = Carrito(request)
     return render(request, 'cliente/carrito_detalle.html', {'carrito': carrito})
 
@@ -251,10 +276,6 @@ def home(request):
     })
 
 def menu(request):
-    """
-    Vista pública del catálogo que consulta productos y categorías
-    desde la base de datos y permite filtrar por búsqueda o categoría.
-    """
     # 1. Obtener parámetros de búsqueda o filtrado de la URL (ej. ?q=cafe&categoria=panaderia)
     query = request.GET.get('q', '')
     categoria_slug = request.GET.get('categoria', '')

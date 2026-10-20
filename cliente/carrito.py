@@ -14,9 +14,8 @@ class Carrito:
         self.carrito = carrito
 
     def agregar(self, producto, cantidad=1):
-        """
-        Agrega un producto al carrito o incrementa la cantidad si ya existe.
-        """
+        if cantidad <= 0:
+            raise ValueError("La cantidad debe ser mayor que cero.")
         producto_id = str(producto.id)
         if producto_id not in self.carrito:
             self.carrito[producto_id] = {
