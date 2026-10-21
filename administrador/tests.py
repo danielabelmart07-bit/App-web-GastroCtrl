@@ -82,3 +82,61 @@ class CRUDProductosTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['status'], 'ok')
         self.assertFalse(Producto.objects.filter(id=producto.id).exists())
+
+class CRUDCategoriasTests(TestCase):
+    def test_crear_categoria_con_slug_autogenerado(self):
+        url = reverse('administrador:crear_categoria')
+        datos = {'nombre': 'Bebidas Calientes'}
+
+        response = self.client.post(url, datos)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+
+        categoria = Categoria.objects.get(nombre='Bebidas Calientes')
+        self.assertEqual(categoria.slug, 'bebidas-calientes')
+
+    def test_editar_categoria_exitoso(self):
+        categoria = Categoria.objects.create(nombre='Panes', slug='panes')
+
+        url = reverse('administrador:editar_categoria')
+        datos = {
+            'id': categoria.id,
+            'nombre': 'Panes Artesanales',
+            'slug': 'panes-artesanales'
+        }
+
+        response = self.client.post(url, datos)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+
+        categoria.refresh_from_db()
+        self.assertEqual(categoria.nombre, 'Panes Artesanales')
+        self.assertEqual(categoria.slug, 'panes-artesanales')
+
+    def test_eliminar_categoria_sin_productos(self):
+        categoria = Categoria.objects.create(nombre='Especiales', slug='especiales')
+
+        url = reverse('administrador:eliminar_categoria')
+        response = self.client.post(url, {'id': categoria.id})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+        self.assertFalse(Categoria.objects.filter(id=categoria.id).exists())
+
+    def test_impedir_eliminar_categoria_con_productos(self):
+        categoria = Categoria.objects.create(nombre='Postres', slug='postres')
+        Producto.objects.create(
+            categoria=categoria,
+            nombre='Flan Casero',
+            precio=1500.00,
+            activo=True
+        )
+
+        url = reverse('administrador:eliminar_categoria')
+        response = self.client.post(url, {'id': categoria.id})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['status'], 'error')
+        self.assertTrue(Categoria.objects.filter(id=categoria.id).exists())

@@ -29,5 +29,20 @@ urlpatterns = [
         'api/productos/eliminar/',
         views.eliminar_producto,
         name='eliminar_producto'
-    )
+    ),
+    path(
+        'api/categorias/crear/',
+        views.crear_categoria,
+        name='crear_categoria',
+    ),
+    path(
+        'api/categorias/editar/',
+        views.editar_categoria,
+        name='editar_categoria',
+    ),
+    path(
+        'api/categorias/eliminar/',
+        views.eliminar_categoria,
+        name='eliminar_categoria',
+    ),
 ]

@@ -7,6 +7,8 @@ from cliente.models import Categoria, Pedido, Producto, Inventario, Insumo
 from .models import ConfiguracionSistema
 from django.db import transaction
 from .forms import ProductoForm
+from .forms import ProductoForm, CategoriaForm
+
 
 
 
@@ -265,4 +267,85 @@ def eliminar_producto(request):
     return JsonResponse({
         "status": "ok",
         "mensaje": f"Producto '{producto.nombre}' eliminado correctamente."
+    })
+
+@require_POST
+def crear_categoria(request):
+    form = CategoriaForm(request.POST)
+
+    if not form.is_valid():
+        return JsonResponse({
+            "status": "error",
+            "details": form.errors.get_json_data()
+        }, status=400)
+
+    categoria = form.save()
+
+    return JsonResponse({
+        "status": "ok",
+        "categoria": {
+            "id": categoria.id,
+            "nombre": categoria.nombre,
+            "slug": categoria.slug
+        }
+    })
+
+@require_POST
+def editar_categoria(request):
+    categoria_id = request.POST.get("id")
+
+    try:
+        categoria_id = int(categoria_id)
+    except (TypeError, ValueError):
+        return JsonResponse({
+            "status": "error",
+            "mensaje": "El identificador de la categoría no es válido."
+        }, status=400)
+
+    categoria = get_object_or_404(Categoria, pk=categoria_id)
+
+    form = CategoriaForm(request.POST, instance=categoria)
+
+    if not form.is_valid():
+        return JsonResponse({
+            "status": "error",
+            "details": form.errors.get_json_data()
+        }, status=400)
+
+    categoria = form.save()
+
+    return JsonResponse({
+        "status": "ok",
+        "categoria": {
+            "id": categoria.id,
+            "nombre": categoria.nombre,
+            "slug": categoria.slug
+        }
+    })
+
+@require_POST
+def eliminar_categoria(request):
+    categoria_id = request.POST.get("id")
+
+    try:
+        categoria_id = int(categoria_id)
+    except (TypeError, ValueError):
+        return JsonResponse({
+            "status": "error",
+            "mensaje": "El identificador de la categoría no es válido."
+        }, status=400)
+
+    categoria = get_object_or_404(Categoria, pk=categoria_id)
+
+    if categoria.productos.exists():
+        return JsonResponse({
+            "status": "error",
+            "mensaje": f"No se puede eliminar la categoría '{categoria.nombre}' porque tiene productos asociados."
+        }, status=400)
+    
+    categoria.delete()
+
+    return JsonResponse({
+        "status": "ok",
+        "mensaje": f"Categoría '{categoria.nombre}' eliminada correctamente."
     })
