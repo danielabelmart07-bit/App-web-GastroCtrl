@@ -333,3 +333,4 @@ def actualizar_modalidad_carrito(request):
         'envio': float(envio),
         'total': float(subtotal + envio),
     })
+

@@ -49,5 +49,15 @@ urlpatterns = [
         'api/inventario/actualizar/',
         views.actualizar_inventario,
         name='actualizar_inventario',
-    )
+    ),
+    path(
+        'api/clientes/',
+        views.listar_clientes,
+        name='listar_clientes',
+    ),
+    path(
+        'api/clientes/<int:cliente_id>',
+        views.detalle_cliente,
+        name='detalle_cliente',
+    ),
 ]

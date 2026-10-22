@@ -3,7 +3,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
-from cliente.models import Categoria, Pedido, Producto, Inventario, Insumo
+from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo
 from .models import ConfiguracionSistema
 from django.db import transaction
 from .forms import ProductoForm
@@ -445,5 +445,64 @@ def actualizar_inventario(request):
             "cantidad_disponible": inventario.cantidad_disponible,
             "stock_minimo": inventario.stock_minimo,
             "es_stock_bajo": inventario.es_stock_bajo
+        }
+    })
+
+def listar_clientes(request):
+    busqueda = request.GET.get('q', '').strip()
+    clientes_qs = Cliente.objects.prefetch_related('pedidos').all()
+
+    if busqueda:
+        clientes_qs = clientes_qs.filter(
+            Q(nombre__icontains=busqueda) |
+            Q(telefono__icontains=busqueda) |
+            Q(email__icontains=busqueda)
+        )
+
+    clientes_data = [
+        {
+            'id': c.id,
+            'nombre': c.nombre,
+            'telefono': c.telefono,
+            'direccion_habitual': c.direccion_habitual,
+            'email': c.email or '',
+            'total_pedidos': c.total_pedidos,
+            'total_gastado': float(c.total_gastado),
+            'fecha_registro': c.fecha_registro.strftime('%Y-%m-%d %H:%M')
+        }
+        for c in clientes_qs
+    ]
+
+    return JsonResponse({'status': 'ok', 'clientes': clientes_data})
+
+
+def detalle_cliente(request, cliente_id):
+    cliente = get_object_or_404(Cliente, pk=cliente_id)
+    pedidos = cliente.pedidos.all().order_by('-id')
+
+    pedidos_data = [
+        {
+            'id': p.id,
+            'codigo': p.codigo_seguimiento,
+            'estado': p.estado,
+            'estado_display': p.get_estado_display(),
+            'monto_total': float(p.monto_total),
+            'fecha': p.fecha_creacion.strftime('%Y-%m-%d %H:%M') if hasattr(p, 'fecha_creacion') else ''
+        }
+        for p in pedidos
+    ]
+
+    return JsonResponse({
+        'status': 'ok',
+        'cliente': {
+            'id': cliente.id,
+            'nombre': cliente.nombre,
+            'telefono': cliente.telefono,
+            'direccion_habitual': cliente.direccion_habitual,
+            'email': cliente.email or '',
+            'notas': cliente.notas or '',
+            'total_pedidos': cliente.total_pedidos,
+            'total_gastado': float(cliente.total_gastado),
+            'pedidos': pedidos_data
         }
     })

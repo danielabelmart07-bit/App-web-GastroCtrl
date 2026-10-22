@@ -1,4 +1,6 @@
 import json
+from cliente.models import Cliente
+from cliente.utils import vincular_o_crear_cliente
 from django.test import TestCase
 from django.urls import reverse
 from cliente.models import Categoria, Producto, Inventario
@@ -291,3 +293,63 @@ class GestionPedidosTests(TestCase):
         pedidos_contexto = response.context['pedidos']
         self.assertEqual(len(pedidos_contexto), 1)
         self.assertEqual(pedidos_contexto[0].codigo_seguimiento, "TEST1234")
+
+class GestionClientesTests(TestCase):
+    def setUp(self):
+        self.cliente = Cliente.objects.create(
+            nombre="Laura Gómez",
+            telefono="1199887766",
+            direccion_habitual="Av. Rivadavia 1234"
+        )
+        self.pedido = Pedido.objects.create(
+            cliente=self.cliente,
+            nombre_cliente=self.cliente.nombre,
+            telefono=self.cliente.telefono,
+            codigo_seguimiento="CLIE1234",
+            estado="ENTREGADO",
+            monto_total=4500.00
+        )
+
+    def test_vincular_o_crear_cliente_existente_actualiza_datos(self):
+        cliente_actualizado = vincular_o_crear_cliente(
+            nombre="Laura G. Gómez",
+            telefono="1199887766",
+            direccion="Av. Belgrano 5678"
+        )
+
+        self.assertEqual(cliente_actualizado.id, self.cliente.id)
+        self.assertEqual(cliente_actualizado.nombre, "Laura G. Gómez")
+        self.assertEqual(cliente_actualizado.direccion_habitual, "Av. Belgrano 5678")
+
+    def test_vincular_o_crear_cliente_nuevo(self):
+        nuevo_cliente = vincular_o_crear_cliente(
+            nombre="Carlos Pérez",
+            telefono="1133445566",
+            direccion="Calle Falsa 123"
+        )
+
+        self.assertIsNotNone(nuevo_cliente)
+        self.assertEqual(nuevo_cliente.telefono, "1133445566")
+        self.assertTrue(Cliente.objects.filter(telefono="1133445566").exists())
+
+    def test_listar_clientes_api(self):
+        url = reverse('administrador:listar_clientes') + '?q=Laura'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        datos = response.json()
+        self.assertEqual(datos['status'], 'ok')
+        self.assertEqual(len(datos['clientes']), 1)
+        self.assertEqual(datos['clientes'][0]['telefono'], "1199887766")
+        self.assertEqual(datos['clientes'][0]['total_gastado'], 4500.0)
+
+    def test_detalle_cliente_api(self):
+        url = reverse('administrador:detalle_cliente', kwargs={'cliente_id': self.cliente.id})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        datos = response.json()
+        self.assertEqual(datos['status'], 'ok')
+        self.assertEqual(datos['cliente']['nombre'], "Laura Gómez")
+        self.assertEqual(len(datos['cliente']['pedidos']), 1)
+        self.assertEqual(datos['cliente']['pedidos'][0]['codigo'], "CLIE1234")

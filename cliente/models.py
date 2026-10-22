@@ -105,6 +105,32 @@ class Insumo(models.Model):
     def __str__(self):
         return self.nombre
 
+" CLIENTE "
+
+class Cliente(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre completo")
+    telefono = models.CharField(max_length=20, unique=True, verbose_name="Teléfono / WhatsApp")
+    direccion_habitual = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección habitual")
+    email = models.EmailField(blank=True, null=True, verbose_name="Correo electrónico")
+    notas = models.TextField(blank=True, null=True, verbose_name="Notas del cliente (ej. preferencias, alergias)")
+    fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de registro")
+
+    class Meta:
+        verbose_name = "Cliente"
+        verbose_name_plural = "Clientes"
+        ordering = ['-fecha_registro']
+
+    def __str__(self):
+        return f"{self.nombre} ({self.telefono})"
+
+    @property
+    def total_pedidos(self):
+        return self.pedidos.count()
+
+    @property
+    def total_gastado(self):
+        return sum(pedido.monto_total for pedido in self.pedidos.exclude(estado='CANCELADO'))
+
 
 " PEDIDO "
 
@@ -127,6 +153,15 @@ class Pedido(models.Model):
     MODALIDADES_ENTREGA = (
         ('RETIRO', 'Retiro en el local'),
         ('DELIVERY', 'Delivery a domicilio'),
+    )
+
+    cliente = models.ForeignKey(
+        Cliente,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pedidos',
+        verbose_name="Cliente asociado"
     )
 
     monto_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Total ($)")
