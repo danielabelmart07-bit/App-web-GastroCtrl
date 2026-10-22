@@ -9,11 +9,26 @@ from django.db import transaction
 from .forms import ProductoForm
 from .forms import ProductoForm, CategoriaForm
 from django.db import transaction
-
+from django.db.models import Q
 
 
 def dashboard(request):
-    pedidos = Pedido.objects.prefetch_related('detalles__producto').all()
+    pedidos_qs = Pedido.objects.prefetch_related('detalles__producto').all()
+
+    estado_filtro = request.GET.get('estado', '').strip()
+    estados_validos = {valor for valor, _ in Pedido.ESTADOS}
+    if estado_filtro in estados_validos:
+        pedidos_qs = pedidos_qs.filter(estado=estado_filtro)
+
+    busqueda = request.GET.get('q', '').strip()
+    if busqueda:
+        pedidos_qs = pedidos_qs.filter(
+            Q(nombre_cliente__icontains=busqueda) |
+            Q(telefono__icontains=busqueda) |
+            Q(codigo_seguimiento__icontains=busqueda)
+        )
+
+    pedidos = pedidos_qs.order_by('-id')
 
     categorias = Categoria.objects.all()
 
@@ -69,6 +84,7 @@ def dashboard(request):
         request,
         'administrador/index.html',
         {
+            'pedidos': pedidos,
             'pedidos_json': json.dumps(pedidos_data),
             'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,

@@ -258,10 +258,36 @@ class GestionPedidosTests(TestCase):
         url = reverse('administrador:actualizar_estado_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
         datos = json.dumps({'estado': 'CANCELADO'})
 
-        # Primera cancelación
+
         self.client.post(url, datos, content_type='application/json')
-        # Segunda solicitud con el mismo estado
+
         self.client.post(url, datos, content_type='application/json')
 
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 13)
+
+    def test_filtrar_pedidos_por_estado(self):
+
+        Pedido.objects.create(
+            nombre_cliente="Cliente 2",
+            telefono="1100000000",
+            codigo_seguimiento="TEST5678",
+            estado="EN_PREPARACION",
+            monto_total=1500.00
+        )
+
+        url = reverse('administrador:dashboard') + '?estado=EN_PREPARACION'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        pedidos_contexto = response.context['pedidos']
+        self.assertTrue(all(p.estado == 'EN_PREPARACION' for p in pedidos_contexto))
+
+    def test_buscar_pedidos_por_codigo_o_cliente(self):
+        url = reverse('administrador:dashboard') + '?q=TEST1234'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        pedidos_contexto = response.context['pedidos']
+        self.assertEqual(len(pedidos_contexto), 1)
+        self.assertEqual(pedidos_contexto[0].codigo_seguimiento, "TEST1234")
