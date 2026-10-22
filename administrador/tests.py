@@ -1,6 +1,8 @@
+import json
 from django.test import TestCase
 from django.urls import reverse
 from cliente.models import Categoria, Producto, Inventario
+from cliente.models import Pedido, DetallePedido
 
 class CRUDProductosTests(TestCase):
     def setUp(self):
@@ -199,3 +201,67 @@ class InventarioTests(TestCase):
 
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 10)
+
+class GestionPedidosTests(TestCase):
+    def setUp(self):
+        self.categoria = Categoria.objects.create(nombre="Pastelería", slug="pasteleria")
+        self.producto = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Tarta de Frutilla",
+            precio=2000.00,
+            activo=True
+        )
+        self.inventario = Inventario.objects.create(
+            producto=self.producto,
+            cantidad_disponible=10,
+            stock_minimo=2
+        )
+        self.pedido = Pedido.objects.create(
+            nombre_cliente="Cliente Pruebas",
+            telefono="1122334455",
+            codigo_seguimiento="TEST1234",
+            estado="PENDIENTE",
+            monto_total=2000.00
+        )
+        self.detalle = DetallePedido.objects.create(
+            pedido=self.pedido,
+            producto=self.producto,
+            precio_unitario=2000.00,
+            cantidad=3
+        )
+
+    def test_cambiar_estado_pedido_exitoso(self):
+        url = reverse('administrador:actualizar_estado_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        datos = json.dumps({'estado': 'EN_PREPARACION'})
+
+        response = self.client.post(url, datos, content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+        self.pedido.refresh_from_db()
+        self.assertEqual(self.pedido.estado, 'EN_PREPARACION')
+
+    def test_cancelar_pedido_restaura_stock(self):
+        url = reverse('administrador:actualizar_estado_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        datos = json.dumps({'estado': 'CANCELADO'})
+
+        # Stock inicial es 10. Al cancelar un pedido de 3 unidades, el stock debe subir a 13.
+        response = self.client.post(url, datos, content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+
+        self.inventario.refresh_from_db()
+        self.assertEqual(self.inventario.cantidad_disponible, 13)
+
+    def test_cancelar_pedido_dos_veces_no_duplica_stock(self):
+        url = reverse('administrador:actualizar_estado_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        datos = json.dumps({'estado': 'CANCELADO'})
+
+        # Primera cancelación
+        self.client.post(url, datos, content_type='application/json')
+        # Segunda solicitud con el mismo estado
+        self.client.post(url, datos, content_type='application/json')
+
+        self.inventario.refresh_from_db()
+        self.assertEqual(self.inventario.cantidad_disponible, 13)

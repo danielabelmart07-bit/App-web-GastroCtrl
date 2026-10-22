@@ -8,7 +8,7 @@ from .models import ConfiguracionSistema
 from django.db import transaction
 from .forms import ProductoForm
 from .forms import ProductoForm, CategoriaForm
-
+from django.db import transaction
 
 
 
@@ -80,7 +80,6 @@ def dashboard(request):
 
 @require_POST
 def actualizar_estado_pedido(request, codigo):
-    """Actualiza el estado real del pedido desde el panel de administración."""
     pedido = get_object_or_404(Pedido, codigo_seguimiento__iexact=codigo.strip())
 
     try:
@@ -92,7 +91,6 @@ def actualizar_estado_pedido(request, codigo):
         )
 
     nuevo_estado = data.get('estado')
-
     estados_validos = {valor for valor, _ in Pedido.ESTADOS}
 
     if nuevo_estado not in estados_validos:
@@ -101,8 +99,41 @@ def actualizar_estado_pedido(request, codigo):
             status=400
         )
 
-    pedido.estado = nuevo_estado
-    pedido.save(update_fields=['estado'])
+    estado_anterior = pedido.estado
+
+    if estado_anterior == nuevo_estado:
+        return JsonResponse({
+            'status':'ok',
+            'codigo': pedido.codigo_seguimiento,
+            'estado': pedido.estado,
+            'estado_display': pedido.get_estado_display(),
+        })
+
+    with transaction.atomic():
+        if nuevo_estado == 'CANCELADO' and estado_anterior != 'CANCELADO':
+            for detalle in pedido.detalles.select_related('producto__inventario').all():
+                if detalle.producto and hasattr(detalle.producto, 'inventario'):
+                    inventario = detalle.producto.inventario
+                    inventario.cantidad_disponible += detalle.cantidad
+                    inventario.save()
+
+        elif estado_anterior == 'CANCELADO' and nuevo_estado != 'CANCELADO':
+            for detalle in pedido.detalles.select_related('producto__inventario').all():
+                if detalle.producto and hasattr(detalle.producto, 'inventario'):
+                    if detalle.producto.inventario.cantidad_disponible < detalle.cantidad:
+                        return JsonResponse({
+                            'status': 'error',
+                            'mensaje': f'Stock insuficiente de "{detalle.producto.nombre}" para reabrir el pedido.'
+                        }, status=400)
+
+            for detalle in pedido.detalles.select_related('producto__inventario').all():
+                if detalle.producto and hasattr(detalle.producto, 'inventario'):
+                    inventario = detalle.producto.inventario
+                    inventario.cantidad_disponible -= detalle.cantidad
+                    inventario.save()
+
+        pedido.estado = nuevo_estado
+        pedido.save(update_fields=['estado'])
 
     return JsonResponse({
         'status': 'ok',
