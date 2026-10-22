@@ -140,3 +140,62 @@ class CRUDCategoriasTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['status'], 'error')
         self.assertTrue(Categoria.objects.filter(id=categoria.id).exists())
+
+class InventarioTests(TestCase):
+    def setUp(self):
+        self.categoria = Categoria.objects.create(nombre='Panaderia' , slug='panaderia')
+        self.producto = Producto.objects.create(
+            categoria=self.categoria,
+            nombre='Pan de Campo',
+            precio=1200.00,
+            activo=True
+        )
+        self.inventario = Inventario.objects.create(
+            producto=self.producto,
+            cantidad_disponible=10,
+            stock_minimo=5
+        )
+
+    def test_propiedad_es_stock_bajo(self):
+        self.assertFalse(self.inventario.es_stock_bajo)
+
+        self.inventario.cantidad_disponible = 5
+        self.inventario.save()
+        self.assertTrue(self.inventario.es_stock_bajo)
+
+        self.inventario.cantidad_disponible = 2
+        self.inventario.save()
+        self.assertTrue(self.inventario.es_stock_bajo)
+
+    def test_actualizar_inventario_exitoso(self):
+        url = reverse('administrador:actualizar_inventario')
+        datos = {
+            'producto_id': self.producto.id,
+            'cantidad_disponible': 20,
+            'stock_minimo': 8
+        }
+
+        response = self.client.post(url, datos)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+
+        self.inventario.refresh_from_db()
+        self.assertEqual(self.inventario.cantidad_disponible, 20)
+        self.assertEqual(self.inventario.stock_minimo, 8)
+
+    def test_rechazar_inventario_negativo(self):
+        url = reverse('administrador:actualizar_inventario')
+        datos = {
+            'producto_id': self.producto.id,
+            'cantidad_disponible': -5,
+            'stock_minimo': 5
+        }
+
+        response = self.client.post(url, datos)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['status'], 'error')
+
+        self.inventario.refresh_from_db()
+        self.assertEqual(self.inventario.cantidad_disponible, 10)

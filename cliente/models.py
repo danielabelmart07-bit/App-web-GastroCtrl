@@ -50,9 +50,7 @@ class Producto(models.Model):
 
 
 class Inventario(models.Model):
-    """
-    Modelo para gestionar las existencias y alertas de stock de cada producto.
-    """
+
     producto = models.OneToOneField(
         Producto, 
         on_delete=models.CASCADE, 
@@ -69,6 +67,9 @@ class Inventario(models.Model):
     def __str__(self):
         return f"Stock de {self.producto.nombre}: {self.cantidad_disponible} unidades"
 
+    @property
+    def es_stock_bajo(self):
+        return self.cantidad_disponible <= self.stock_minimo
 
 " INSUMOS "
 

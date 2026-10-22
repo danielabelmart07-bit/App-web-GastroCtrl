@@ -349,3 +349,54 @@ def eliminar_categoria(request):
         "status": "ok",
         "mensaje": f"Categoría '{categoria.nombre}' eliminada correctamente."
     })
+
+@require_POST
+def actualizar_inventario(request):
+    producto_id = request.POST.get("producto_id")
+
+    try:
+        producto_id = int(producto_id)
+    except (TypeError, ValueError):
+        return JsonResponse({
+            "status": "error",
+            "mensaje": "El identificador del producto no es válido."
+        }, status=400)
+
+    producto = get_object_or_404(Producto, pk=producto_id)
+
+    inventario, _ = Inventario.objects.get_or_create(producto=producto)
+
+    cantidad = request.POST.get("cantidad_disponible")
+    stock_min = request.POST.get("stock_minimo")
+
+    try:
+        if cantidad is not None:
+            cantidad_int = int(cantidad)
+            if cantidad_int < 0:
+                raise ValueError
+            inventario.cantidad_disponible = cantidad_int
+
+        if stock_min is not None:
+            stock_min_int = int(stock_min)
+            if stock_min_int < 0:
+                raise ValueError
+            inventario.stock_minimo = stock_min_int
+
+        inventario.save()
+
+    except (ValueError, TypeError):
+        return JsonResponse({
+            "status": "error",
+            "mensaje": "Las cantidades de inventario deben ser numeros enteros mayores o iguales a cero."
+        }, status=400)
+
+    return JsonResponse({
+        "status": "ok",
+        "inventario": {
+            "producto_id": producto.id,
+            "producto_nombre": producto.nombre,
+            "cantidad_disponible": inventario.cantidad_disponible,
+            "stock_minimo": inventario.stock_minimo,
+            "es_stock_bajo": inventario.es_stock_bajo
+        }
+    })

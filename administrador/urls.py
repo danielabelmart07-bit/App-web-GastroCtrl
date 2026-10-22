@@ -45,4 +45,9 @@ urlpatterns = [
         views.eliminar_categoria,
         name='eliminar_categoria',
     ),
+    path(
+        'api/inventario/actualizar/',
+        views.actualizar_inventario,
+        name='actualizar_inventario',
+    )
 ]
