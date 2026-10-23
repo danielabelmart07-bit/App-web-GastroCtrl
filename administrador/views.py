@@ -10,6 +10,7 @@ from .forms import ProductoForm
 from .forms import ProductoForm, CategoriaForm
 from django.db import transaction
 from django.db.models import Q
+from administrador.utils import generar_datos_dashboard
 
 
 def dashboard(request):
@@ -29,6 +30,8 @@ def dashboard(request):
         )
 
     pedidos = pedidos_qs.order_by('-id')
+
+    datos_dashboard = generar_datos_dashboard()
 
     categorias = Categoria.objects.all()
 
@@ -90,6 +93,12 @@ def dashboard(request):
             'costo_envio': configuracion.costo_envio,
             'categorias': categorias,
             'insumos_data': json.dumps(insumos_data),
+            'kpis': datos_dashboard['kpis'],
+            'semana_labels_json': json.dumps(datos_dashboard['semana_labels']),
+            'semana_data_json': json.dumps(datos_dashboard['semana_data']),
+            'trend_data_json': json.dumps(datos_dashboard['trend_data']),
+            'pie_data_json': json.dumps(datos_dashboard['pie_data']),
+            'top_productos': datos_dashboard['top_productos'],
         }
     )
 

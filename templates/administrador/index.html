@@ -834,16 +834,20 @@
         </div>
     </div>
 
-    <!-- JavaScript Lógica Principal -->
-    <script>
-        window.ADMIN_PEDIDOS = {{ pedidos_json|safe }};
-        window.ADMIN_PEDIDOS_URL = "{% url 'administrador:actualizar_estado_pedido' '__CODIGO__' %}";
-        window.ADMIN_PRODUCTOS = {{ productos_data|safe }};
-        window.ADMIN_INSUMOS = {{ insumos_data|safe }};
-        window.ADMIN_CREAR_PRODUCTO_URL = "{% url 'administrador:crear_producto' %}";
-        window.ADMIN_EDITAR_PRODUCTO_URL = "{% url 'administrador:editar_producto'%}";
-        window.ADMIN_ELIMINAR_PRODUCTO_URL = "{% url 'administrador:eliminar_producto' %}";
-    </script>
-    <script src="{% static 'administrador/js/dashboard.js' %}"></script>
+<script>
+    window.ADMIN_PEDIDOS = {{ pedidos_json|safe }};
+    window.ADMIN_PEDIDOS_URL = "{% url 'administrador:actualizar_estado_pedido' '__CODIGO__' %}";
+    window.ADMIN_PRODUCTOS = {{ productos_data|safe }};
+    window.ADMIN_INSUMOS = {{ insumos_data|safe }};
+    window.ADMIN_CREAR_PRODUCTO_URL = "{% url 'administrador:crear_producto' %}";
+    window.ADMIN_EDITAR_PRODUCTO_URL = "{% url 'administrador:editar_producto' %}";
+    window.ADMIN_ELIMINAR_PRODUCTO_URL = "{% url 'administrador:eliminar_producto' %}";
+    window.semanaLabels = {{ semana_labels_json|safe }};
+    window.semanaData = {{ semana_data_json|safe }};
+    window.trendDataReal = {{ trend_data_json|safe }};
+    window.pieDataReal = {{ pie_data_json|safe }};
+</script>
+
+<script src="{% static 'administrador/js/dashboard.js' %}"></script>
 </body>
 </html>

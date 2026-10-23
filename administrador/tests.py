@@ -5,6 +5,9 @@ from django.test import TestCase
 from django.urls import reverse
 from cliente.models import Categoria, Producto, Inventario
 from cliente.models import Pedido, DetallePedido
+from administrador.utils import generar_datos_dashboard
+from django.utils import timezone
+from cliente.models import Pedido, DetallePedido, Categoria, Producto, Inventario
 
 class CRUDProductosTests(TestCase):
     def setUp(self):
@@ -353,3 +356,68 @@ class GestionClientesTests(TestCase):
         self.assertEqual(datos['cliente']['nombre'], "Laura Gómez")
         self.assertEqual(len(datos['cliente']['pedidos']), 1)
         self.assertEqual(datos['cliente']['pedidos'][0]['codigo'], "CLIE1234")
+
+class DashboardMetricasTests(TestCase):
+    def setUp(self):
+        self.categoria = Categoria.objects.create(
+            nombre="Cafetería",
+            slug="cafeteria"
+        )
+        self.producto = Producto.objects.create(
+            nombre="Café Doble",
+            categoria=self.categoria,
+            precio=1200.00,
+            activo=True
+        )
+        # Crear el objeto de inventario relacionado con el producto
+        self.inventario = Inventario.objects.create(
+            producto=self.producto,
+            cantidad_disponible=50
+        )
+        self.pedido_completado = Pedido.objects.create(
+            nombre_cliente="Cliente Test Metrics",
+            telefono="1100110011",
+            codigo_seguimiento="METR1234",
+            estado="ENTREGADO",
+            monto_total=2400.00
+        )
+        DetallePedido.objects.create(
+            pedido=self.pedido_completado,
+            producto=self.producto,
+            cantidad=2,
+            precio_unitario=1200.00
+        )
+        self.pedido_cancelado = Pedido.objects.create(
+            nombre_cliente="Cliente Cancelado",
+            telefono="1199999999",
+            codigo_seguimiento="CANC1234",
+            estado="CANCELADO",
+            monto_total=1200.00
+        )
+
+    def test_generar_datos_dashboard_excluye_cancelados(self):
+        datos = generar_datos_dashboard()
+
+        # KPIs
+        self.assertEqual(datos['kpis']['ingresos_totales'], 2400.00)
+        self.assertEqual(datos['kpis']['cantidad_pedidos'], 1)
+        self.assertEqual(datos['kpis']['ticket_promedio'], 2400.00)
+
+        # Estructura de gráficos
+        self.assertIn('days', datos['trend_data'])
+        self.assertIn('weeks', datos['trend_data'])
+        self.assertIn('months', datos['trend_data'])
+        self.assertIn('days', datos['pie_data'])
+
+        # Top productos
+        self.assertEqual(len(datos['top_productos']), 1)
+        self.assertEqual(datos['top_productos'][0]['producto__nombre'], "Café Doble")
+
+    def test_vista_dashboard_incluye_contexto_metricas(self):
+        url = reverse('administrador:dashboard')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('kpis', response.context)
+        self.assertIn('trend_data_json', response.context)
+        self.assertIn('pie_data_json', response.context)
