@@ -124,3 +124,8 @@ MAILERS = {
 # Configuración de archivos subidos por el usuario (Imágenes de productos)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configuración de Autenticación y Redirecciones
+LOGIN_URL = 'administrador:login'
+LOGIN_REDIRECT_URL = 'administrador:dashboard'
+LOGOUT_REDIRECT_URL = 'administrador:login'

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GastroCtrl - Acceso Administrativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        coffee: { 50: '#fdfbf7', 100: '#f7f2ea', 600: '#8c6343', 700: '#735034', 800: '#4e3320', 900: '#362315' },
+                        cream: { 100: '#fcf8f2', 200: '#f5ebd9' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-coffee-900 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-coffee-100">
+        <div class="bg-coffee-800 p-8 text-center text-white">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-coffee-600 rounded-full mb-4 shadow-lg">
+                <i class="fa-solid fa-utensils text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold tracking-wide">GastroCtrl</h1>
+            <p class="text-coffee-100 text-sm mt-1">Acceso Administrativo</p>
+        </div>
+
+        <div class="p-8">
+            {% if error %}
+            <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r text-red-700 text-sm flex items-center gap-3">
+                <i class="fa-solid fa-circle-exclamation text-base"></i>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'administrador:login' %}" class="space-y-5">
+                {% csrf_token %}
+                <div>
+                    <label for="username" class="block text-xs font-bold text-coffee-800 uppercase tracking-wider mb-2">Usuario</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-coffee-600">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="username" name="username" required
+                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-coffee-600 focus:ring-2 focus:ring-coffee-600/20 outline-none transition text-sm text-gray-800 bg-cream-100/50"
+                            placeholder="Usuario administrador">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-xs font-bold text-coffee-800 uppercase tracking-wider mb-2">Contraseña</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-coffee-600">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" name="password" required
+                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-coffee-600 focus:ring-2 focus:ring-coffee-600/20 outline-none transition text-sm text-gray-800 bg-cream-100/50"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full py-3.5 px-4 bg-coffee-600 hover:bg-coffee-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-sm flex items-center justify-center gap-2">
+                    <span>Ingresar al panel</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

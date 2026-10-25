@@ -60,4 +60,14 @@ urlpatterns = [
         views.detalle_cliente,
         name='detalle_cliente',
     ),
+    path(
+        'login/', 
+        views.login_view, 
+        name='login',
+    ),
+    path(
+        'logout/', 
+        views.logout_view, 
+        name='logout',
+    ),
 ]

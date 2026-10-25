@@ -8,6 +8,7 @@ from cliente.models import Pedido, DetallePedido
 from administrador.utils import generar_datos_dashboard
 from django.utils import timezone
 from cliente.models import Pedido, DetallePedido, Categoria, Producto, Inventario
+from django.contrib.auth.models import User
 
 class CRUDProductosTests(TestCase):
     def setUp(self):
@@ -209,6 +210,10 @@ class InventarioTests(TestCase):
 
 class GestionPedidosTests(TestCase):
     def setUp(self):
+
+        self.user = User.objects.create_user(username='admin_pedidos', password='password123')
+        self.client.login(username='admin_pedidos', password='password123')
+
         self.categoria = Categoria.objects.create(nombre="Pastelería", slug="pasteleria")
         self.producto = Producto.objects.create(
             categoria=self.categoria,
@@ -359,6 +364,10 @@ class GestionClientesTests(TestCase):
 
 class DashboardMetricasTests(TestCase):
     def setUp(self):
+
+        self.user = User.objects.create_user(username='admin_metricas', password='password123')
+        self.client.login(username='admin_metricas', password='password123')
+
         self.categoria = Categoria.objects.create(
             nombre="Cafetería",
             slug="cafeteria"
@@ -421,3 +430,47 @@ class DashboardMetricasTests(TestCase):
         self.assertIn('kpis', response.context)
         self.assertIn('trend_data_json', response.context)
         self.assertIn('pie_data_json', response.context)
+
+class AutenticacionSeguridadTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='admin_test',
+            password='Password123!'
+        )
+
+    def test_dashboard_requiere_login(self):
+        url = reverse('administrador:dashboard')
+        response = self.client.get(url)
+
+        # Debe redirigir al login
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_login_exitoso_redirige_al_dashboard(self):
+        url = reverse('administrador:login')
+        response = self.client.post(url, {
+            'username': 'admin_test',
+            'password': 'Password123!'
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('administrador:dashboard'))
+
+    def test_login_fallido_muestra_error(self):
+        url = reverse('administrador:login')
+        response = self.client.post(url, {
+            'username': 'admin_test',
+            'password': 'ClaveIncorrecta'
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('error', response.context)
+        self.assertEqual(response.context['error'], "Usuario o contraseña incorrectos.")
+
+    def test_logout_cierra_sesion(self):
+        self.client.login(username='admin_test', password='Password123!')
+        url = reverse('administrador:logout')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('administrador:login'))

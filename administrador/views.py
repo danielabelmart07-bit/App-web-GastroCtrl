@@ -1,7 +1,9 @@
 import json
 
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo
 from .models import ConfiguracionSistema
@@ -12,7 +14,7 @@ from django.db import transaction
 from django.db.models import Q
 from administrador.utils import generar_datos_dashboard
 
-
+@login_required(login_url='administrador:login')
 def dashboard(request):
     pedidos_qs = Pedido.objects.prefetch_related('detalles__producto').all()
 
@@ -515,3 +517,27 @@ def detalle_cliente(request, cliente_id):
             'pedidos': pedidos_data
         }
     })
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('administrador:dashboard')
+
+    error_message = None
+    if request.method == 'POST':
+        usuario = request.POST.get('username', '').strip()
+        clave = request.POST.get('password', '').strip()
+
+        user = authenticate(request, username=usuario, password=clave)
+        if user is not None:
+            login(request, user)
+            next_url = request.GET.get('next', 'administrador:dashboard')
+            return redirect(next_url)
+        else:
+            error_message = "Usuario o contraseña incorrectos."
+
+    return render(request, 'administrador/login.html', {'error': error_message})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('administrador:login')
