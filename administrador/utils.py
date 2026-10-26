@@ -5,7 +5,7 @@ from django.db.models import Sum, Avg, F, ExpressionWrapper, DecimalField
 from cliente.models import Pedido, DetallePedido, Categoria
 
 def generar_datos_dashboard():
-    hoy = timezone.now().date()
+    hoy = timezone.localdate()
     # Los ingresos y ventas reflejan pedidos entregados; los pendientes todavía
     # no son ventas concretadas. Archivar no altera el historial ni los KPI.
     pedidos_validos = Pedido.objects.filter(estado='ENTREGADO')
