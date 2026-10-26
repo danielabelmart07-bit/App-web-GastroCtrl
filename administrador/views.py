@@ -160,11 +160,16 @@ def actualizar_estado_pedido(request, codigo):
             }, status=400)
 
         if nuevo_estado == 'CANCELADO':
-            detalles = pedido.detalles.select_related('producto').all()
+            detalles = list(pedido.detalles.all())
+            producto_ids = sorted({detalle.producto_id for detalle in detalles if detalle.producto_id})
+            inventarios = {
+                inventario.producto_id: inventario
+                for inventario in Inventario.objects.select_for_update()
+                .filter(producto_id__in=producto_ids)
+                .order_by('producto_id')
+            }
             for detalle in detalles:
-                if not detalle.producto_id:
-                    continue
-                inventario = Inventario.objects.select_for_update().filter(producto_id=detalle.producto_id).first()
+                inventario = inventarios.get(detalle.producto_id)
                 if inventario:
                     inventario.cantidad_disponible += detalle.cantidad
                     inventario.save(update_fields=['cantidad_disponible'])
