@@ -756,8 +756,10 @@ async function saveCategory(event) {
         const saved = data.categoria;
         const previous = categories.find(cat => cat.id === saved.id);
         const category = { id: saved.id, name: saved.nombre, slug: saved.slug, count: previous ? previous.count : 0, icon: 'fa-tag', desc: 'Categoría de productos' };
-        if (id) categories = categories.map(cat => cat.id === saved.id ? category : cat);
-        else categories.push(category);
+        if (id) {
+            categories = categories.map(cat => cat.id === saved.id ? category : cat);
+            products = products.map(product => product.category_id === saved.id ? { ...product, category: saved.slug } : product);
+        } else categories.push(category);
         closeCategoryModal(); renderCategoriesGrid(); renderProductCategoryFilters(); renderProductsTable();
         showToast(id ? 'Categoría actualizada.' : 'Categoría creada.');
     } catch (error) { showToast(error.message || 'Error al guardar la categoría.', 'error'); }
