@@ -10,7 +10,7 @@ from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Ins
 from .models import ConfiguracionSistema
 from django.db import transaction
 from .forms import ProductoForm, CategoriaForm
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 from django.utils.http import url_has_allowed_host_and_scheme
 from administrador.utils import generar_datos_dashboard
 
@@ -530,7 +530,10 @@ def reponer_insumo(request):
 @staff_member_required(login_url='administrador:login')
 def listar_clientes(request):
     busqueda = request.GET.get('q', '').strip()
-    clientes_qs = Cliente.objects.prefetch_related('pedidos').all()
+    clientes_qs = Cliente.objects.annotate(
+        total_pedidos_db=Count('pedidos', distinct=True),
+        total_gastado_db=Sum('pedidos__monto_total', filter=~Q(pedidos__estado='CANCELADO')),
+    )
 
     if busqueda:
         clientes_qs = clientes_qs.filter(
@@ -546,8 +549,8 @@ def listar_clientes(request):
             'telefono': c.telefono,
             'direccion_habitual': c.direccion_habitual,
             'email': c.email or '',
-            'total_pedidos': c.total_pedidos,
-            'total_gastado': float(c.total_gastado),
+            'total_pedidos': c.total_pedidos_db,
+            'total_gastado': float(c.total_gastado_db or 0),
             'fecha_registro': c.fecha_registro.strftime('%Y-%m-%d %H:%M')
         }
         for c in clientes_qs
@@ -568,7 +571,7 @@ def detalle_cliente(request, cliente_id):
             'estado': p.estado,
             'estado_display': p.get_estado_display(),
             'monto_total': float(p.monto_total),
-            'fecha': p.fecha_creacion.strftime('%Y-%m-%d %H:%M') if hasattr(p, 'fecha_creacion') else ''
+            'fecha': p.creado_en.strftime('%Y-%m-%d %H:%M')
         }
         for p in pedidos
     ]
