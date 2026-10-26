@@ -526,8 +526,8 @@ class DashboardMetricasTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('kpis', response.context)
-        self.assertIn('trend_data_json', response.context)
-        self.assertIn('pie_data_json', response.context)
+        self.assertIn('trend_data', response.context)
+        self.assertIn('pie_data', response.context)
 
 class AutenticacionSeguridadTests(TestCase):
     def setUp(self):
