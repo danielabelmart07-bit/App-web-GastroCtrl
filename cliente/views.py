@@ -4,6 +4,7 @@ import json
 from django.db.models import Q
 from django.db import transaction
 from django.views.decorators.http import require_GET
+from django.views.decorators.cache import never_cache
 from decimal import Decimal
 from .models import Categoria, Producto, Pedido, DetallePedido, Inventario, Insumo, RecetaInsumo, ConsumoInsumoPedido
 from administrador.models import ConfiguracionSistema
@@ -275,6 +276,7 @@ def checkout(request):
         }
     )
 
+@never_cache
 @require_GET
 def consultar_estado_pedido_api(request, codigo):
     """Endpoint AJAX que consulta el estado del pedido para la pestaña 'Seguir pedido' del drawer."""
