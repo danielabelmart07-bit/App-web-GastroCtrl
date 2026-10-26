@@ -235,6 +235,7 @@ class ConsumoInsumoPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='consumos_insumos')
     insumo = models.ForeignKey(Insumo, on_delete=models.PROTECT, related_name='consumos_pedidos')
     cantidad = models.DecimalField(max_digits=12, decimal_places=3)
+    reintegrado = models.BooleanField(default=False, verbose_name='¿Se reintegró al cancelar el pedido?')
 
     class Meta:
         verbose_name = 'Consumo de insumo por pedido'
