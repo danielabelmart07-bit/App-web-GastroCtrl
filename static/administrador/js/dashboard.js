@@ -611,20 +611,42 @@ function closeRestockModal() {
     document.getElementById('restockModal').classList.add('hidden');
 }
 
-function saveRestock(event) {
+async function saveRestock(event) {
     event.preventDefault();
-    const itemId = parseInt(document.getElementById('modalRestockItemSelect').value);
-    const amount = parseFloat(document.getElementById('modalRestockAmount').value);
+    const itemId = parseInt(document.getElementById('modalRestockItemSelect').value, 10);
+    const amountInput = document.getElementById('modalRestockAmount');
+    const amount = amountInput.value;
 
-    const item = inventoryItems.find(i => i.id === itemId);
-    if (item) {
-        item.stock = parseFloat((item.stock + amount).toFixed(1));
-        showToast(`Se agregaron ${amount} ${item.unit} a ${item.name}`);
+    if (!Number.isFinite(itemId) || !amount || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+        showToast('Ingresá una cantidad válida mayor que cero.', 'error');
+        return;
     }
 
-    closeRestockModal();
-    renderInventoryTable();
-    renderDashboardViews();
+    try {
+        const response = await fetch(window.ADMIN_REPONER_INSUMO_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({ insumo_id: String(itemId), cantidad_reponer: amount })
+        });
+        const data = await response.json();
+        if (!response.ok || data.status !== 'ok') {
+            throw new Error(data.mensaje || 'No se pudo guardar la reposición.');
+        }
+
+        const item = inventoryItems.find(i => i.id === itemId);
+        if (item) item.stock = data.insumo.cantidad_disponible;
+        closeRestockModal();
+        amountInput.value = '';
+        renderInventoryTable();
+        renderDashboardViews();
+        showToast(`Reposición guardada: ${data.insumo.nombre}`);
+    } catch (error) {
+        showToast(error.message || 'Error al guardar la reposición.', 'error');
+    }
 }
 
 function getCookie(name) {
