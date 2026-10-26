@@ -1,75 +1,167 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GastroCtrl - Acceso Administrativo</title>
+    <title>GastroCtrl | Acceso administrativo</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        coffee: { 50: '#fdfbf7', 100: '#f7f2ea', 600: '#8c6343', 700: '#735034', 800: '#4e3320', 900: '#362315' },
-                        cream: { 100: '#fcf8f2', 200: '#f5ebd9' }
+                        cream: {
+                            50: '#fcfaf7',
+                            100: '#f7f3ed',
+                            200: '#efe6d8',
+                            300: '#e3d2be',
+                        },
+                        coffee: {
+                            500: '#a67c52',
+                            600: '#8c6343',
+                            700: '#6e4b30',
+                            800: '#4e3320',
+                            900: '#332013',
+                        },
+                        terracotta: '#b87d4b',
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-coffee-900 min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-coffee-100">
-        <div class="bg-coffee-800 p-8 text-center text-white">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-coffee-600 rounded-full mb-4 shadow-lg">
-                <i class="fa-solid fa-utensils text-2xl"></i>
-            </div>
-            <h1 class="text-2xl font-bold tracking-wide">GastroCtrl</h1>
-            <p class="text-coffee-100 text-sm mt-1">Acceso Administrativo</p>
+
+<body class="min-h-screen bg-cream-50 font-sans text-coffee-900 flex flex-col">
+
+    <header class="border-b border-cream-200 bg-white/90">
+        <div class="max-w-7xl mx-auto px-6 py-5">
+            <a href="{% url 'cliente:home' %}" class="inline-flex items-center gap-3">
+                <span class="w-11 h-11 rounded-full bg-coffee-500/10 border border-coffee-500/20 flex items-center justify-center text-coffee-600">
+                    <i class="fa-solid fa-wheat-awn text-lg"></i>
+                </span>
+                <span>
+                    <span class="block font-serif text-2xl font-bold">GastroCtrl</span>
+                    <span class="block text-[10px] uppercase tracking-[0.2em] text-coffee-600">
+                        Café &amp; Pastelería
+                    </span>
+                </span>
+            </a>
         </div>
+    </header>
 
-        <div class="p-8">
-            {% if error %}
-            <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r text-red-700 text-sm flex items-center gap-3">
-                <i class="fa-solid fa-circle-exclamation text-base"></i>
-                <span>{{ error }}</span>
-            </div>
-            {% endif %}
+    <main class="flex-1 flex items-center justify-center px-4 py-12">
+        <section class="w-full max-w-md">
 
-            <form method="POST" action="{% url 'administrador:login' %}" class="space-y-5">
-                {% csrf_token %}
-                <div>
-                    <label for="username" class="block text-xs font-bold text-coffee-800 uppercase tracking-wider mb-2">Usuario</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-coffee-600">
-                            <i class="fa-solid fa-user"></i>
-                        </span>
-                        <input type="text" id="username" name="username" required
-                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-coffee-600 focus:ring-2 focus:ring-coffee-600/20 outline-none transition text-sm text-gray-800 bg-cream-100/50"
-                            placeholder="Usuario administrador">
-                    </div>
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-coffee-500/10 text-coffee-600 border border-coffee-500/20 mb-5">
+                    <i class="fa-solid fa-user-shield text-2xl"></i>
                 </div>
 
-                <div>
-                    <label for="password" class="block text-xs font-bold text-coffee-800 uppercase tracking-wider mb-2">Contraseña</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-coffee-600">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
-                        <input type="password" id="password" name="password" required
-                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-coffee-600 focus:ring-2 focus:ring-coffee-600/20 outline-none transition text-sm text-gray-800 bg-cream-100/50"
-                            placeholder="••••••••">
-                    </div>
-                </div>
+                <h1 class="font-serif text-3xl sm:text-4xl font-bold">
+                    Acceso administrativo
+                </h1>
 
-                <button type="submit"
-                    class="w-full py-3.5 px-4 bg-coffee-600 hover:bg-coffee-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-sm flex items-center justify-center gap-2">
-                    <span>Ingresar al panel</span>
-                    <i class="fa-solid fa-arrow-right text-xs"></i>
-                </button>
-            </form>
-        </div>
-    </div>
+                <p class="mt-3 text-sm text-coffee-700/75">
+                    Ingresá a tu panel de gestión de GastroCtrl.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-cream-200 shadow-xl shadow-coffee-900/5 p-7 sm:p-8">
+
+                {% if error %}
+                    <div role="alert"
+                         class="mb-6 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                        <p>{{ error }}</p>
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'administrador:login' %}" class="space-y-5">
+                    {% csrf_token %}
+
+                    <div>
+                        <label for="username"
+                               class="block text-sm font-semibold mb-2">
+                            Usuario
+                        </label>
+
+                        <div class="relative">
+                            <i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-coffee-500"></i>
+
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                autocomplete="username"
+                                required
+                                autofocus
+                                placeholder="Tu usuario"
+                                class="w-full rounded-xl border border-cream-300 bg-cream-50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-coffee-500 focus:ring-4 focus:ring-coffee-500/10"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password"
+                               class="block text-sm font-semibold mb-2">
+                            Contraseña
+                        </label>
+
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-coffee-500"></i>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                autocomplete="current-password"
+                                required
+                                placeholder="Tu contraseña"
+                                class="w-full rounded-xl border border-cream-300 bg-cream-50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-coffee-500 focus:ring-4 focus:ring-coffee-500/10"
+                            >
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full rounded-xl bg-coffee-600 hover:bg-coffee-700 text-white font-semibold py-3.5 px-4 shadow-md shadow-coffee-900/10 transition flex items-center justify-center gap-2"
+                    >
+                        <span>Ingresar al panel</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-5 border-t border-cream-200 text-center">
+                    <a href="{% url 'cliente:home' %}"
+                    class="text-sm text-coffee-600 hover:text-coffee-800 transition">
+                        <i class="fa-solid fa-arrow-left mr-1"></i>
+                        Volver a la tienda
+                    </a>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-coffee-700/60 mt-6">
+                Acceso exclusivo para usuarios autorizados.
+            </p>
+        </section>
+    </main>
+
+    <footer class="text-center text-xs text-coffee-700/60 px-4 py-5">
+        © 2026 GastroCtrl. Todos los derechos reservados.
+    </footer>
+
 </body>
 </html>

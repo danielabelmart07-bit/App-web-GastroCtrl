@@ -39,7 +39,7 @@ let adminName = "Valentina";
 
 // Referencias DOM
 let profileBtn, profileDropdown, loggedOutView, loggedInView, adminNameDisplay;
-let openAdminLoginBtn, logoutBtn, loginModal, closeLoginModalBtn;
+let logoutBtn;
 let cartBtn, cartDrawer, cartBackdrop, closeCartBtn, cartCount;
 let cartItemsContainer, cartSubtotal, cartTotal, mobileMenuBtn, mobileMenu;
 
@@ -51,11 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loggedOutView = document.getElementById('loggedOutView');
     loggedInView = document.getElementById('loggedInView');
     adminNameDisplay = document.getElementById('adminNameDisplay');
-    openAdminLoginBtn = document.getElementById('openAdminLoginBtn');
     logoutBtn = document.getElementById('logoutBtn');
-    
-    loginModal = document.getElementById('loginModal');
-    closeLoginModalBtn = document.getElementById('closeLoginModalBtn');
 
     cartBtn = document.getElementById('cartBtn');
     cartDrawer = document.getElementById('cartDrawer');
@@ -91,20 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
                 closeProfileDropdown();
             }
-        });
-    }
-
-    // Modal de Login Admin
-    if (openAdminLoginBtn && loginModal) {
-        openAdminLoginBtn.addEventListener('click', () => {
-            closeProfileDropdown();
-            openModal(loginModal);
-        });
-    }
-
-    if (closeLoginModalBtn && loginModal) {
-        closeLoginModalBtn.addEventListener('click', () => {
-            closeModal(loginModal);
         });
     }
 
@@ -200,42 +182,6 @@ function closeModal(modal) {
     modal.firstElementChild.classList.add('scale-95');
 }
 
-function handleLogin(e) {
-    e.preventDefault();
-
-    const usernameInput = document.getElementById('adminUserInput');
-    const passwordInput = document.getElementById('adminPasswordInput');
-    const errorMessage = document.getElementById('adminLoginError');
-
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!username || !password) {
-        errorMessage.textContent = 'Completá usuario y contraseña para continuar.';
-        errorMessage.classList.remove('hidden');
-        return;
-    }
-
-    errorMessage.classList.add('hidden');
-
-    adminName = username;
-    isAdminLoggedIn = true;
-
-    if (adminNameDisplay) {
-        adminNameDisplay.textContent = `Admin: ${adminName}`;
-    }
-
-    loggedOutView.classList.add('hidden');
-    loggedInView.classList.remove('hidden');
-
-    closeModal(loginModal);
-
-    const adminUrl = loginModal.dataset.adminUrl;
-
-    if (adminUrl) {
-        window.location.href = adminUrl;
-    }
-}
 
 function openCart() {
     if (!cartBackdrop || !cartDrawer) return;

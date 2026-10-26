@@ -184,7 +184,7 @@
             name: "{{ producto.nombre|escapejs }}",
             category: "{{ producto.categoria.slug|escapejs }}",
             categoryLabel: "{{ producto.categoria.nombre|escapejs }}",
-            price: {{ producto.precio }},
+            price: {{ producto.precio|stringformat:"f" }},
             description: "{{ producto.descripcion|default:''|escapejs }}",
             image: "{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'cliente/img/placeholder.jpg' %}{% endif %}"
         }{% if not forloop.last %},{% endif %}
