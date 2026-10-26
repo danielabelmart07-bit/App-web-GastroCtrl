@@ -488,13 +488,13 @@
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Ventas Este Mes</span>
                         <p class="font-serif-title font-bold text-3xl text-coffee-900">$ {{ kpis.ingresos_mes|floatformat:2 }}</p>
-                        <span class="text-xs text-emerald-600 font-bold flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> +18% vs mes anterior</span>
+                        <span class="text-xs text-coffee-600 font-medium">Pedidos entregados durante el mes actual</span>
                     </div>
 
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Ticket Promedio</span>
                         <p class="font-serif-title font-bold text-3xl text-coffee-900">$ {{ kpis.ticket_promedio|floatformat:2 }}</p>
-                        <span class="text-xs text-coffee-600 font-medium">{{ kpis.cantidad_pedidos }} pedidos no cancelados</span>
+                        <span class="text-xs text-coffee-600 font-medium">{{ kpis.cantidad_pedidos }} pedidos entregados</span>
                     </div>
 
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
