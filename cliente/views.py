@@ -3,6 +3,7 @@ from django.http import JsonResponse
 import json
 from django.db.models import Q
 from django.db import transaction
+from decimal import Decimal
 from .models import Categoria, Producto, Pedido, DetallePedido, Inventario, Insumo, RecetaInsumo, ConsumoInsumoPedido
 from administrador.models import ConfiguracionSistema
 from .carrito import Carrito
@@ -156,12 +157,16 @@ def checkout(request):
 
                 # Las recetas permiten convertir cada venta en consumo real de
                 # materias primas. Se bloquean los insumos en orden estable.
-                recetas = RecetaInsumo.objects.filter(
+                recetas = list(RecetaInsumo.objects.filter(
                     producto_id__in=producto_ids
-                ).order_by('insumo_id', 'producto_id')
+                ).order_by('insumo_id', 'producto_id'))
+                recetas_por_producto = {}
+                for receta in recetas:
+                    recetas_por_producto.setdefault(receta.producto_id, []).append(receta)
+
                 consumo_requerido = {}
                 for producto, cantidad_producto in productos_pedido:
-                    for receta in recetas.filter(producto_id=producto.id):
+                    for receta in recetas_por_producto.get(producto.id, []):
                         consumo_requerido[receta.insumo_id] = (
                             consumo_requerido.get(receta.insumo_id, Decimal('0.000'))
                             + receta.cantidad_por_unidad * cantidad_producto
