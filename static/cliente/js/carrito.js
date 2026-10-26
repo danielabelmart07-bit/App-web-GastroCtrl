@@ -567,19 +567,19 @@ async function buscarEstadoPedido() {
         result.innerHTML = `
             <div class="rounded-2xl bg-cream-50 border border-cream-200 p-4">
 
-                <div class="flex items-center justify-between gap-3">
+                <div class="flex flex-wrap items-start justify-between gap-2 min-w-0">
 
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <p class="text-[10px] uppercase tracking-wider text-gray-400">
                             Pedido
                         </p>
 
-                        <p class="font-bold text-coffee-900">
+                        <p class="font-bold text-coffee-900 break-words">
                             #${escapeHtml(data.codigo)}
                         </p>
                     </div>
 
-                    <span class="px-3 py-1 rounded-full bg-coffee-100 text-coffee-800 text-xs font-bold">
+                    <span class="inline-block max-w-full whitespace-normal break-words px-3 py-1 rounded-full bg-coffee-100 text-coffee-800 text-xs font-bold">
                         ${escapeHtml(data.estado)}
                     </span>
 
