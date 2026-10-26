@@ -38,6 +38,7 @@ let categories = (window.ADMIN_CATEGORIAS || []).map(cat => ({
 }));
 
 let orders = window.ADMIN_PEDIDOS || [];
+let archivedOrders = window.ADMIN_PEDIDOS_ARCHIVADOS || [];
 
 let inventoryItems = (window.ADMIN_INSUMOS || []).map(insumo => ({
     id: insumo.id,
@@ -114,6 +115,7 @@ window.onload = async function() {
     await loadCustomers();
     renderDashboardViews();
     renderOrdersWorkflow();
+    renderArchivedOrdersWorkflow();
     renderProductsTable();
     renderInventoryTable();
     renderCustomersTable();
@@ -293,6 +295,92 @@ function renderOrdersWorkflow() {
             </div>
         </div>
     `).join('');
+}
+
+function toggleArchivedOrders() {
+    const panel = document.getElementById('ordersArchivedPanel');
+    const button = document.getElementById('toggleArchivedOrdersBtn');
+    const willShow = panel.classList.contains('hidden');
+    panel.classList.toggle('hidden', !willShow);
+    button.textContent = willShow ? 'Ocultar historial' : 'Ver historial';
+    if (willShow) renderArchivedOrdersWorkflow();
+}
+
+function renderArchivedOrdersWorkflow() {
+    const grid = document.getElementById('ordersArchivedGrid');
+    if (!grid) return;
+    const search = (document.getElementById('archivedOrderSearchInput')?.value || '').toLowerCase();
+    const filtered = archivedOrders.filter(order =>
+        (order.customer || '').toLowerCase().includes(search) ||
+        (order.id || '').toLowerCase().includes(search) ||
+        (order.codigo || '').toLowerCase().includes(search)
+    );
+    if (!filtered.length) {
+        grid.innerHTML = '<div class="col-span-full py-8 text-center text-coffee-500 font-medium">No hay pedidos archivados que coincidan.</div>';
+        return;
+    }
+    grid.innerHTML = filtered.map(order => `
+        <article class="bg-white p-5 rounded-3xl border border-cream-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-coffee-500">${escapeHTML(order.id)}</span>
+                ${getStatusBadgeHTML(order.status)}
+            </div>
+            <h4 class="font-serif-title font-bold text-coffee-900">${escapeHTML(order.customer)}</h4>
+            <p class="text-xs text-coffee-600">${escapeHTML(order.items)}</p>
+            <div class="flex items-center justify-between text-xs border-t border-cream-100 pt-3">
+                <span>${escapeHTML(order.time)}</span><strong>${(Number(order.total) || 0).toLocaleString('es-AR')}</strong>
+            </div>
+            <button onclick="restoreArchivedOrder('${escapeHTML(order.codigo)}')" class="w-full py-2 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs">Restaurar a pedidos activos</button>
+        </article>
+    `).join('');
+}
+
+async function setOrderArchived(codigo, archivado) {
+    const url = window.ADMIN_ARCHIVAR_PEDIDO_URL.replace('__CODIGO__', encodeURIComponent(codigo));
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ archivado })
+    });
+    const data = await response.json();
+    if (!response.ok || data.status !== 'ok') throw new Error(data.mensaje || 'No se pudo actualizar el historial.');
+    return data;
+}
+
+async function archiveCurrentOrder() {
+    if (!currentActiveOrder) return;
+    if (!['entregado', 'cancelado'].includes(currentActiveOrder.status)) {
+        showToast('Solo podés archivar pedidos entregados o cancelados.', 'error');
+        return;
+    }
+    try {
+        await setOrderArchived(currentActiveOrder.codigo, true);
+        archivedOrders.unshift(currentActiveOrder);
+        orders = orders.filter(order => order.codigo !== currentActiveOrder.codigo);
+        closeOrderDetailModal();
+        currentActiveOrder = null;
+        renderOrdersWorkflow();
+        renderDashboardViews();
+        renderArchivedOrdersWorkflow();
+        showToast('Pedido archivado. Sigue guardado en el historial.');
+    } catch (error) {
+        showToast(error.message || 'No se pudo archivar el pedido.', 'error');
+    }
+}
+
+async function restoreArchivedOrder(codigo) {
+    try {
+        await setOrderArchived(codigo, false);
+        const order = archivedOrders.find(item => item.codigo === codigo);
+        if (order) orders.unshift(order);
+        archivedOrders = archivedOrders.filter(item => item.codigo !== codigo);
+        renderOrdersWorkflow();
+        renderDashboardViews();
+        renderArchivedOrdersWorkflow();
+        showToast('Pedido restaurado a la lista activa.');
+    } catch (error) {
+        showToast(error.message || 'No se pudo restaurar el pedido.', 'error');
+    }
 }
 
 function renderProductCategoryFilters() {
@@ -645,6 +733,10 @@ function openOrderDetailModal(orderId) {
     document.getElementById('modalOrderItems').innerText = order.items;
     document.getElementById('modalOrderTotal').innerText = `$${order.total.toLocaleString()}`;
     document.getElementById('modalOrderStatusSelect').value = order.status;
+    const archiveButton = document.getElementById('archiveOrderBtn');
+    const canArchive = ['entregado', 'cancelado'].includes(order.status);
+    archiveButton.classList.toggle('hidden', !canArchive);
+    archiveButton.disabled = !canArchive;
 
     document.getElementById('orderDetailModal').classList.remove('hidden');
 }
