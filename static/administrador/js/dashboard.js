@@ -853,7 +853,16 @@ function closeLogoutModal() {
 
 function confirmLogout() {
     closeLogoutModal();
-    window.location.href = '/';
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = window.ADMIN_LOGOUT_URL;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = getCookie('csrftoken');
+    form.appendChild(csrfInput);
+    document.body.appendChild(form);
+    form.submit();
 }
 
 function showToast(message, type = 'success') {
