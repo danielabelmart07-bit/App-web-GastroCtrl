@@ -53,11 +53,7 @@ let inventoryItems = (window.ADMIN_INSUMOS || []).map(insumo => ({
     unit: insumo.unidad_medida,
 }));
 
-let customers = [
-    { id: 1, name: "Camila Torres", email: "camila.t@gmail.com", phone: "+54 9 11 4521-8899", ordersCount: 14, spent: 48200 },
-    { id: 2, name: "Lucas Benítez", email: "lucas.b@hotmail.com", phone: "+54 9 11 6320-1122", ordersCount: 8, spent: 29400 },
-    { id: 3, name: "Martín Gómez", email: "mgomez@yahoo.com", phone: "+54 9 11 5544-3322", ordersCount: 22, spent: 84000 }
-];
+let customers = [];
 
 let currentActiveOrder = null;
 let activeOrderFilter = 'todos';
@@ -140,7 +136,8 @@ function updateCategoryPieChart(period) {
 }
 
 // Inicialización de la aplicación al cargar
-window.onload = function() {
+window.onload = async function() {
+    await loadCustomers();
     renderDashboardViews();
     renderOrdersWorkflow();
     renderProductsTable();
@@ -780,21 +777,56 @@ function saveCategory(event) {
     renderCategoriesGrid();
 }
 
+async function loadCustomers() {
+    try {
+        const response = await fetch(window.ADMIN_CLIENTES_URL, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await response.json();
+        if (!response.ok || data.status !== 'ok') throw new Error('No se pudieron cargar los clientes.');
+        customers = data.clientes.map(c => ({
+            id: c.id,
+            name: c.nombre,
+            email: c.email || 'Sin email',
+            phone: c.telefono,
+            ordersCount: c.total_pedidos,
+            spent: c.total_gastado
+        }));
+    } catch (error) {
+        customers = [];
+        showToast(error.message || 'Error al cargar clientes.', 'error');
+    }
+}
+
 function renderCustomersTable() {
     const tbody = document.getElementById('customersTableBody');
+    if (!customers.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-coffee-500">Todavía no hay clientes registrados.</td></tr>';
+        return;
+    }
     tbody.innerHTML = customers.map(c => `
         <tr class="hover:bg-cream-50/80 transition-colors">
-            <td class="py-3 px-3 font-bold text-coffee-900">${c.name}</td>
-            <td class="py-3 px-3 text-coffee-600">${c.email} <br> <span class="text-[10px]">${c.phone}</span></td>
-            <td class="py-3 px-3 font-bold">${c.ordersCount} pedidos</td>
-            <td class="py-3 px-3 font-bold text-coffee-900">$${c.spent.toLocaleString()}</td>
+            <td class="py-3 px-3 font-bold text-coffee-900">${escapeHTML(c.name)}</td>
+            <td class="py-3 px-3 text-coffee-600">${escapeHTML(c.email)} <br> <span class="text-[10px]">${escapeHTML(c.phone)}</span></td>
+            <td class="py-3 px-3 font-bold">${Number(c.ordersCount) || 0} pedidos</td>
+            <td class="py-3 px-3 font-bold text-coffee-900">$ ${(Number(c.spent) || 0).toLocaleString('es-AR')}</td>
             <td class="py-3 px-3">
-                <button onclick="showToast('Mensaje enviado a ${c.name}', 'info')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-xs transition-colors border border-emerald-200 inline-flex items-center gap-1">
-                    <i class="fa-brands fa-whatsapp text-xs"></i> Contactar
+                <button onclick="openCustomerWhatsApp(${Number(c.id)})" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-xs transition-colors border border-emerald-200 inline-flex items-center gap-1">
+                    <i class="fa-brands fa-whatsapp text-xs"></i> Abrir WhatsApp
                 </button>
             </td>
         </tr>
     `).join('');
+}
+
+function openCustomerWhatsApp(customerId) {
+    const customer = customers.find(c => c.id === customerId);
+    const phone = (customer?.phone || '').replace(/\\D/g, '');
+    if (!phone) {
+        showToast('El cliente no tiene un teléfono válido.', 'error');
+        return;
+    }
+    window.open(`https://wa.me/${phone}`, '_blank', 'noopener,noreferrer');
 }
 
 async function saveSettings(e) {
