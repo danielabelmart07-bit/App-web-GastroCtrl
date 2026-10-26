@@ -89,6 +89,7 @@ def dashboard(request):
             ) or 'Sin detalle',
             'total': float(pedido.monto_total),
             'status': pedido.estado.lower(),
+            'type': pedido.get_modalidad_entrega_display(),
             'time': pedido.creado_en.strftime('%d/%m/%Y %H:%M'),
         }
         for pedido in pedidos
