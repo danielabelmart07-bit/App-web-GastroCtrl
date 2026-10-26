@@ -347,6 +347,39 @@ class GestionPedidosTests(TestCase):
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 13)
 
+    def test_archivar_pedido_entregado_lo_conserva_en_base_y_lo_oculta_de_activos(self):
+        self.pedido.estado = 'ENTREGADO'
+        self.pedido.save(update_fields=['estado'])
+        url = reverse('administrador:archivar_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        response = self.client.post(url, json.dumps({'archivado': True}), content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.pedido.refresh_from_db()
+        self.assertTrue(self.pedido.archivado)
+        self.assertTrue(Pedido.objects.filter(pk=self.pedido.pk).exists())
+        dashboard = self.client.get(reverse('administrador:dashboard'))
+        self.assertFalse(dashboard.context['pedidos'].filter(pk=self.pedido.pk).exists())
+        self.assertEqual(len(dashboard.context['pedidos_archivados_data']), 1)
+        self.assertEqual(dashboard.context['pedidos_archivados_data'][0]['codigo'], self.pedido.codigo_seguimiento)
+
+    def test_no_permite_archivar_pedido_pendiente(self):
+        url = reverse('administrador:archivar_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        response = self.client.post(url, json.dumps({'archivado': True}), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.pedido.refresh_from_db()
+        self.assertFalse(self.pedido.archivado)
+
+    def test_restaurar_pedido_archivado_lo_devuelve_a_activos(self):
+        self.pedido.estado = 'ENTREGADO'
+        self.pedido.archivado = True
+        self.pedido.save(update_fields=['estado', 'archivado'])
+        url = reverse('administrador:archivar_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        response = self.client.post(url, json.dumps({'archivado': False}), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.pedido.refresh_from_db()
+        self.assertFalse(self.pedido.archivado)
+        self.assertTrue(self.client.get(reverse('administrador:dashboard')).context['pedidos'].filter(pk=self.pedido.pk).exists())
+
     def test_filtrar_pedidos_por_estado(self):
 
         Pedido.objects.create(
