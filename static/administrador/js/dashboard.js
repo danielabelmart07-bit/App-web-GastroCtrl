@@ -33,12 +33,9 @@ tailwind.config = {
 // Estructuras de Datos / Estado de la App
 let products = window.ADMIN_PRODUCTOS;
 
-let categories = [
-    { id: 1, name: "Pastelería", slug: "pasteleria", icon: "fa-cake-candles", count: 18, desc: "Tortas, tartas y alfajores artesanales" },
-    { id: 2, name: "Cafetería", slug: "cafeteria", icon: "fa-mug-hot", count: 12, desc: "Espresso, lattes y preparaciones filtradas" },
-    { id: 3, name: "Panadería", slug: "panaderia", icon: "fa-bread-slice", count: 8, desc: "Panes de masa madre, baguettes y brioches" },
-    { id: 4, name: "Bebidas Frías", slug: "bebidas", icon: "fa-glass-water", count: 6, desc: "Cold brew, limonadas y smoothies" }
-];
+let categories = (window.ADMIN_CATEGORIAS || []).map(cat => ({
+    ...cat, icon: 'fa-tag', desc: 'Categoría de productos'
+}));
 
 let orders = (window.ADMIN_PEDIDOS && window.ADMIN_PEDIDOS.length) ? window.ADMIN_PEDIDOS : [
     { id: '#ORD-8942', codigo: 'ORD-8942', customer: 'Camila Torres', items: '2x Flat White, 1x Croissant Almendras', total: 8800, type: 'Takeaway', status: 'en_preparacion', time: 'Hace 5 min' }
@@ -150,6 +147,7 @@ window.onload = async function() {
     renderInventoryTable();
     renderCustomersTable();
     renderCategoriesGrid();
+    renderProductCategoryFilters();
     initCharts();
 };
 
@@ -326,6 +324,15 @@ function renderOrdersWorkflow() {
     `).join('');
 }
 
+function renderProductCategoryFilters() {
+    const container = document.getElementById('productCategoryFilters');
+    if (!container) return;
+    const options = [{ id: 'todos', name: 'Todos' }, ...categories.map(cat => ({ id: cat.slug, name: cat.name }))];
+    container.innerHTML = options.map((cat, index) => {
+        const active = index === 0;
+        return '<button onclick="filterProductsCategory(\'' + escapeHTML(cat.id) + '\')" class="prod-cat-btn px-4 py-2 rounded-full text-xs font-bold ' + (active ? 'bg-coffee-600 text-white' : 'bg-cream-100 text-coffee-800') + '" data-cat="' + escapeHTML(cat.id) + '">' + escapeHTML(cat.name) + '</button>';
+    }).join('');
+}
 function filterProductsCategory(cat) {
     activeProductCatFilter = cat;
     document.querySelectorAll('.prod-cat-btn').forEach(btn => {
@@ -715,15 +722,13 @@ function renderCategoriesGrid() {
                 <div class="w-10 h-10 rounded-2xl bg-coffee-50 border border-coffee-200 text-coffee-600 flex items-center justify-center text-lg mb-3">
                     <i class="fa-solid ${cat.icon}"></i>
                 </div>
-                <h3 class="font-serif-title font-bold text-base text-coffee-900">${cat.name}</h3>
-                <p class="text-xs text-coffee-600 mt-1">${cat.desc}</p>
+                <h3 class="font-serif-title font-bold text-base text-coffee-900">${escapeHTML(cat.name)}</h3>
+                <p class="text-xs text-coffee-600 mt-1">${escapeHTML(cat.slug)}</p>
             </div>
 
             <div class="pt-3 border-t border-cream-100 flex items-center justify-between">
-                <span class="text-xs font-bold text-coffee-800">${cat.count} Productos</span>
-                <button onclick="editCategory(${cat.id})" class="px-2.5 py-1.5 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors">
-                    Editar
-                </button>
+                <span class="text-xs font-bold text-coffee-800">${Number(cat.count) || 0} Productos</span>
+                <div class="flex gap-2"><button onclick="editCategory(${cat.id})" class="px-2.5 py-1.5 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors">Editar</button><button onclick="deleteCategory(${cat.id})" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 font-bold text-xs transition-colors">Eliminar</button></div>
             </div>
         </div>
     `).join('');
@@ -739,12 +744,12 @@ function openCategoryModal(catId = null) {
             document.getElementById('categoryModalTitle').innerText = "Editar Categoría";
             document.getElementById('modalCategoryId').value = cat.id;
             document.getElementById('modalCatName').value = cat.name;
-            document.getElementById('modalCatDesc').value = cat.desc;
-            document.getElementById('modalCatIcon').value = cat.icon;
+            document.getElementById('modalCatSlug').value = cat.slug;
         }
     } else {
         document.getElementById('categoryModalTitle').innerText = "Nueva Categoría";
         document.getElementById('modalCategoryId').value = "";
+        document.getElementById('modalCatSlug').value = "";
     }
 
     modal.classList.remove('hidden');
@@ -758,29 +763,47 @@ function editCategory(id) {
     openCategoryModal(id);
 }
 
-function saveCategory(event) {
+async function saveCategory(event) {
     event.preventDefault();
     const id = document.getElementById('modalCategoryId').value;
-    const name = document.getElementById('modalCatName').value;
-    const desc = document.getElementById('modalCatDesc').value;
-    const icon = document.getElementById('modalCatIcon').value || 'fa-tag';
-
-    if (id) {
-        const idx = categories.findIndex(c => c.id == id);
-        if (idx !== -1) {
-            categories[idx] = { ...categories[idx], name, desc, icon };
-        }
-        showToast('Categoría actualizada');
-    } else {
-        categories.push({
-            id: Date.now(),
-            name, desc, icon, count: 0, slug: name.toLowerCase().replace(/\s+/g, '')
+    const name = document.getElementById('modalCatName').value.trim();
+    const slug = document.getElementById('modalCatSlug').value.trim();
+    if (!name) { showToast('El nombre de la categoría es obligatorio.', 'error'); return; }
+    const formData = new FormData();
+    if (id) formData.append('id', id);
+    formData.append('nombre', name);
+    if (slug) formData.append('slug', slug);
+    try {
+        const response = await fetch(id ? window.ADMIN_EDITAR_CATEGORIA_URL : window.ADMIN_CREAR_CATEGORIA_URL, {
+            method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: formData
         });
-        showToast('Categoría creada');
-    }
+        const data = await response.json();
+        if (!response.ok || data.status !== 'ok') {
+            const detail = data.mensaje || Object.values(data.details || {}).flat().map(error => error.message).join(' ');
+            throw new Error(detail || 'No se pudo guardar la categoría.');
+        }
+        const saved = data.categoria;
+        const previous = categories.find(cat => cat.id === saved.id);
+        const category = { id: saved.id, name: saved.nombre, slug: saved.slug, count: previous ? previous.count : 0, icon: 'fa-tag', desc: 'Categoría de productos' };
+        if (id) categories = categories.map(cat => cat.id === saved.id ? category : cat);
+        else categories.push(category);
+        closeCategoryModal(); renderCategoriesGrid(); renderProductCategoryFilters(); renderProductsTable();
+        showToast(id ? 'Categoría actualizada.' : 'Categoría creada.');
+    } catch (error) { showToast(error.message || 'Error al guardar la categoría.', 'error'); }
+}
 
-    closeCategoryModal();
-    renderCategoriesGrid();
+async function deleteCategory(id) {
+    const category = categories.find(cat => cat.id === id);
+    if (!category || !confirm('¿Eliminar la categoría "' + category.name + '"?')) return;
+    const formData = new FormData(); formData.append('id', id);
+    try {
+        const response = await fetch(window.ADMIN_ELIMINAR_CATEGORIA_URL, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: formData });
+        const data = await response.json();
+        if (!response.ok || data.status !== 'ok') throw new Error(data.mensaje || 'No se pudo eliminar la categoría.');
+        categories = categories.filter(cat => cat.id !== id);
+        renderCategoriesGrid(); renderProductCategoryFilters(); renderProductsTable();
+        showToast('Categoría eliminada.');
+    } catch (error) { showToast(error.message || 'Error al eliminar la categoría.', 'error'); }
 }
 
 async function loadCustomers() {
