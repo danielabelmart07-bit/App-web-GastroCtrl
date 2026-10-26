@@ -478,20 +478,20 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Ventas Este Mes</span>
-                        <p class="font-serif-title font-bold text-3xl text-coffee-900">$3.840.000</p>
+                        <p class="font-serif-title font-bold text-3xl text-coffee-900">$ {{ kpis.ingresos_mes|floatformat:2 }}</p>
                         <span class="text-xs text-emerald-600 font-bold flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> +18% vs mes anterior</span>
                     </div>
 
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Ticket Promedio</span>
-                        <p class="font-serif-title font-bold text-3xl text-coffee-900">$4.620</p>
-                        <span class="text-xs text-coffee-600 font-medium">Basado en 830 pedidos</span>
+                        <p class="font-serif-title font-bold text-3xl text-coffee-900">$ {{ kpis.ticket_promedio|floatformat:2 }}</p>
+                        <span class="text-xs text-coffee-600 font-medium">{{ kpis.cantidad_pedidos }} pedidos no cancelados</span>
                     </div>
 
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Producto estrella</span>
-                        <p class="font-serif-title font-bold text-xl text-coffee-900 truncate">Croissant de Almendras</p>
-                        <span class="text-xs text-coffee-600 font-medium">340 unidades vendidas</span>
+                        <p class="font-serif-title font-bold text-xl text-coffee-900 truncate">{{ top_productos.0.producto__nombre|default:"Sin ventas todavía" }}</p>
+                        <span class="text-xs text-coffee-600 font-medium">{{ top_productos.0.unidades|default:0 }} unidades vendidas</span>
                     </div>
                 </div>
 
