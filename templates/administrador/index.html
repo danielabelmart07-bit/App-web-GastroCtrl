@@ -393,12 +393,7 @@
                                    class="w-full pl-9 pr-4 py-2.5 rounded-full bg-cream-50 border border-cream-300 text-xs focus:outline-none focus:border-coffee-600">
                         </div>
 
-                        <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto">
-                            <button onclick="filterProductsCategory('todos')" class="prod-cat-btn px-4 py-2 rounded-full text-xs font-bold bg-coffee-600 text-white" data-cat="todos">Todos</button>
-                            <button onclick="filterProductsCategory('pasteleria')" class="prod-cat-btn px-4 py-2 rounded-full text-xs font-bold bg-cream-100 text-coffee-800" data-cat="pasteleria">Pastelería</button>
-                            <button onclick="filterProductsCategory('cafeteria')" class="prod-cat-btn px-4 py-2 rounded-full text-xs font-bold bg-cream-100 text-coffee-800" data-cat="cafeteria">Cafetería</button>
-                            <button onclick="filterProductsCategory('panaderia')" class="prod-cat-btn px-4 py-2 rounded-full text-xs font-bold bg-cream-100 text-coffee-800" data-cat="panaderia">Panadería</button>
-                        </div>
+                        <div id="productCategoryFilters" class="flex items-center gap-2 overflow-x-auto w-full md:w-auto"></div>
                     </div>
 
                     <!-- Products Data Table -->
@@ -719,13 +714,8 @@
                 </div>
 
                 <div>
-                    <label class="block mb-1 font-bold text-coffee-800">Descripción Breve</label>
-                    <input type="text" id="modalCatDesc" placeholder="Ej. Batidos, limonadas y smoothies" class="w-full px-3.5 py-2 rounded-xl bg-cream-50 border border-cream-300 focus:border-coffee-600 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block mb-1 font-bold text-coffee-800">Icono FontAwesome</label>
-                    <input type="text" id="modalCatIcon" value="fa-mug-hot" placeholder="fa-mug-hot" class="w-full px-3.5 py-2 rounded-xl bg-cream-50 border border-cream-300 focus:border-coffee-600 focus:outline-none">
+                    <label class="block mb-1 font-bold text-coffee-800">Slug (opcional)</label>
+                    <input type="text" id="modalCatSlug" placeholder="Se genera desde el nombre si lo dejás vacío" class="w-full px-3.5 py-2 rounded-xl bg-cream-50 border border-cream-300 focus:border-coffee-600 focus:outline-none">
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-cream-200">
@@ -845,6 +835,10 @@
     window.ADMIN_REPONER_INSUMO_URL = "{% url 'administrador:reponer_insumo' %}";
     window.ADMIN_LOGOUT_URL = "{% url 'administrador:logout' %}";
     window.ADMIN_CLIENTES_URL = "{% url 'administrador:listar_clientes' %}";
+    window.ADMIN_CATEGORIAS = {{ categorias_json|safe }};
+    window.ADMIN_CREAR_CATEGORIA_URL = "{% url 'administrador:crear_categoria' %}";
+    window.ADMIN_EDITAR_CATEGORIA_URL = "{% url 'administrador:editar_categoria' %}";
+    window.ADMIN_ELIMINAR_CATEGORIA_URL = "{% url 'administrador:eliminar_categoria' %}";
     window.semanaLabels = {{ semana_labels_json|safe }};
     window.semanaData = {{ semana_data_json|safe }};
     window.trendDataReal = {{ trend_data_json|safe }};
