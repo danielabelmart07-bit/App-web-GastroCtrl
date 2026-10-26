@@ -1,6 +1,6 @@
 import json
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login, logout, authenticate
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -8,13 +8,12 @@ from django.views.decorators.http import require_POST
 from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo
 from .models import ConfiguracionSistema
 from django.db import transaction
-from .forms import ProductoForm
 from .forms import ProductoForm, CategoriaForm
-from django.db import transaction
 from django.db.models import Q
+from django.utils.http import url_has_allowed_host_and_scheme
 from administrador.utils import generar_datos_dashboard
 
-@login_required(login_url='administrador:login')
+@staff_member_required(login_url='administrador:login')
 def dashboard(request):
     pedidos_qs = Pedido.objects.prefetch_related('detalles__producto').all()
 
@@ -60,7 +59,7 @@ def dashboard(request):
             'category': producto.categoria.slug,
             'category_id': producto.categoria_id,
             'price': float(producto.precio),
-            'stock': producto.inventario.cantidad_disponible,
+            'stock': producto.inventario.cantidad_disponible if hasattr(producto, 'inventario') else 0,
             'status': 'active' if producto.activo else 'inactive',
             'image': producto.imagen.url if producto.imagen else '',
         }
@@ -106,6 +105,7 @@ def dashboard(request):
 
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def actualizar_estado_pedido(request, codigo):
     pedido = get_object_or_404(Pedido, codigo_seguimiento__iexact=codigo.strip())
 
@@ -171,6 +171,7 @@ def actualizar_estado_pedido(request, codigo):
 
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def actualizar_configuracion_envio(request):
     try:
         data = json.loads(request.body or '{}')
@@ -190,6 +191,7 @@ def actualizar_configuracion_envio(request):
     })
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def crear_producto(request):
     form = ProductoForm(request.POST, request.FILES)
 
@@ -243,6 +245,7 @@ def crear_producto(request):
     })
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def editar_producto(request):
     producto_id = request.POST.get("id")
 
@@ -307,6 +310,7 @@ def editar_producto(request):
     })
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def eliminar_producto(request):
     producto_id = request.POST.get("id")
 
@@ -328,6 +332,7 @@ def eliminar_producto(request):
     })
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def crear_categoria(request):
     form = CategoriaForm(request.POST)
 
@@ -349,6 +354,7 @@ def crear_categoria(request):
     })
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def editar_categoria(request):
     categoria_id = request.POST.get("id")
 
@@ -382,6 +388,7 @@ def editar_categoria(request):
     })
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def eliminar_categoria(request):
     categoria_id = request.POST.get("id")
 
@@ -409,6 +416,7 @@ def eliminar_categoria(request):
     })
 
 @require_POST
+@staff_member_required(login_url='administrador:login')
 def actualizar_inventario(request):
     producto_id = request.POST.get("producto_id")
 
@@ -459,6 +467,7 @@ def actualizar_inventario(request):
         }
     })
 
+@staff_member_required(login_url='administrador:login')
 def listar_clientes(request):
     busqueda = request.GET.get('q', '').strip()
     clientes_qs = Cliente.objects.prefetch_related('pedidos').all()
@@ -487,6 +496,7 @@ def listar_clientes(request):
     return JsonResponse({'status': 'ok', 'clientes': clientes_data})
 
 
+@staff_member_required(login_url='administrador:login')
 def detalle_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, pk=cliente_id)
     pedidos = cliente.pedidos.all().order_by('-id')
@@ -528,12 +538,14 @@ def login_view(request):
         clave = request.POST.get('password', '').strip()
 
         user = authenticate(request, username=usuario, password=clave)
-        if user is not None:
+        if user is not None and user.is_active and user.is_staff:
             login(request, user)
-            next_url = request.GET.get('next', 'administrador:dashboard')
-            return redirect(next_url)
+            next_url = request.POST.get('next') or request.GET.get('next', '')
+            if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                next_url = ''
+            return redirect(next_url or 'administrador:dashboard')
         else:
-            error_message = "Usuario o contraseña incorrectos."
+            error_message = "Usuario/contraseña incorrectos o cuenta sin permisos de administración."
 
     return render(request, 'administrador/login.html', {'error': error_message})
 
