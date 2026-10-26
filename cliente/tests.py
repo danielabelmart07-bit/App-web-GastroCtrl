@@ -37,6 +37,13 @@ class CarritoTests(TestCase):
             Decimal("1200.00"),
         )
 
+    def test_iterar_carrito_no_guarda_decimal_en_la_sesion(self):
+        self.carrito.agregar(self.producto)
+        list(self.carrito)
+        # Simula el guardado de sesión que ocurre al finalizar una respuesta.
+        self.carrito.session.save()
+        self.assertEqual(self.carrito.obtener_precio_total(), Decimal('1200.00'))
+
     def test_no_agregar_cantidades_invalidas(self):
         with self.assertRaises(ValueError):
             self.carrito.agregar(self.producto, cantidad=0)
