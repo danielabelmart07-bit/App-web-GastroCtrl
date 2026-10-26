@@ -121,70 +121,53 @@ def dashboard(request):
 @require_POST
 @staff_member_required(login_url='administrador:login')
 def actualizar_estado_pedido(request, codigo):
-    pedido = get_object_or_404(Pedido, codigo_seguimiento__iexact=codigo.strip())
-
     try:
         data = json.loads(request.body or '{}')
     except json.JSONDecodeError:
-        return JsonResponse(
-            {'status': 'error', 'mensaje': 'Solicitud inválida.'},
-            status=400
-        )
+        return JsonResponse({'status': 'error', 'mensaje': 'Solicitud inválida.'}, status=400)
 
     nuevo_estado = data.get('estado')
     estados_validos = {valor for valor, _ in Pedido.ESTADOS}
-
     if nuevo_estado not in estados_validos:
-        return JsonResponse(
-            {'status': 'error', 'mensaje': 'Estado de pedido inválido.'},
-            status=400
-        )
-
-    estado_anterior = pedido.estado
-    transiciones_permitidas = {
-        'PENDIENTE': {'EN_PREPARACION', 'CANCELADO'},
-        'EN_PREPARACION': {'LISTO', 'CANCELADO'},
-        'LISTO': {'ENTREGADO', 'CANCELADO'},
-        'ENTREGADO': set(),
-        'CANCELADO': set(),
-    }
-
-    if nuevo_estado not in transiciones_permitidas.get(estado_anterior, set()) and nuevo_estado != estado_anterior:
-        return JsonResponse({
-            'status': 'error',
-            'mensaje': f'No se puede cambiar un pedido de {pedido.get_estado_display()} a {dict(Pedido.ESTADOS).get(nuevo_estado, nuevo_estado)}.'
-        }, status=400)
-
-    if estado_anterior == nuevo_estado:
-        return JsonResponse({
-            'status':'ok',
-            'codigo': pedido.codigo_seguimiento,
-            'estado': pedido.estado,
-            'estado_display': pedido.get_estado_display(),
-        })
+        return JsonResponse({'status': 'error', 'mensaje': 'Estado de pedido inválido.'}, status=400)
 
     with transaction.atomic():
-        if nuevo_estado == 'CANCELADO' and estado_anterior != 'CANCELADO':
-            for detalle in pedido.detalles.select_related('producto__inventario').all():
-                if detalle.producto and hasattr(detalle.producto, 'inventario'):
-                    inventario = detalle.producto.inventario
+        # Bloquear el pedido evita que dos cancelaciones concurrentes repongan
+        # dos veces el mismo stock.
+        pedido = get_object_or_404(
+            Pedido.objects.select_for_update(),
+            codigo_seguimiento__iexact=codigo.strip(),
+        )
+        estado_anterior = pedido.estado
+        transiciones_permitidas = {
+            'PENDIENTE': {'EN_PREPARACION', 'CANCELADO'},
+            'EN_PREPARACION': {'LISTO', 'CANCELADO'},
+            'LISTO': {'ENTREGADO', 'CANCELADO'},
+            'ENTREGADO': set(),
+            'CANCELADO': set(),
+        }
+
+        if nuevo_estado == estado_anterior:
+            return JsonResponse({
+                'status': 'ok', 'codigo': pedido.codigo_seguimiento,
+                'estado': pedido.estado, 'estado_display': pedido.get_estado_display(),
+            })
+
+        if nuevo_estado not in transiciones_permitidas.get(estado_anterior, set()):
+            return JsonResponse({
+                'status': 'error',
+                'mensaje': f'No se puede cambiar un pedido de {pedido.get_estado_display()} a {dict(Pedido.ESTADOS).get(nuevo_estado, nuevo_estado)}.',
+            }, status=400)
+
+        if nuevo_estado == 'CANCELADO':
+            detalles = pedido.detalles.select_related('producto').all()
+            for detalle in detalles:
+                if not detalle.producto_id:
+                    continue
+                inventario = Inventario.objects.select_for_update().filter(producto_id=detalle.producto_id).first()
+                if inventario:
                     inventario.cantidad_disponible += detalle.cantidad
-                    inventario.save()
-
-        elif estado_anterior == 'CANCELADO' and nuevo_estado != 'CANCELADO':
-            for detalle in pedido.detalles.select_related('producto__inventario').all():
-                if detalle.producto and hasattr(detalle.producto, 'inventario'):
-                    if detalle.producto.inventario.cantidad_disponible < detalle.cantidad:
-                        return JsonResponse({
-                            'status': 'error',
-                            'mensaje': f'Stock insuficiente de "{detalle.producto.nombre}" para reabrir el pedido.'
-                        }, status=400)
-
-            for detalle in pedido.detalles.select_related('producto__inventario').all():
-                if detalle.producto and hasattr(detalle.producto, 'inventario'):
-                    inventario = detalle.producto.inventario
-                    inventario.cantidad_disponible -= detalle.cantidad
-                    inventario.save()
+                    inventario.save(update_fields=['cantidad_disponible'])
 
         pedido.estado = nuevo_estado
         pedido.save(update_fields=['estado'])
@@ -195,7 +178,6 @@ def actualizar_estado_pedido(request, codigo):
         'estado': pedido.estado,
         'estado_display': pedido.get_estado_display(),
     })
-
 
 @require_POST
 @staff_member_required(login_url='administrador:login')
