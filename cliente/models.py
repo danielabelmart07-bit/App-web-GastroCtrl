@@ -144,7 +144,7 @@ class Pedido(models.Model):
         ('CANCELADO', 'Cancelado'),
     )
 
-    codigo_seguimiento = models.CharField(max_length=10, unique=True, editable=False, verbose_name="Código de Seguimiento")
+    codigo_seguimiento = models.CharField(max_length=32, unique=True, editable=False, verbose_name="Código de Seguimiento")
     nombre_cliente = models.CharField(max_length=100, verbose_name="Nombre completo")
     telefono = models.CharField(max_length=20, verbose_name="Teléfono / WhatsApp")
     direccion = models.CharField(max_length=255, verbose_name="Dirección de entrega")
@@ -188,7 +188,7 @@ class Pedido(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.codigo_seguimiento:
-            self.codigo_seguimiento = str(uuid.uuid4())[:8].upper()
+            self.codigo_seguimiento = uuid.uuid4().hex.upper()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -209,3 +209,40 @@ class DetallePedido(models.Model):
 
     def __str__(self):
         return f"{self.cantidad}x {self.producto.nombre if self.producto else 'Producto eliminado'}"
+
+
+class RecetaInsumo(models.Model):
+    """Cantidad de un insumo necesaria para elaborar una unidad de producto."""
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='receta_insumos')
+    insumo = models.ForeignKey(Insumo, on_delete=models.PROTECT, related_name='recetas')
+    cantidad_por_unidad = models.DecimalField(max_digits=10, decimal_places=3)
+
+    class Meta:
+        verbose_name = 'Ingrediente de receta'
+        verbose_name_plural = 'Ingredientes de recetas'
+        ordering = ['producto__nombre', 'insumo__nombre']
+        constraints = [
+            models.UniqueConstraint(fields=['producto', 'insumo'], name='unique_insumo_por_producto'),
+            models.CheckConstraint(condition=models.Q(cantidad_por_unidad__gt=0), name='receta_cantidad_positiva'),
+        ]
+
+    def __str__(self):
+        return f'{self.cantidad_por_unidad} {self.insumo.unidad_medida} de {self.insumo.nombre} por {self.producto.nombre}'
+
+
+class ConsumoInsumoPedido(models.Model):
+    """Registro histórico de insumos descontados al confirmar un pedido."""
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='consumos_insumos')
+    insumo = models.ForeignKey(Insumo, on_delete=models.PROTECT, related_name='consumos_pedidos')
+    cantidad = models.DecimalField(max_digits=12, decimal_places=3)
+
+    class Meta:
+        verbose_name = 'Consumo de insumo por pedido'
+        verbose_name_plural = 'Consumos de insumos por pedido'
+        constraints = [
+            models.UniqueConstraint(fields=['pedido', 'insumo'], name='unique_consumo_insumo_pedido'),
+            models.CheckConstraint(condition=models.Q(cantidad__gt=0), name='consumo_insumo_cantidad_positiva'),
+        ]
+
+    def __str__(self):
+        return f'Pedido {self.pedido.codigo_seguimiento}: {self.cantidad} {self.insumo.unidad_medida} de {self.insumo.nombre}'
