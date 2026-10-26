@@ -6,7 +6,9 @@ from cliente.models import Pedido, DetallePedido, Categoria
 
 def generar_datos_dashboard():
     hoy = timezone.now().date()
-    pedidos_validos = Pedido.objects.exclude(estado='CANCELADO')
+    # Los ingresos y ventas reflejan pedidos entregados; los pendientes todavía
+    # no son ventas concretadas. Archivar no altera el historial ni los KPI.
+    pedidos_validos = Pedido.objects.filter(estado='ENTREGADO')
 
     # 1. KPIs Generales
     ingresos_totales = pedidos_validos.aggregate(total=Sum('monto_total'))['total'] or 0.00
