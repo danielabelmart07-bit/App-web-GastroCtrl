@@ -200,6 +200,20 @@ class InventarioTests(TestCase):
         self.assertEqual(self.inventario.cantidad_disponible, 20)
         self.assertEqual(self.inventario.stock_minimo, 8)
 
+    def test_inventario_invalido_no_crea_registro(self):
+        producto = Producto.objects.create(
+            categoria=self.categoria,
+            nombre='Producto sin stock inicial',
+            precio=1000.00,
+            activo=True,
+        )
+        response = self.client.post(
+            reverse('administrador:actualizar_inventario'),
+            {'producto_id': producto.id, 'cantidad_disponible': '-1'},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(Inventario.objects.filter(producto=producto).exists())
+
     def test_rechazar_inventario_negativo(self):
         url = reverse('administrador:actualizar_inventario')
         datos = {
