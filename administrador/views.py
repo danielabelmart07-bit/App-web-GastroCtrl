@@ -490,7 +490,12 @@ def reponer_insumo(request):
     try:
         insumo_id = int(insumo_id)
         cantidad = Decimal(cantidad_raw)
-        if not cantidad.is_finite() or cantidad <= 0:
+        if (
+            not cantidad.is_finite()
+            or cantidad <= 0
+            or cantidad.as_tuple().exponent < -3
+            or cantidad > Decimal('9999999.999')
+        ):
             raise ValueError
     except (TypeError, ValueError, InvalidOperation):
         return JsonResponse({
@@ -500,7 +505,13 @@ def reponer_insumo(request):
 
     with transaction.atomic():
         insumo = get_object_or_404(Insumo.objects.select_for_update(), pk=insumo_id)
-        insumo.cantidad_disponible += cantidad
+        nueva_cantidad = insumo.cantidad_disponible + cantidad
+        if nueva_cantidad > Decimal('9999999.999'):
+            return JsonResponse({
+                'status': 'error',
+                'mensaje': 'La cantidad resultante supera el máximo permitido.'
+            }, status=400)
+        insumo.cantidad_disponible = nueva_cantidad
         insumo.save(update_fields=['cantidad_disponible'])
 
     return JsonResponse({
