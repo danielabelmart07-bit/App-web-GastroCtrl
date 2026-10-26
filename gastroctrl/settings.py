@@ -138,3 +138,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'administrador:login'
 LOGIN_REDIRECT_URL = 'administrador:dashboard'
 LOGOUT_REDIRECT_URL = 'administrador:login'
+
+# Seguridad de las sesiones
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1800  # 30 minutos
+SESSION_SAVE_EVERY_REQUEST = False
