@@ -445,52 +445,49 @@ def eliminar_categoria(request):
 @require_POST
 @staff_member_required(login_url='administrador:login')
 def actualizar_inventario(request):
-    producto_id = request.POST.get("producto_id")
-
+    producto_id = request.POST.get('producto_id')
     try:
         producto_id = int(producto_id)
     except (TypeError, ValueError):
-        return JsonResponse({
-            "status": "error",
-            "mensaje": "El identificador del producto no es válido."
-        }, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': 'El identificador del producto no es válido.'}, status=400)
 
     producto = get_object_or_404(Producto, pk=producto_id)
+    cantidad_raw = request.POST.get('cantidad_disponible')
+    stock_min_raw = request.POST.get('stock_minimo')
+    cantidad_int = None
+    stock_min_int = None
 
-    inventario, _ = Inventario.objects.get_or_create(producto=producto)
-
-    cantidad = request.POST.get("cantidad_disponible")
-    stock_min = request.POST.get("stock_minimo")
-
+    # Validar todo antes de crear o modificar la fila de inventario.
     try:
-        if cantidad is not None:
-            cantidad_int = int(cantidad)
+        if cantidad_raw is not None:
+            cantidad_int = int(cantidad_raw)
             if cantidad_int < 0:
                 raise ValueError
-            inventario.cantidad_disponible = cantidad_int
-
-        if stock_min is not None:
-            stock_min_int = int(stock_min)
+        if stock_min_raw is not None:
+            stock_min_int = int(stock_min_raw)
             if stock_min_int < 0:
                 raise ValueError
-            inventario.stock_minimo = stock_min_int
-
-        inventario.save()
-
     except (ValueError, TypeError):
         return JsonResponse({
-            "status": "error",
-            "mensaje": "Las cantidades de inventario deben ser numeros enteros mayores o iguales a cero."
+            'status': 'error',
+            'mensaje': 'Las cantidades de inventario deben ser números enteros mayores o iguales a cero.'
         }, status=400)
 
+    inventario, _ = Inventario.objects.get_or_create(producto=producto)
+    if cantidad_int is not None:
+        inventario.cantidad_disponible = cantidad_int
+    if stock_min_int is not None:
+        inventario.stock_minimo = stock_min_int
+    inventario.save()
+
     return JsonResponse({
-        "status": "ok",
-        "inventario": {
-            "producto_id": producto.id,
-            "producto_nombre": producto.nombre,
-            "cantidad_disponible": inventario.cantidad_disponible,
-            "stock_minimo": inventario.stock_minimo,
-            "es_stock_bajo": inventario.es_stock_bajo
+        'status': 'ok',
+        'inventario': {
+            'producto_id': producto.id,
+            'producto_nombre': producto.nombre,
+            'cantidad_disponible': inventario.cantidad_disponible,
+            'stock_minimo': inventario.stock_minimo,
+            'es_stock_bajo': inventario.es_stock_bajo
         }
     })
 
