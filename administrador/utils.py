@@ -1,7 +1,7 @@
 import json
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import Sum, Count, Avg
+from django.db.models import Sum, Avg, F, ExpressionWrapper, DecimalField
 from cliente.models import Pedido, DetallePedido, Categoria
 
 def generar_datos_dashboard():
@@ -57,7 +57,14 @@ def generar_datos_dashboard():
         if desde:
             detalles = detalles.filter(pedido__creado_en__gte=desde)
         for cat in categorias:
-            total_cat = detalles.filter(producto__categoria=cat).aggregate(total=Sum('precio_unitario') * Sum('cantidad'))['total'] or 0.00
+            total_cat = detalles.filter(producto__categoria=cat).aggregate(
+                total=Sum(
+                    ExpressionWrapper(
+                        F('precio_unitario') * F('cantidad'),
+                        output_field=DecimalField(max_digits=12, decimal_places=2),
+                    )
+                )
+            )['total'] or 0.00
             labels.append(cat.nombre)
             data.append(float(total_cat))
         return {'labels': labels, 'data': data if sum(data) > 0 else [0] * len(labels)}
