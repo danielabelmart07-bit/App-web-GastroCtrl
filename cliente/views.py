@@ -3,7 +3,7 @@ from django.http import JsonResponse
 import json
 from django.db.models import Q
 from django.db import transaction
-from .models import Categoria, Producto, Pedido, DetallePedido, Inventario
+from .models import Categoria, Producto, Pedido, DetallePedido, Inventario, Insumo, RecetaInsumo, ConsumoInsumoPedido
 from administrador.models import ConfiguracionSistema
 from .carrito import Carrito
 from .forms import PedidoForm
@@ -154,6 +154,55 @@ def checkout(request):
                         }
                     )
 
+                # Las recetas permiten convertir cada venta en consumo real de
+                # materias primas. Se bloquean los insumos en orden estable.
+                recetas = RecetaInsumo.objects.filter(
+                    producto_id__in=producto_ids
+                ).order_by('insumo_id', 'producto_id')
+                consumo_requerido = {}
+                for producto, cantidad_producto in productos_pedido:
+                    for receta in recetas.filter(producto_id=producto.id):
+                        consumo_requerido[receta.insumo_id] = (
+                            consumo_requerido.get(receta.insumo_id, Decimal('0.000'))
+                            + receta.cantidad_por_unidad * cantidad_producto
+                        )
+
+                insumos_bloqueados = {
+                    insumo.id: insumo
+                    for insumo in Insumo.objects.select_for_update()
+                    .filter(id__in=consumo_requerido.keys())
+                    .order_by('id')
+                }
+                insumos_insuficientes = False
+                for insumo_id, cantidad_necesaria in consumo_requerido.items():
+                    insumo = insumos_bloqueados.get(insumo_id)
+                    if insumo is None or not insumo.activo:
+                        nombre = insumo.nombre if insumo else 'Un insumo de la receta'
+                        form.add_error(None, f'El insumo "{nombre}" no está disponible para preparar el pedido.')
+                        insumos_insuficientes = True
+                    elif cantidad_necesaria > insumo.cantidad_disponible:
+                        form.add_error(
+                            None,
+                            f'No hay suficiente {insumo.nombre}. Se necesitan '
+                            f'{cantidad_necesaria} {insumo.unidad_medida} y hay '
+                            f'{insumo.cantidad_disponible}.'
+                        )
+                        insumos_insuficientes = True
+
+                if insumos_insuficientes:
+                    return render(
+                        request,
+                        'cliente/checkout.html',
+                        {
+                            'form': form,
+                            'carrito': carrito,
+                            'subtotal': subtotal,
+                            'costo_envio': costo_envio,
+                            'total': subtotal + costo_envio,
+                            'modalidad_entrega': modalidad,
+                        }
+                    )
+
                 modalidad = carrito.obtener_modalidad_entrega()
                 costo_envio = configuracion.costo_envio if modalidad == 'DELIVERY' else 0
 
@@ -181,6 +230,16 @@ def checkout(request):
                     inventario = inventarios_bloqueados[producto.id]
                     inventario.cantidad_disponible -= cantidad
                     inventario.save(update_fields=['cantidad_disponible'])
+
+                for insumo_id, cantidad_consumida in consumo_requerido.items():
+                    insumo = insumos_bloqueados[insumo_id]
+                    insumo.cantidad_disponible -= cantidad_consumida
+                    insumo.save(update_fields=['cantidad_disponible'])
+                    ConsumoInsumoPedido.objects.create(
+                        pedido=pedido,
+                        insumo=insumo,
+                        cantidad=cantidad_consumida,
+                    )
 
                 carrito.limpiar()
 
