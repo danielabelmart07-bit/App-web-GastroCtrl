@@ -46,6 +46,11 @@ urlpatterns = [
         name='eliminar_categoria',
     ),
     path(
+        'api/insumos/reponer/',
+        views.reponer_insumo,
+        name='reponer_insumo',
+    ),
+    path(
         'api/inventario/actualizar/',
         views.actualizar_inventario,
         name='actualizar_inventario',
