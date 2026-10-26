@@ -18,6 +18,19 @@ def generar_datos_dashboard():
     ingresos_mes = pedidos_validos.filter(
         creado_en__year=hoy.year, creado_en__month=hoy.month
     ).aggregate(total=Sum('monto_total'))['total'] or 0.00
+    ventas_hoy = pedidos_validos.filter(creado_en__date=hoy).aggregate(
+        total=Sum('monto_total')
+    )['total'] or 0.00
+    ticket_promedio_hoy = pedidos_validos.filter(creado_en__date=hoy).aggregate(
+        promedio=Avg('monto_total')
+    )['promedio'] or 0.00
+    pedidos_hoy = Pedido.objects.filter(creado_en__date=hoy).exclude(estado='CANCELADO').count()
+    ingresos_7_dias = pedidos_validos.filter(
+        creado_en__date__gte=hoy - timedelta(days=6)
+    ).aggregate(total=Sum('monto_total'))['total'] or 0.00
+    unidades_hoy = DetallePedido.objects.filter(
+        pedido__in=pedidos_validos.filter(creado_en__date=hoy)
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
 
     # 2. Gráfico de 7 Días (Weekly Chart)
     dias_semana_map = {0: 'Lun', 1: 'Mar', 2: 'Mié', 3: 'Jue', 4: 'Vie', 5: 'Sáb', 6: 'Dom'}
@@ -94,6 +107,11 @@ def generar_datos_dashboard():
         'kpis': {
             'ingresos_totales': float(ingresos_totales),
             'ingresos_mes': float(ingresos_mes),
+            'ventas_hoy': float(ventas_hoy),
+            'ticket_promedio_hoy': float(ticket_promedio_hoy),
+            'pedidos_hoy': pedidos_hoy,
+            'ingresos_7_dias': float(ingresos_7_dias),
+            'unidades_hoy': unidades_hoy,
             'cantidad_pedidos': cantidad_pedidos,
             'ticket_promedio': float(ticket_promedio),
             'pedidos_pendientes': pedidos_pendientes,
