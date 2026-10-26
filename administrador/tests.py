@@ -517,6 +517,10 @@ class DashboardMetricasTests(TestCase):
         self.assertEqual(datos['kpis']['ingresos_totales'], 2400.00)
         self.assertEqual(datos['kpis']['cantidad_pedidos'], 1)
         self.assertEqual(datos['kpis']['ticket_promedio'], 2400.00)
+        self.assertEqual(datos['kpis']['ventas_hoy'], 2400.00)
+        self.assertEqual(datos['kpis']['pedidos_hoy'], 1)
+        self.assertEqual(datos['kpis']['unidades_hoy'], 2)
+        self.assertEqual(datos['kpis']['ingresos_7_dias'], 2400.00)
 
         # Estructura de gráficos
         self.assertIn('days', datos['trend_data'])
