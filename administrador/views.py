@@ -35,7 +35,18 @@ def dashboard(request):
 
     datos_dashboard = generar_datos_dashboard()
 
-    categorias = Categoria.objects.all()
+    categorias = Categoria.objects.annotate(cantidad_productos=Count('productos'))
+    categorias_data = [
+        {
+            'id': categoria.id,
+            'name': categoria.nombre,
+            'slug': categoria.slug,
+            'count': categoria.cantidad_productos,
+            'icon': 'fa-tag',
+            'desc': 'Categoría de productos',
+        }
+        for categoria in categorias
+    ]
 
     insumos = Insumo.objects.all()
 
@@ -94,6 +105,7 @@ def dashboard(request):
             'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,
             'categorias': categorias,
+            'categorias_json': json.dumps(categorias_data),
             'insumos_data': json.dumps(insumos_data),
             'kpis': datos_dashboard['kpis'],
             'semana_labels_json': json.dumps(datos_dashboard['semana_labels']),
