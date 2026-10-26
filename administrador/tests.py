@@ -361,6 +361,7 @@ class GestionPedidosTests(TestCase):
         self.assertFalse(dashboard.context['pedidos'].filter(pk=self.pedido.pk).exists())
         self.assertEqual(len(dashboard.context['pedidos_archivados_data']), 1)
         self.assertEqual(dashboard.context['pedidos_archivados_data'][0]['codigo'], self.pedido.codigo_seguimiento)
+        self.assertEqual(generar_datos_dashboard()['kpis']['ingresos_totales'], 2000.0)
 
     def test_no_permite_archivar_pedido_pendiente(self):
         url = reverse('administrador:archivar_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
