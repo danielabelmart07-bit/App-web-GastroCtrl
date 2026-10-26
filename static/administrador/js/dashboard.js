@@ -37,9 +37,7 @@ let categories = (window.ADMIN_CATEGORIAS || []).map(cat => ({
     ...cat, icon: 'fa-tag', desc: 'Categoría de productos'
 }));
 
-let orders = (window.ADMIN_PEDIDOS && window.ADMIN_PEDIDOS.length) ? window.ADMIN_PEDIDOS : [
-    { id: '#ORD-8942', codigo: 'ORD-8942', customer: 'Camila Torres', items: '2x Flat White, 1x Croissant Almendras', total: 8800, type: 'Takeaway', status: 'en_preparacion', time: 'Hace 5 min' }
-];
+let orders = window.ADMIN_PEDIDOS || [];
 
 let inventoryItems = (window.ADMIN_INSUMOS || []).map(insumo => ({
     id: insumo.id,
@@ -68,35 +66,8 @@ let pieChartInstance = null;
 let trendPeriod = 'weeks';
 let piePeriod = 'weeks';
 
-const trendData = {
-    days: {
-        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        data: [110000, 125000, 105000, 140000, 180000, 210000, 114000]
-    },
-    weeks: {
-        labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-        data: [890000, 940000, 1020000, 990000]
-    },
-    months: {
-        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-        data: [3100000, 3400000, 3200000, 3600000, 3900000, 4100000, 3800000, 4200000, 3840000, 4300000, 4500000, 4900000]
-    }
-};
-
-const pieData = {
-    days: {
-        labels: ['Pastelería', 'Cafetería', 'Panadería', 'Bebidas Frías'],
-        data: [42, 35, 15, 8]
-    },
-    weeks: {
-        labels: ['Pastelería', 'Cafetería', 'Panadería', 'Bebidas Frías'],
-        data: [45, 30, 15, 10]
-    },
-    months: {
-        labels: ['Pastelería', 'Cafetería', 'Panadería', 'Bebidas Frías'],
-        data: [48, 28, 14, 10]
-    }
-};
+const trendData = window.trendDataReal || { days: { labels: [], data: [] }, weeks: { labels: [], data: [] }, months: { labels: [], data: [] } };
+const pieData = window.pieDataReal || { days: { labels: [], data: [] }, weeks: { labels: [], data: [] }, months: { labels: [], data: [] } };
 
 function updateSalesTrendChart(period) {
     trendPeriod = period;
