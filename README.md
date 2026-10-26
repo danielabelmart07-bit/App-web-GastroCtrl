@@ -58,6 +58,16 @@ python manage.py check
 | `DJANGO_DEBUG` | `True` solo para desarrollo local; por defecto `False` |
 | `DJANGO_ALLOWED_HOSTS` | Hosts permitidos separados por comas |
 
+## Recetas e inventario de materias primas
+
+En `/admin/`, abrí un producto y usá el bloque **Receta e insumos por unidad** para definir qué cantidad de cada insumo necesita una unidad del producto. Por ejemplo, una receta puede requerir `0.250 kg` de harina por torta. Registrá primero el insumo y su unidad de medida en **Insumos**.
+
+Al confirmar una compra, GastroCtrl valida y descuenta el stock de productos terminados y las cantidades de materias primas definidas en las recetas. Si falta una materia prima, no crea el pedido ni descuenta stock. Si se cancela el pedido, el sistema reintegra los insumos registrados para ese pedido una sola vez y conserva el registro histórico del reintegro.
+
+Los productos sin receta configurada continúan usando únicamente su inventario de producto terminado; por eso, para llevar control de materias primas, completá la receta de cada producto que corresponda.
+
+Los códigos de seguimiento de nuevos pedidos usan tokens aleatorios de 32 caracteres. Los códigos existentes se conservan para no romper enlaces ya entregados.
+
 ## Estado del proyecto
 
 GastroCtrl todavía no está listo para producción. Antes de desplegarlo, deben validarse las pruebas, configurarse una base de datos de producción y revisar HTTPS, archivos estáticos/media, copias de seguridad, monitorización y el resto de la lista de despliegue.
