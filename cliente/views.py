@@ -7,6 +7,7 @@ from .models import Categoria, Producto, Pedido, DetallePedido, Inventario
 from administrador.models import ConfiguracionSistema
 from .carrito import Carrito
 from .forms import PedidoForm
+from .utils import vincular_o_crear_cliente
 
 def checkout(request):
     carrito = Carrito(request)
@@ -136,6 +137,11 @@ def checkout(request):
                 pedido.monto_total = total + costo_envio
                 pedido.modalidad_entrega = modalidad
                 pedido.costo_envio = costo_envio
+                pedido.cliente = vincular_o_crear_cliente(
+                    nombre=pedido.nombre_cliente,
+                    telefono=pedido.telefono,
+                    direccion=pedido.direccion if modalidad == 'DELIVERY' else None,
+                )
                 pedido.save()
 
                 for producto, cantidad in productos_pedido:
