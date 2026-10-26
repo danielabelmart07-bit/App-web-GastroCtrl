@@ -172,3 +172,26 @@ canvas {
         min-width: 96px;
     }
 }
+
+
+/* Ajustes responsive adicionales para el panel administrativo */
+*, *::before, *::after { min-width: 0; }
+main, section, article, form, .tab-content { max-width: 100%; }
+p, label, small, span, a, button, th, td { overflow-wrap: anywhere; }
+img, video, iframe, canvas { max-width: 100%; }
+button, input, select, textarea { box-sizing: border-box; }
+.overflow-x-auto { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+table { width: 100%; }
+@media (max-width: 767px) {
+  main { min-width: 0; }
+  main > header { flex-wrap: wrap; align-items: flex-start; gap: .75rem; }
+  main > header > * { min-width: 0; max-width: 100%; }
+  .grid { min-width: 0; }
+  #productModal, #categoryModal, #orderDetailModal, #restockModal, #logoutModal { padding: .75rem; }
+  #productModal > div, #categoryModal > div, #orderDetailModal > div, #restockModal > div, #logoutModal > div { width: 100%; max-width: 100%; box-sizing: border-box; }
+  table { min-width: 620px; }
+}
+@media (max-width: 360px) {
+  main > header, main > div { padding-left: .75rem; padding-right: .75rem; }
+  #pageTitle { overflow-wrap: anywhere; }
+}
