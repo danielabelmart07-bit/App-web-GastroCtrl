@@ -7,7 +7,7 @@ from cliente.models import Categoria, Producto, Inventario
 from cliente.models import Pedido, DetallePedido
 from administrador.utils import generar_datos_dashboard
 from django.utils import timezone
-from cliente.models import Pedido, DetallePedido, Categoria, Producto, Inventario, Insumo
+from cliente.models import Pedido, DetallePedido, Categoria, Producto, Inventario, Insumo, ConsumoInsumoPedido
 from django.contrib.auth.models import User
 
 class CRUDProductosTests(TestCase):
@@ -330,6 +330,32 @@ class GestionPedidosTests(TestCase):
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 13)
 
+    def test_cancelar_pedido_reintegra_insumos_y_no_duplica_reintegro(self):
+        insumo = Insumo.objects.create(
+            nombre='Manteca para cancelar',
+            unidad_medida='kg',
+            cantidad_disponible='1.000',
+        )
+        consumo = ConsumoInsumoPedido.objects.create(
+            pedido=self.pedido,
+            insumo=insumo,
+            cantidad='0.500',
+        )
+        url = reverse('administrador:actualizar_estado_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        datos = json.dumps({'estado': 'CANCELADO'})
+
+        primera = self.client.post(url, datos, content_type='application/json')
+        self.assertEqual(primera.status_code, 200)
+        insumo.refresh_from_db()
+        consumo.refresh_from_db()
+        self.assertEqual(str(insumo.cantidad_disponible), '1.500')
+        self.assertTrue(consumo.reintegrado)
+
+        segunda = self.client.post(url, datos, content_type='application/json')
+        self.assertEqual(segunda.status_code, 200)
+        insumo.refresh_from_db()
+        self.assertEqual(str(insumo.cantidad_disponible), '1.500')
+
     def test_no_permite_cancelar_pedido_ya_entregado(self):
         self.pedido.estado = 'ENTREGADO'
         self.pedido.save(update_fields=['estado'])
@@ -468,6 +494,35 @@ class GestionClientesTests(TestCase):
         self.assertEqual(datos['cliente']['nombre'], "Laura Gómez")
         self.assertEqual(len(datos['cliente']['pedidos']), 1)
         self.assertEqual(datos['cliente']['pedidos'][0]['codigo'], "CLIE1234")
+
+    def test_gasto_cliente_solo_suma_pedidos_entregados_en_lista_y_detalle(self):
+        Pedido.objects.create(
+            cliente=self.cliente,
+            nombre_cliente=self.cliente.nombre,
+            telefono=self.cliente.telefono,
+            codigo_seguimiento='CLPEND01',
+            estado='PENDIENTE',
+            monto_total='9000.00',
+        )
+        Pedido.objects.create(
+            cliente=self.cliente,
+            nombre_cliente=self.cliente.nombre,
+            telefono=self.cliente.telefono,
+            codigo_seguimiento='CLCANC01',
+            estado='CANCELADO',
+            monto_total='3000.00',
+        )
+
+        listado = self.client.get(reverse('administrador:listar_clientes'))
+        detalle = self.client.get(
+            reverse('administrador:detalle_cliente', kwargs={'cliente_id': self.cliente.id})
+        )
+
+        self.assertEqual(listado.status_code, 200)
+        self.assertEqual(detalle.status_code, 200)
+        self.assertEqual(listado.json()['clientes'][0]['total_gastado'], 4500.0)
+        self.assertEqual(detalle.json()['cliente']['total_gastado'], 4500.0)
+        self.assertEqual(self.cliente.total_gastado, 4500)
 
 class DashboardMetricasTests(TestCase):
     def setUp(self):
