@@ -584,7 +584,7 @@ def listar_clientes(request):
     busqueda = request.GET.get('q', '').strip()
     clientes_qs = Cliente.objects.annotate(
         total_pedidos_db=Count('pedidos', distinct=True),
-        total_gastado_db=Sum('pedidos__monto_total', filter=~Q(pedidos__estado='CANCELADO')),
+        total_gastado_db=Sum('pedidos__monto_total', filter=Q(pedidos__estado='ENTREGADO')),
     )
 
     if busqueda:
