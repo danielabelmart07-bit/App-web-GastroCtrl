@@ -6,7 +6,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
-from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo
+from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo, ConsumoInsumoPedido
 from .models import ConfiguracionSistema
 from django.db import transaction
 from .forms import ProductoForm, CategoriaForm
@@ -192,6 +192,29 @@ def actualizar_estado_pedido(request, codigo):
                 if inventario:
                     inventario.cantidad_disponible += detalle.cantidad
                     inventario.save(update_fields=['cantidad_disponible'])
+
+            # Reintegrar materias primas registradas al confirmar el pedido.
+            # La marca evita duplicar devoluciones si el flujo se reintenta.
+            consumos = list(
+                ConsumoInsumoPedido.objects.filter(
+                    pedido=pedido,
+                    reintegrado=False,
+                ).order_by('insumo_id')
+            )
+            insumo_ids = [consumo.insumo_id for consumo in consumos]
+            insumos = {
+                insumo.id: insumo
+                for insumo in Insumo.objects.select_for_update()
+                .filter(id__in=insumo_ids)
+                .order_by('id')
+            }
+            for consumo in consumos:
+                insumo = insumos.get(consumo.insumo_id)
+                if insumo:
+                    insumo.cantidad_disponible += consumo.cantidad
+                    insumo.save(update_fields=['cantidad_disponible'])
+                    consumo.reintegrado = True
+                    consumo.save(update_fields=['reintegrado'])
 
         pedido.estado = nuevo_estado
         pedido.save(update_fields=['estado'])
