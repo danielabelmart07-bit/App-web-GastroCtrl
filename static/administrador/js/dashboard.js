@@ -1,5 +1,3 @@
-console.log("PRODUCTOS DESDE DJANGO:", window.ADMIN_PRODUCTOS);
-
 tailwind.config = {
     theme: {
         extend: {
