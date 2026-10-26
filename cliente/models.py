@@ -129,7 +129,7 @@ class Cliente(models.Model):
 
     @property
     def total_gastado(self):
-        return sum(pedido.monto_total for pedido in self.pedidos.exclude(estado='CANCELADO'))
+        return sum(pedido.monto_total for pedido in self.pedidos.filter(estado='ENTREGADO'))
 
 
 " PEDIDO "
