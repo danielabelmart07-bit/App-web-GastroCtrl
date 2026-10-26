@@ -191,8 +191,8 @@ function renderDashboardViews() {
         lowStockContainer.innerHTML = lowStockItems.map(item => `
             <div class="p-3 bg-rose-50/60 rounded-2xl border border-rose-100 flex items-center justify-between">
                 <div class="min-w-0 pr-2">
-                    <h4 class="font-bold text-xs text-coffee-900 truncate">${item.name}</h4>
-                    <p class="text-[10px] text-rose-700 font-bold mt-0.5">Quedan ${item.stock} ${item.unit} (Mín: ${item.min})</p>
+                    <h4 class="font-bold text-xs text-coffee-900 truncate">${escapeHTML(item.name)}</h4>
+                    <p class="text-[10px] text-rose-700 font-bold mt-0.5">Quedan ${Number(item.stock)} ${escapeHTML(item.unit)} (Mín: ${Number(item.min)})</p>
                 </div>
                 <button onclick="openRestockModal(${item.id})" class="px-2.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-[10px] transition-all shrink-0 flex items-center gap-1 shadow-2xs">
                     <i class="fa-solid fa-plus-circle"></i> Reponer
@@ -205,18 +205,18 @@ function renderDashboardViews() {
     const recentTable = document.getElementById('dashRecentOrdersTable');
     recentTable.innerHTML = orders.slice(0, 5).map(o => `
         <tr class="hover:bg-cream-50/80 transition-colors">
-            <td class="py-3 px-3 font-bold text-coffee-900">${o.id}</td>
-            <td class="py-3 px-3 font-semibold">${o.customer}</td>
-            <td class="py-3 px-3 text-coffee-600 truncate max-w-xs">${o.items}</td>
+            <td class="py-3 px-3 font-bold text-coffee-900">${escapeHTML(o.id)}</td>
+            <td class="py-3 px-3 font-semibold">${escapeHTML(o.customer)}</td>
+            <td class="py-3 px-3 text-coffee-600 truncate max-w-xs">${escapeHTML(o.items)}</td>
             <td class="py-3 px-3 font-bold">$${o.total.toLocaleString()}</td>
             <td class="py-3 px-3">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cream-100 text-coffee-800 border border-cream-200">${o.type}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cream-100 text-coffee-800 border border-cream-200">${escapeHTML(o.type || 'Sin modalidad')}</span>
             </td>
             <td class="py-3 px-3">
                 ${getStatusBadgeHTML(o.status)}
             </td>
             <td class="py-3 px-3 text-right">
-                <button onclick="openOrderDetailModal('${o.id}')" class="px-3 py-1.5 rounded-xl bg-coffee-50 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-[11px] transition-all border border-coffee-200/70 inline-flex items-center gap-1.5 shadow-2xs">
+                <button onclick="openOrderDetailModal('${escapeHTML(o.id)}')" class="px-3 py-1.5 rounded-xl bg-coffee-50 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-[11px] transition-all border border-coffee-200/70 inline-flex items-center gap-1.5 shadow-2xs">
                     <i class="fa-solid fa-eye text-[11px]"></i>
                     <span>Ver Detalle</span>
                 </button>
@@ -271,22 +271,22 @@ function renderOrdersWorkflow() {
     grid.innerHTML = filtered.map(o => `
         <div class="bg-white p-5 rounded-3xl border border-cream-200/80 shadow-sm space-y-3 hover-lift">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-coffee-500 uppercase tracking-wider">${o.id}</span>
+                <span class="text-xs font-bold text-coffee-500 uppercase tracking-wider">${escapeHTML(o.id)}</span>
                 ${getStatusBadgeHTML(o.status)}
             </div>
             
             <div>
-                <h3 class="font-serif-title font-bold text-base text-coffee-900">${o.customer}</h3>
-                <p class="text-xs text-coffee-600 mt-0.5 line-clamp-2">${o.items}</p>
+                <h3 class="font-serif-title font-bold text-base text-coffee-900">${escapeHTML(o.customer)}</h3>
+                <p class="text-xs text-coffee-600 mt-0.5 line-clamp-2">${escapeHTML(o.items)}</p>
             </div>
 
             <div class="flex items-center justify-between text-xs font-bold text-coffee-800 pt-2 border-t border-cream-100">
                 <span>$${o.total.toLocaleString()}</span>
-                <span class="text-[10px] text-coffee-500 font-normal"><i class="fa-regular fa-clock"></i> ${o.time}</span>
+                <span class="text-[10px] text-coffee-500 font-normal"><i class="fa-regular fa-clock"></i> ${escapeHTML(o.time)}</span>
             </div>
 
             <div class="pt-1 flex items-center justify-between gap-2">
-                <button onclick="openOrderDetailModal('${o.id}')" class="w-full py-2 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+                <button onclick="openOrderDetailModal('${escapeHTML(o.id)}')" class="w-full py-2 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-eye text-xs"></i>
                     <span>Ver y Gestionar</span>
                 </button>
@@ -330,11 +330,11 @@ function renderProductsTable() {
         <tr class="hover:bg-cream-50/80 transition-colors">
             <td class="py-3 px-3">
                 <div class="flex items-center gap-3">
-                    <img src="${p.image}" class="w-10 h-10 rounded-xl object-cover border border-cream-200" alt="${p.name}" onerror="this.src='https://placehold.co/100x100/efe6d8/4e3320?text=Café'">
-                    <span class="font-bold text-coffee-900">${p.name}</span>
+                    <img src="${escapeHTML(p.image)}" class="w-10 h-10 rounded-xl object-cover border border-cream-200" alt="${escapeHTML(p.name)}" onerror="this.src='https://placehold.co/100x100/efe6d8/4e3320?text=Café'">
+                    <span class="font-bold text-coffee-900">${escapeHTML(p.name)}</span>
                 </div>
             </td>
-            <td class="py-3 px-3 uppercase text-[10px] font-bold tracking-wider text-coffee-600">${p.category}</td>
+            <td class="py-3 px-3 uppercase text-[10px] font-bold tracking-wider text-coffee-600">${escapeHTML(p.category)}</td>
             <td class="py-3 px-3 font-bold text-coffee-900">$${p.price.toLocaleString()}</td>
             <td class="py-3 px-3">
                 <span class="font-bold ${p.stock <= 5 ? 'text-rose-600' : 'text-coffee-800'}">${p.stock} un.</span>
@@ -553,12 +553,12 @@ function renderInventoryTable() {
 
     tbody.innerHTML = filtered.map(item => `
         <tr class="hover:bg-cream-50/80 transition-colors">
-            <td class="py-3 px-3 font-bold text-coffee-900 whitespace-nowrap">${item.name}</td>
-            <td class="py-3 px-3 text-coffee-600 whitespace-nowrap">${item.category}</td>
+            <td class="py-3 px-3 font-bold text-coffee-900 whitespace-nowrap">${escapeHTML(item.name)}</td>
+            <td class="py-3 px-3 text-coffee-600 whitespace-nowrap">${escapeHTML(item.category)}</td>
             <td class="py-3 px-3 font-bold whitespace-nowrap ${item.stock <= item.min ? 'text-rose-600' : 'text-coffee-900'}">
-                ${item.stock} ${item.unit}
+                ${Number(item.stock)} ${escapeHTML(item.unit)}
             </td>
-            <td class="py-3 px-3 text-coffee-500 whitespace-nowrap">${item.min} ${item.unit}</td>
+            <td class="py-3 px-3 text-coffee-500 whitespace-nowrap">${Number(item.min)} ${escapeHTML(item.unit)}</td>
             <td class="py-3 px-3">
                 <span class="inventory-status-badge inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] leading-none font-bold ${item.stock <= item.min ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
                     <i class="${item.stock <= item.min ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check'} text-[9px] shrink-0"></i>
@@ -579,7 +579,7 @@ function openRestockModal(itemId = null) {
     const modal = document.getElementById('restockModal');
     const select = document.getElementById('modalRestockItemSelect');
     
-    select.innerHTML = inventoryItems.map(i => `<option value="${i.id}">${i.name} (Actual: ${i.stock} ${i.unit})</option>`).join('');
+    select.innerHTML = inventoryItems.map(i => `<option value="${i.id}">${escapeHTML(i.name)} (Actual: ${Number(i.stock)} ${escapeHTML(i.unit)})</option>`).join('');
     
     if (itemId) {
         select.value = itemId;
