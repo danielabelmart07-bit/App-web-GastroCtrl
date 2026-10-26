@@ -38,6 +38,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('cantidad', models.DecimalField(decimal_places=3, max_digits=12)),
+                ('reintegrado', models.BooleanField(default=False, verbose_name='¿Se reintegró al cancelar el pedido?')),
                 ('insumo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='consumos_pedidos', to='cliente.insumo')),
                 ('pedido', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consumos_insumos', to='cliente.pedido')),
             ],
