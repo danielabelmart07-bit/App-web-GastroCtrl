@@ -650,7 +650,7 @@ def login_view(request):
     error_message = None
     if request.method == 'POST':
         usuario = request.POST.get('username', '').strip()
-        clave = request.POST.get('password', '').strip()
+        clave = request.POST.get('password', '')
 
         user = authenticate(request, username=usuario, password=clave)
         if user is not None and user.is_active and user.is_staff:
