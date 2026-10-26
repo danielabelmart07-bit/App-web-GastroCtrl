@@ -3,7 +3,7 @@ from django.http import JsonResponse
 import json
 from django.db.models import Q
 from django.db import transaction
-from .models import Categoria, Producto, Pedido, DetallePedido
+from .models import Categoria, Producto, Pedido, DetallePedido, Inventario
 from administrador.models import ConfiguracionSistema
 from .carrito import Carrito
 from .forms import PedidoForm
@@ -89,11 +89,22 @@ def checkout(request):
                 configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
 
                 stock_insuficiente = False
+                inventarios_bloqueados = {}
 
+                # Bloquea las filas de inventario durante la compra para evitar
+                # que dos checkouts descuenten simultáneamente el mismo stock.
                 for producto, cantidad in productos_pedido:
-                    inventario = producto.inventario
-                    inventario.refresh_from_db()
+                    try:
+                        inventario = Inventario.objects.select_for_update().get(producto_id=producto.id)
+                    except Inventario.DoesNotExist:
+                        form.add_error(
+                            None,
+                            f'El producto "{producto.nombre}" ya no tiene inventario registrado.'
+                        )
+                        stock_insuficiente = True
+                        continue
 
+                    inventarios_bloqueados[producto.id] = inventario
                     if cantidad > inventario.cantidad_disponible:
                         form.add_error(
                             None,
@@ -135,7 +146,7 @@ def checkout(request):
                         precio_unitario=producto.precio
                     )
 
-                    inventario = producto.inventario
+                    inventario = inventarios_bloqueados[producto.id]
                     inventario.cantidad_disponible -= cantidad
                     inventario.save(update_fields=['cantidad_disponible'])
 
