@@ -92,7 +92,9 @@ class Carrito:
         """
         producto_ids = self.carrito.keys()
         productos = Producto.objects.filter(id__in=producto_ids)
-        carrito_copia = self.carrito.copy()
+        # Copia también cada ítem: una copia superficial modifica la sesión
+        # original y puede intentar serializar Decimal al guardar el carrito.
+        carrito_copia = {clave: item.copy() for clave, item in self.carrito.items()}
 
         for item in carrito_copia.values():
             item['precio_decimal'] = Decimal(item['precio'])
