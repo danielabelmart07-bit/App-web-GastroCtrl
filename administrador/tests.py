@@ -528,6 +528,15 @@ class DashboardMetricasTests(TestCase):
         self.assertEqual(len(datos['top_productos']), 1)
         self.assertEqual(datos['top_productos'][0]['producto__nombre'], "Café Doble")
 
+    def test_ingresos_dashboard_no_cuenta_pedidos_pendientes(self):
+        Pedido.objects.create(
+            nombre_cliente="Cliente pendiente", telefono="1100220099",
+            codigo_seguimiento="PEND1234", estado="PENDIENTE", monto_total=9900.00
+        )
+        datos = generar_datos_dashboard()
+        self.assertEqual(datos['kpis']['ingresos_totales'], 2400.00)
+        self.assertEqual(datos['kpis']['cantidad_pedidos'], 1)
+
     def test_grafico_categoria_suma_subtotales_reales(self):
         otro_producto = Producto.objects.create(
             nombre="Té", categoria=self.categoria, precio=500.00, activo=True
