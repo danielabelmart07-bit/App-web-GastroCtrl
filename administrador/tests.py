@@ -284,6 +284,23 @@ class GestionPedidosTests(TestCase):
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 13)
 
+    def test_no_permite_cancelar_pedido_ya_entregado(self):
+        self.pedido.estado = 'ENTREGADO'
+        self.pedido.save(update_fields=['estado'])
+        url = reverse('administrador:actualizar_estado_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        response = self.client.post(url, json.dumps({'estado': 'CANCELADO'}), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.inventario.refresh_from_db()
+        self.assertEqual(self.inventario.cantidad_disponible, 10)
+
+    def test_no_permite_reabrir_pedido_cancelado(self):
+        url = reverse('administrador:actualizar_estado_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        self.client.post(url, json.dumps({'estado': 'CANCELADO'}), content_type='application/json')
+        response = self.client.post(url, json.dumps({'estado': 'PENDIENTE'}), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.inventario.refresh_from_db()
+        self.assertEqual(self.inventario.cantidad_disponible, 13)
+
     def test_filtrar_pedidos_por_estado(self):
 
         Pedido.objects.create(
@@ -431,6 +448,31 @@ class DashboardMetricasTests(TestCase):
         # Top productos
         self.assertEqual(len(datos['top_productos']), 1)
         self.assertEqual(datos['top_productos'][0]['producto__nombre'], "Café Doble")
+
+    def test_grafico_categoria_suma_subtotales_reales(self):
+        otro_producto = Producto.objects.create(
+            nombre="Té", categoria=self.categoria, precio=500.00, activo=True
+        )
+        pedido = Pedido.objects.create(
+            nombre_cliente="Cliente categoría", telefono="1100220033",
+            codigo_seguimiento="CATG1234", estado="ENTREGADO", monto_total=3900.00
+        )
+        DetallePedido.objects.create(
+            pedido=pedido, producto=self.producto, cantidad=2, precio_unitario=1200.00
+        )
+        DetallePedido.objects.create(
+            pedido=pedido, producto=otro_producto, cantidad=3, precio_unitario=500.00
+        )
+        datos = generar_datos_dashboard()
+        self.assertEqual(datos['pie_data']['days']['data'][0], 3900.0)
+
+    def test_dashboard_no_falla_si_producto_no_tiene_inventario(self):
+        Producto.objects.create(
+            nombre="Producto sin inventario", categoria=self.categoria,
+            precio=800.00, activo=True
+        )
+        response = self.client.get(reverse('administrador:dashboard'))
+        self.assertEqual(response.status_code, 200)
 
     def test_vista_dashboard_incluye_contexto_metricas(self):
         url = reverse('administrador:dashboard')
