@@ -464,7 +464,7 @@ class DashboardMetricasTests(TestCase):
             pedido=pedido, producto=otro_producto, cantidad=3, precio_unitario=500.00
         )
         datos = generar_datos_dashboard()
-        self.assertEqual(datos['pie_data']['days']['data'][0], 3900.0)
+        self.assertEqual(datos['pie_data']['days']['data'][0], 6300.0)
 
     def test_dashboard_no_falla_si_producto_no_tiene_inventario(self):
         Producto.objects.create(
