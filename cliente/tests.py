@@ -6,7 +6,7 @@ from django.http import HttpRequest
 from .models import Categoria, Producto
 from .carrito import Carrito
 from django.urls import reverse
-from .models import Inventario, Pedido, DetallePedido
+from .models import Inventario, Pedido, DetallePedido, Cliente
 
 
 class CarritoTests(TestCase):
@@ -100,6 +100,10 @@ class CheckoutTests(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(Pedido.objects.count(), 1)
         self.assertEqual(DetallePedido.objects.count(), 1)
+        pedido = Pedido.objects.get()
+        self.assertIsNotNone(pedido.cliente)
+        self.assertEqual(pedido.cliente.telefono, '1122334455')
+        self.assertEqual(pedido.cliente.direccion_habitual, '')
 
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 3)
