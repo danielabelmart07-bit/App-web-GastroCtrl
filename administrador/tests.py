@@ -598,6 +598,22 @@ class AutenticacionSeguridadTests(TestCase):
         self.assertIn(reverse('administrador:login'), response.url)
         self.assertFalse(Categoria.objects.filter(nombre='Sin permiso').exists())
 
+    def test_usuario_autenticado_no_staff_no_accede_a_la_api(self):
+        User.objects.create_user(username='usuario_comun_api', password='Password123!')
+        self.client.login(username='usuario_comun_api', password='Password123!')
+        response = self.client.post(
+            reverse('administrador:crear_categoria'),
+            {'nombre': 'Categoría no autorizada', 'slug': 'no-autorizada'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Categoria.objects.filter(slug='no-autorizada').exists())
+
+    def test_logout_no_acepta_get(self):
+        self.client.login(username='admin_test', password='Password123!')
+        response = self.client.get(reverse('administrador:logout'))
+        self.assertEqual(response.status_code, 405)
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
+
     def test_usuario_no_staff_no_puede_iniciar_sesion_admin(self):
         User.objects.create_user(username='cliente_comun', password='Password123!')
         response = self.client.post(reverse('administrador:login'), {
