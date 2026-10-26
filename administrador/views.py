@@ -205,6 +205,40 @@ def actualizar_estado_pedido(request, codigo):
 
 @require_POST
 @staff_member_required(login_url='administrador:login')
+def archivar_pedido(request, codigo):
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'mensaje': 'Solicitud inválida.'}, status=400)
+
+    archivado = data.get('archivado', True)
+    if not isinstance(archivado, bool):
+        return JsonResponse({'status': 'error', 'mensaje': 'La acción de archivado no es válida.'}, status=400)
+
+    with transaction.atomic():
+        pedido = get_object_or_404(
+            Pedido.objects.select_for_update(),
+            codigo_seguimiento__iexact=codigo.strip(),
+        )
+        if archivado and pedido.estado not in {'ENTREGADO', 'CANCELADO'}:
+            return JsonResponse({
+                'status': 'error',
+                'mensaje': 'Solo se pueden archivar pedidos entregados o cancelados.',
+            }, status=400)
+
+        pedido.archivado = archivado
+        pedido.save(update_fields=['archivado'])
+
+    return JsonResponse({
+        'status': 'ok',
+        'codigo': pedido.codigo_seguimiento,
+        'archivado': pedido.archivado,
+        'mensaje': 'Pedido archivado.' if archivado else 'Pedido restaurado al listado activo.',
+    })
+
+
+@require_POST
+@staff_member_required(login_url='administrador:login')
 def actualizar_configuracion_envio(request):
     try:
         data = json.loads(request.body or '{}')
