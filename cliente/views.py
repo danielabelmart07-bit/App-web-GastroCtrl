@@ -112,14 +112,19 @@ def checkout(request):
                 configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
 
                 stock_insuficiente = False
-                inventarios_bloqueados = {}
+                # Bloquear todos los registros en un orden estable reduce el
+                # riesgo de deadlocks cuando dos carritos comparten productos.
+                producto_ids = [producto.id for producto, _ in productos_pedido]
+                inventarios_bloqueados = {
+                    inventario.producto_id: inventario
+                    for inventario in Inventario.objects.select_for_update()
+                    .filter(producto_id__in=producto_ids)
+                    .order_by('producto_id')
+                }
 
-                # Bloquea las filas de inventario durante la compra para evitar
-                # que dos checkouts descuenten simultáneamente el mismo stock.
                 for producto, cantidad in productos_pedido:
-                    try:
-                        inventario = Inventario.objects.select_for_update().get(producto_id=producto.id)
-                    except Inventario.DoesNotExist:
+                    inventario = inventarios_bloqueados.get(producto.id)
+                    if inventario is None:
                         form.add_error(
                             None,
                             f'El producto "{producto.nombre}" ya no tiene inventario registrado.'
@@ -127,7 +132,6 @@ def checkout(request):
                         stock_insuficiente = True
                         continue
 
-                    inventarios_bloqueados[producto.id] = inventario
                     if cantidad > inventario.cantidad_disponible:
                         form.add_error(
                             None,
