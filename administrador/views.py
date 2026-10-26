@@ -127,6 +127,19 @@ def actualizar_estado_pedido(request, codigo):
         )
 
     estado_anterior = pedido.estado
+    transiciones_permitidas = {
+        'PENDIENTE': {'EN_PREPARACION', 'CANCELADO'},
+        'EN_PREPARACION': {'LISTO', 'CANCELADO'},
+        'LISTO': {'ENTREGADO', 'CANCELADO'},
+        'ENTREGADO': set(),
+        'CANCELADO': set(),
+    }
+
+    if nuevo_estado not in transiciones_permitidas.get(estado_anterior, set()) and nuevo_estado != estado_anterior:
+        return JsonResponse({
+            'status': 'error',
+            'mensaje': f'No se puede cambiar un pedido de {pedido.get_estado_display()} a {dict(Pedido.ESTADOS).get(nuevo_estado, nuevo_estado)}.'
+        }, status=400)
 
     if estado_anterior == nuevo_estado:
         return JsonResponse({
