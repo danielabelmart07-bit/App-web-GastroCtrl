@@ -16,7 +16,8 @@ from administrador.utils import generar_datos_dashboard
 
 @staff_member_required(login_url='administrador:login')
 def dashboard(request):
-    pedidos_qs = Pedido.objects.prefetch_related('detalles__producto').all()
+    pedidos_qs = Pedido.objects.filter(archivado=False).prefetch_related('detalles__producto').all()
+    pedidos_archivados = Pedido.objects.filter(archivado=True).prefetch_related('detalles__producto').order_by('-creado_en')
 
     estado_filtro = request.GET.get('estado', '').strip()
     estados_validos = {valor for valor, _ in Pedido.ESTADOS}
@@ -95,6 +96,23 @@ def dashboard(request):
         for pedido in pedidos
     ]
 
+    pedidos_archivados_data = [
+        {
+            'id': f'#{pedido.codigo_seguimiento}',
+            'codigo': pedido.codigo_seguimiento,
+            'customer': pedido.nombre_cliente,
+            'items': ', '.join(
+                f'{detalle.cantidad}x {detalle.producto.nombre if detalle.producto else "Producto eliminado"}'
+                for detalle in pedido.detalles.all()
+            ) or 'Sin detalle',
+            'total': float(pedido.monto_total),
+            'status': pedido.estado.lower(),
+            'type': pedido.get_modalidad_entrega_display(),
+            'time': pedido.creado_en.strftime('%d/%m/%Y %H:%M'),
+        }
+        for pedido in pedidos_archivados
+    ]
+
     configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
 
     return render(
@@ -103,6 +121,7 @@ def dashboard(request):
         {
             'pedidos': pedidos,
             'pedidos_data': pedidos_data,
+            'pedidos_archivados_data': pedidos_archivados_data,
             'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,
             'categorias': categorias,
