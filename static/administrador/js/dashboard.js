@@ -768,11 +768,18 @@ async function updateOrderStatusFromModal() {
         }
 
         currentActiveOrder.status = data.estado.toLowerCase();
+        const archiveButton = document.getElementById('archiveOrderBtn');
+        const canArchive = ['entregado', 'cancelado'].includes(currentActiveOrder.status);
+        archiveButton.classList.toggle('hidden', !canArchive);
+        archiveButton.disabled = !canArchive;
         showToast('Estado actualizado: ' + data.estado_display);
         renderDashboardViews();
         renderOrdersWorkflow();
     } catch (error) {
-        showToast(error.message, 'info');
+        if (currentActiveOrder) {
+            document.getElementById('modalOrderStatusSelect').value = currentActiveOrder.status;
+        }
+        showToast(error.message, 'error');
         console.error('Error al actualizar estado:', error);
     }
 }
