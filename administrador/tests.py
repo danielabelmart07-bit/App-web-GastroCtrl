@@ -12,6 +12,8 @@ from django.contrib.auth.models import User
 
 class CRUDProductosTests(TestCase):
     def setUp(self):
+        User.objects.create_user(username='crud_productos_admin', password='Password123!', is_staff=True)
+        self.client.login(username='crud_productos_admin', password='Password123!')
         self.categoria = Categoria.objects.create(
             nombre='Cafeteria',
             slug='cafeteria'
@@ -92,6 +94,10 @@ class CRUDProductosTests(TestCase):
         self.assertFalse(Producto.objects.filter(id=producto.id).exists())
 
 class CRUDCategoriasTests(TestCase):
+    def setUp(self):
+        User.objects.create_user(username='crud_categorias_admin', password='Password123!', is_staff=True)
+        self.client.login(username='crud_categorias_admin', password='Password123!')
+
     def test_crear_categoria_con_slug_autogenerado(self):
         url = reverse('administrador:crear_categoria')
         datos = {'nombre': 'Bebidas Calientes'}
@@ -151,6 +157,8 @@ class CRUDCategoriasTests(TestCase):
 
 class InventarioTests(TestCase):
     def setUp(self):
+        User.objects.create_user(username='inventario_admin', password='Password123!', is_staff=True)
+        self.client.login(username='inventario_admin', password='Password123!')
         self.categoria = Categoria.objects.create(nombre='Panaderia' , slug='panaderia')
         self.producto = Producto.objects.create(
             categoria=self.categoria,
@@ -211,7 +219,7 @@ class InventarioTests(TestCase):
 class GestionPedidosTests(TestCase):
     def setUp(self):
 
-        self.user = User.objects.create_user(username='admin_pedidos', password='password123')
+        self.user = User.objects.create_user(username='admin_pedidos', password='password123', is_staff=True)
         self.client.login(username='admin_pedidos', password='password123')
 
         self.categoria = Categoria.objects.create(nombre="Pastelería", slug="pasteleria")
@@ -304,6 +312,8 @@ class GestionPedidosTests(TestCase):
 
 class GestionClientesTests(TestCase):
     def setUp(self):
+        User.objects.create_user(username='clientes_admin', password='Password123!', is_staff=True)
+        self.client.login(username='clientes_admin', password='Password123!')
         self.cliente = Cliente.objects.create(
             nombre="Laura Gómez",
             telefono="1199887766",
@@ -365,7 +375,7 @@ class GestionClientesTests(TestCase):
 class DashboardMetricasTests(TestCase):
     def setUp(self):
 
-        self.user = User.objects.create_user(username='admin_metricas', password='password123')
+        self.user = User.objects.create_user(username='admin_metricas', password='password123', is_staff=True)
         self.client.login(username='admin_metricas', password='password123')
 
         self.categoria = Categoria.objects.create(
@@ -435,7 +445,8 @@ class AutenticacionSeguridadTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='admin_test',
-            password='Password123!'
+            password='Password123!',
+            is_staff=True
         )
 
     def test_dashboard_requiere_login(self):
@@ -445,6 +456,28 @@ class AutenticacionSeguridadTests(TestCase):
         # Debe redirigir al login
         self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)
+
+    def test_endpoint_de_escritura_requiere_autenticacion(self):
+        response = self.client.post(reverse('administrador:crear_categoria'), {'nombre': 'Sin permiso'})
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('administrador:login'), response.url)
+        self.assertFalse(Categoria.objects.filter(nombre='Sin permiso').exists())
+
+    def test_usuario_no_staff_no_puede_iniciar_sesion_admin(self):
+        User.objects.create_user(username='cliente_comun', password='Password123!')
+        response = self.client.post(reverse('administrador:login'), {
+            'username': 'cliente_comun', 'password': 'Password123!'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+    def test_login_rechaza_redireccion_externa(self):
+        response = self.client.post(reverse('administrador:login'), {
+            'username': 'admin_test', 'password': 'Password123!',
+            'next': 'https://sitio-malicioso.example'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('administrador:dashboard'))
 
     def test_login_exitoso_redirige_al_dashboard(self):
         url = reverse('administrador:login')
@@ -470,7 +503,7 @@ class AutenticacionSeguridadTests(TestCase):
     def test_logout_cierra_sesion(self):
         self.client.login(username='admin_test', password='Password123!')
         url = reverse('administrador:logout')
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('administrador:login'))
