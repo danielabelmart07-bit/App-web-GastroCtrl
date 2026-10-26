@@ -131,6 +131,29 @@ class CheckoutTests(TestCase):
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 5)
 
+    def test_checkout_muestra_precio_actualizado_desde_base_de_datos(self):
+        self.producto.precio = Decimal('6000.00')
+        self.producto.save(update_fields=['precio'])
+        respuesta = self.client.get(reverse('cliente:checkout'))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(respuesta.context['subtotal'], Decimal('12000.00'))
+
+    def test_checkout_informa_si_producto_dejo_de_estar_activo(self):
+        self.producto.activo = False
+        self.producto.save(update_fields=['activo'])
+        respuesta = self.client.post(
+            reverse('cliente:checkout'),
+            {
+                'nombre_cliente': 'Juan Pérez',
+                'telefono': '1122334455',
+                'direccion': '',
+                'notas': '',
+            },
+        )
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(Pedido.objects.count(), 0)
+        self.assertTrue(respuesta.context['form'].non_field_errors())
+
     def test_checkout_rechaza_producto_sin_inventario(self):
         self.inventario.delete()
 
