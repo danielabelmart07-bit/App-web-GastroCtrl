@@ -12,6 +12,26 @@ from .utils import vincular_o_crear_cliente
 def checkout(request):
     carrito = Carrito(request)
 
+    # Refresca precios y datos visibles desde la base de datos para que la
+    # sesión no muestre un precio antiguo frente al precio real del pedido.
+    productos_actuales = {
+        str(producto.id): producto
+        for producto in Producto.objects.filter(
+            id__in=carrito.carrito.keys(), activo=True
+        )
+    }
+    productos_no_disponibles = []
+    for producto_id, item in list(carrito.carrito.items()):
+        producto = productos_actuales.get(str(producto_id))
+        if producto is None:
+            productos_no_disponibles.append(item.get('nombre', 'Un producto'))
+            continue
+        item['nombre'] = producto.nombre
+        item['precio'] = str(producto.precio)
+        item['imagen'] = producto.imagen.url if producto.imagen else '/static/cliente/img/placeholder.jpg'
+    if carrito.carrito:
+        carrito.guardar()
+
     if len(carrito.carrito) == 0:
         return redirect('cliente:menu')
 
@@ -23,6 +43,8 @@ def checkout(request):
 
     if request.method == 'POST':
         form = PedidoForm(request.POST)
+        for nombre in productos_no_disponibles:
+            form.add_error(None, f'El producto \"{nombre}\" ya no está disponible. Quitalo del carrito antes de continuar.')
 
         if form.is_valid():
             if modalidad == 'DELIVERY' and not form.cleaned_data.get('direccion'):
@@ -168,6 +190,8 @@ def checkout(request):
             )
     else:
         form = PedidoForm()
+        for nombre in productos_no_disponibles:
+            form.add_error(None, f'El producto \"{nombre}\" ya no está disponible. Quitalo del carrito antes de continuar.')
 
     return render(
         request,
