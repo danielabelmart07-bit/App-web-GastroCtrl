@@ -608,7 +608,7 @@ def login_view(request):
                 next_url = ''
             return redirect(next_url or 'administrador:dashboard')
         else:
-            error_message = "Usuario/contraseña incorrectos o cuenta sin permisos de administración."
+            error_message = "Usuario o contraseña incorrectos."
 
     return render(request, 'administrador/login.html', {'error': error_message})
 
