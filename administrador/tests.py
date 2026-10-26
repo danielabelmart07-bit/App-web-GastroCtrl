@@ -7,7 +7,7 @@ from cliente.models import Categoria, Producto, Inventario
 from cliente.models import Pedido, DetallePedido
 from administrador.utils import generar_datos_dashboard
 from django.utils import timezone
-from cliente.models import Pedido, DetallePedido, Categoria, Producto, Inventario
+from cliente.models import Pedido, DetallePedido, Categoria, Producto, Inventario, Insumo
 from django.contrib.auth.models import User
 
 class CRUDProductosTests(TestCase):
@@ -215,6 +215,38 @@ class InventarioTests(TestCase):
 
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 10)
+
+class InsumoRestockTests(TestCase):
+    def setUp(self):
+        User.objects.create_user(username='insumos_admin', password='Password123!', is_staff=True)
+        self.client.login(username='insumos_admin', password='Password123!')
+        self.insumo = Insumo.objects.create(
+            nombre='Harina',
+            unidad_medida='kg',
+            cantidad_disponible='2.500',
+            stock_minimo='1.000',
+        )
+
+    def test_reponer_insumo_persiste_cantidad_decimal(self):
+        response = self.client.post(
+            reverse('administrador:reponer_insumo'),
+            {'insumo_id': self.insumo.id, 'cantidad_reponer': '1.250'},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.insumo.refresh_from_db()
+        self.assertEqual(str(self.insumo.cantidad_disponible), '3.750')
+
+    def test_rechaza_reposicion_cero_o_precision_excesiva(self):
+        for cantidad in ('0', '-1', '0.0001'):
+            with self.subTest(cantidad=cantidad):
+                response = self.client.post(
+                    reverse('administrador:reponer_insumo'),
+                    {'insumo_id': self.insumo.id, 'cantidad_reponer': cantidad},
+                )
+                self.assertEqual(response.status_code, 400)
+        self.insumo.refresh_from_db()
+        self.assertEqual(str(self.insumo.cantidad_disponible), '2.500')
+
 
 class GestionPedidosTests(TestCase):
     def setUp(self):
