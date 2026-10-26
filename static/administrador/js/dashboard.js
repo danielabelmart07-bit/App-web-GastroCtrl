@@ -236,6 +236,8 @@ function getStatusBadgeHTML(status) {
             return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap"><i class="fa-solid fa-circle-check text-[10px]"></i> Listo</span>`;
         case 'entregado':
             return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 whitespace-nowrap"><i class="fa-solid fa-check-double text-[10px]"></i> Entregado</span>`;
+        case 'cancelado':
+            return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap"><i class="fa-solid fa-ban text-[10px]"></i> Cancelado</span>`;
         default:
             return `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">${status}</span>`;
     }
