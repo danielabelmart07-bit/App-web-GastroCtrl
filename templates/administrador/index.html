@@ -376,7 +376,21 @@
 
                 <!-- Workflow Cards Grid / Kanban View -->
                 <div id="ordersKanbanGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Dynamic Order Cards Rendered Here -->
+                    <!-- Pedidos activos -->
+                </div>
+
+                <div class="flex items-center justify-between gap-3 pt-2">
+                    <div>
+                        <h3 class="font-serif-title font-bold text-lg text-coffee-900">Historial de pedidos</h3>
+                        <p class="text-xs text-coffee-600">Los pedidos archivados se conservan en la base de datos.</p>
+                    </div>
+                    <button id="toggleArchivedOrdersBtn" onclick="toggleArchivedOrders()" class="px-4 py-2 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors">
+                        Ver historial
+                    </button>
+                </div>
+                <div id="ordersArchivedPanel" class="hidden space-y-3">
+                    <input id="archivedOrderSearchInput" type="text" oninput="renderArchivedOrdersWorkflow()" placeholder="Buscar en el historial..." class="w-full sm:w-80 px-4 py-2 rounded-full bg-white border border-cream-300 text-xs focus:outline-none focus:border-coffee-600">
+                    <div id="ordersArchivedGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
 
             </section>
@@ -762,7 +776,10 @@
                 </div>
             </div>
 
-            <div class="flex justify-end pt-2">
+            <div class="flex justify-between gap-2 pt-2">
+                <button id="archiveOrderBtn" onclick="archiveCurrentOrder()" class="hidden px-4 py-2 rounded-xl bg-amber-100 text-amber-900 font-bold text-xs hover:bg-amber-200 transition-colors">
+                    Archivar pedido
+                </button>
                 <button onclick="closeOrderDetailModal()" class="px-5 py-2 rounded-xl bg-coffee-600 text-white font-bold text-xs hover:bg-coffee-700 transition-colors">
                     Cerrar
                 </button>
@@ -825,6 +842,7 @@
     </div>
 
 {{ pedidos_data|json_script:"admin-pedidos-data" }}
+{{ pedidos_archivados_data|json_script:"admin-pedidos-archivados-data" }}
 {{ productos_data|json_script:"admin-productos-data" }}
 {{ insumos_data|json_script:"admin-insumos-data" }}
 {{ categorias_data|json_script:"admin-categorias-data" }}
@@ -834,6 +852,8 @@
 {{ pie_data|json_script:"admin-pie-data" }}
 <script>
     window.ADMIN_PEDIDOS = JSON.parse(document.getElementById('admin-pedidos-data').textContent);
+    window.ADMIN_PEDIDOS_ARCHIVADOS = JSON.parse(document.getElementById('admin-pedidos-archivados-data').textContent);
+    window.ADMIN_ARCHIVAR_PEDIDO_URL = "{% url 'administrador:archivar_pedido' '__CODIGO__' %}";
     window.ADMIN_PEDIDOS_URL = "{% url 'administrador:actualizar_estado_pedido' '__CODIGO__' %}";
     window.ADMIN_PRODUCTOS = JSON.parse(document.getElementById('admin-productos-data').textContent);
     window.ADMIN_INSUMOS = JSON.parse(document.getElementById('admin-insumos-data').textContent);
