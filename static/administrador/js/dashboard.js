@@ -925,10 +925,10 @@ function initCharts() {
         weeklyChartInstance = new Chart(ctxWeekly, {
             type: 'line',
             data: {
-                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                labels: trendData.days.labels,
                 datasets: [{
                     label: 'Ventas ($)',
-                    data: [110000, 125000, 105000, 140000, 180000, 210000, 114000],
+                    data: trendData.days.data,
                     borderColor: '#8c6343',
                     backgroundColor: 'rgba(140, 99, 67, 0.12)',
                     fill: true,
