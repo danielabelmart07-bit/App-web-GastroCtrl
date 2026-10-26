@@ -529,7 +529,7 @@ def detalle_cliente(request, cliente_id):
     })
 
 def login_view(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.is_staff:
         return redirect('administrador:dashboard')
 
     error_message = None
@@ -550,6 +550,8 @@ def login_view(request):
     return render(request, 'administrador/login.html', {'error': error_message})
 
 
+@staff_member_required(login_url='administrador:login')
+@require_POST
 def logout_view(request):
     logout(request)
     return redirect('administrador:login')
