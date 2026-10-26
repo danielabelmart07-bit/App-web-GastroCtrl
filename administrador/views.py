@@ -184,20 +184,22 @@ def actualizar_estado_pedido(request, codigo):
 def actualizar_configuracion_envio(request):
     try:
         data = json.loads(request.body or '{}')
-        costo = float(data.get('costo_envio', 800))
-        if costo < 0:
+        costo = Decimal(str(data.get('costo_envio', '800')))
+        if (
+            not costo.is_finite()
+            or costo < 0
+            or costo.as_tuple().exponent < -2
+            or costo > Decimal('99999999.99')
+        ):
             raise ValueError
-    except (json.JSONDecodeError, TypeError, ValueError):
+    except (json.JSONDecodeError, TypeError, ValueError, InvalidOperation):
         return JsonResponse({'status': 'error', 'mensaje': 'Costo de envío inválido.'}, status=400)
 
     configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
     configuracion.costo_envio = costo
     configuracion.save(update_fields=['costo_envio'])
 
-    return JsonResponse({
-        'status': 'ok',
-        'costo_envio': float(configuracion.costo_envio),
-    })
+    return JsonResponse({'status': 'ok', 'costo_envio': float(configuracion.costo_envio)})
 
 @require_POST
 @staff_member_required(login_url='administrador:login')
