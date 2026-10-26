@@ -6,7 +6,7 @@ from django.http import HttpRequest
 from .models import Categoria, Producto
 from .carrito import Carrito
 from django.urls import reverse
-from .models import Inventario, Pedido, DetallePedido, Cliente
+from .models import Inventario, Pedido, DetallePedido, Cliente, Insumo, RecetaInsumo, ConsumoInsumoPedido
 
 
 class CarritoTests(TestCase):
@@ -176,3 +176,87 @@ class CheckoutTests(TestCase):
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(Pedido.objects.count(), 0)
+
+    def test_checkout_descuenta_insumos_segun_receta_y_guarda_historial(self):
+        insumo = Insumo.objects.create(
+            nombre='Harina para receta',
+            unidad_medida='kg',
+            cantidad_disponible=Decimal('2.500'),
+            stock_minimo=Decimal('0.500'),
+        )
+        RecetaInsumo.objects.create(
+            producto=self.producto,
+            insumo=insumo,
+            cantidad_por_unidad=Decimal('0.250'),
+        )
+
+        respuesta = self.client.post(
+            reverse('cliente:checkout'),
+            {
+                'nombre_cliente': 'Juan Pérez',
+                'telefono': '1122334455',
+                'direccion': '',
+                'notas': '',
+            },
+        )
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(Pedido.objects.count(), 1)
+        insumo.refresh_from_db()
+        self.assertEqual(insumo.cantidad_disponible, Decimal('2.000'))
+        consumo = ConsumoInsumoPedido.objects.get(pedido=Pedido.objects.get())
+        self.assertEqual(consumo.cantidad, Decimal('0.500'))
+        self.assertFalse(consumo.reintegrado)
+
+    def test_checkout_rechaza_receta_sin_insumos_suficientes(self):
+        insumo = Insumo.objects.create(
+            nombre='Harina insuficiente',
+            unidad_medida='kg',
+            cantidad_disponible=Decimal('0.400'),
+            stock_minimo=Decimal('0.500'),
+        )
+        RecetaInsumo.objects.create(
+            producto=self.producto,
+            insumo=insumo,
+            cantidad_por_unidad=Decimal('0.250'),
+        )
+
+        respuesta = self.client.post(
+            reverse('cliente:checkout'),
+            {
+                'nombre_cliente': 'Juan Pérez',
+                'telefono': '1122334455',
+                'direccion': '',
+                'notas': '',
+            },
+        )
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(Pedido.objects.count(), 0)
+        self.assertTrue(respuesta.context['form'].non_field_errors())
+        self.inventario.refresh_from_db()
+        insumo.refresh_from_db()
+        self.assertEqual(self.inventario.cantidad_disponible, 5)
+        self.assertEqual(insumo.cantidad_disponible, Decimal('0.400'))
+
+    def test_nuevo_pedido_usa_codigo_de_seguimiento_no_predecible(self):
+        pedido = Pedido.objects.create(
+            nombre_cliente='Cliente token',
+            telefono='1100000000',
+            direccion='Retiro en local',
+            monto_total=Decimal('100.00'),
+        )
+        self.assertEqual(len(pedido.codigo_seguimiento), 32)
+        self.assertTrue(all(caracter in '0123456789ABCDEF' for caracter in pedido.codigo_seguimiento))
+
+    def test_seguimiento_publico_no_acepta_post(self):
+        pedido = Pedido.objects.create(
+            nombre_cliente='Cliente seguimiento',
+            telefono='1100000001',
+            direccion='Retiro en local',
+            monto_total=Decimal('100.00'),
+        )
+        respuesta = self.client.post(
+            reverse('cliente:api_seguimiento_pedido', kwargs={'codigo': pedido.codigo_seguimiento})
+        )
+        self.assertEqual(respuesta.status_code, 405)
