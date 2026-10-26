@@ -824,25 +824,33 @@
         </div>
     </div>
 
+{{ pedidos_data|json_script:"admin-pedidos-data" }}
+{{ productos_data|json_script:"admin-productos-data" }}
+{{ insumos_data|json_script:"admin-insumos-data" }}
+{{ categorias_data|json_script:"admin-categorias-data" }}
+{{ semana_labels|json_script:"admin-semana-labels" }}
+{{ semana_data|json_script:"admin-semana-data" }}
+{{ trend_data|json_script:"admin-trend-data" }}
+{{ pie_data|json_script:"admin-pie-data" }}
 <script>
-    window.ADMIN_PEDIDOS = {{ pedidos_json|safe }};
+    window.ADMIN_PEDIDOS = JSON.parse(document.getElementById('admin-pedidos-data').textContent);
     window.ADMIN_PEDIDOS_URL = "{% url 'administrador:actualizar_estado_pedido' '__CODIGO__' %}";
-    window.ADMIN_PRODUCTOS = {{ productos_data|safe }};
-    window.ADMIN_INSUMOS = {{ insumos_data|safe }};
+    window.ADMIN_PRODUCTOS = JSON.parse(document.getElementById('admin-productos-data').textContent);
+    window.ADMIN_INSUMOS = JSON.parse(document.getElementById('admin-insumos-data').textContent);
     window.ADMIN_CREAR_PRODUCTO_URL = "{% url 'administrador:crear_producto' %}";
     window.ADMIN_EDITAR_PRODUCTO_URL = "{% url 'administrador:editar_producto' %}";
     window.ADMIN_ELIMINAR_PRODUCTO_URL = "{% url 'administrador:eliminar_producto' %}";
     window.ADMIN_REPONER_INSUMO_URL = "{% url 'administrador:reponer_insumo' %}";
     window.ADMIN_LOGOUT_URL = "{% url 'administrador:logout' %}";
     window.ADMIN_CLIENTES_URL = "{% url 'administrador:listar_clientes' %}";
-    window.ADMIN_CATEGORIAS = {{ categorias_json|safe }};
+    window.ADMIN_CATEGORIAS = JSON.parse(document.getElementById('admin-categorias-data').textContent);
     window.ADMIN_CREAR_CATEGORIA_URL = "{% url 'administrador:crear_categoria' %}";
     window.ADMIN_EDITAR_CATEGORIA_URL = "{% url 'administrador:editar_categoria' %}";
     window.ADMIN_ELIMINAR_CATEGORIA_URL = "{% url 'administrador:eliminar_categoria' %}";
-    window.semanaLabels = {{ semana_labels_json|safe }};
-    window.semanaData = {{ semana_data_json|safe }};
-    window.trendDataReal = {{ trend_data_json|safe }};
-    window.pieDataReal = {{ pie_data_json|safe }};
+    window.semanaLabels = JSON.parse(document.getElementById('admin-semana-labels').textContent);
+    window.semanaData = JSON.parse(document.getElementById('admin-semana-data').textContent);
+    window.trendDataReal = JSON.parse(document.getElementById('admin-trend-data').textContent);
+    window.pieDataReal = JSON.parse(document.getElementById('admin-pie-data').textContent);
 </script>
 
 <script src="{% static 'administrador/js/dashboard.js' %}"></script>
