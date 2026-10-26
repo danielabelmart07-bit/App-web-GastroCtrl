@@ -55,6 +55,12 @@ let inventoryItems = (window.ADMIN_INSUMOS || []).map(insumo => ({
 
 let customers = [];
 
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[char]);
+}
+
 let currentActiveOrder = null;
 let activeOrderFilter = 'todos';
 let activeProductCatFilter = 'todos';
@@ -821,7 +827,7 @@ function renderCustomersTable() {
 
 function openCustomerWhatsApp(customerId) {
     const customer = customers.find(c => c.id === customerId);
-    const phone = (customer?.phone || '').replace(/\\D/g, '');
+    const phone = (customer?.phone || '').replace(/\D/g, '');
     if (!phone) {
         showToast('El cliente no tiene un teléfono válido.', 'error');
         return;
