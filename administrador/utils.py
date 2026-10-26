@@ -1,5 +1,5 @@
 import json
-from datetime import timedelta
+from datetime import timedelta, date
 from django.utils import timezone
 from django.db.models import Sum, Avg, F, ExpressionWrapper, DecimalField
 from cliente.models import Pedido, DetallePedido, Categoria
@@ -45,7 +45,9 @@ def generar_datos_dashboard():
     months_labels, months_data = [], []
     meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
     for m in range(5, -1, -1):
-        primer_dia = (hoy.replace(day=1) - timedelta(days=m * 30)).replace(day=1)
+        indice_mes = hoy.year * 12 + (hoy.month - 1) - m
+        anio, mes_cero = divmod(indice_mes, 12)
+        primer_dia = date(anio, mes_cero + 1, 1)
         months_labels.append(meses_nombres[primer_dia.month - 1])
         total_mes = pedidos_validos.filter(creado_en__year=primer_dia.year, creado_en__month=primer_dia.month).aggregate(total=Sum('monto_total'))['total'] or 0.00
         months_data.append(float(total_mes))
