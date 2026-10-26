@@ -88,3 +88,17 @@ canvas {
         -webkit-overflow-scrolling: touch;
     }
 }
+
+
+/* Ajustes responsive adicionales para catálogo y filtros */
+*, *::before, *::after { min-width: 0; }
+main, section, article, form { max-width: 100%; }
+p, label, small, span, a, button { overflow-wrap: anywhere; }
+img, video, iframe { height: auto; }
+@media (max-width: 640px) {
+  .overflow-x-auto { width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+  input, select, textarea { width: 100%; max-width: 100%; }
+}
+@media (max-width: 360px) {
+  .px-4, .px-5, .px-6, .px-8 { padding-left: .75rem; padding-right: .75rem; }
+}
