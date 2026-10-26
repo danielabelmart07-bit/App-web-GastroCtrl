@@ -35,7 +35,6 @@ class Producto(models.Model):
     es_destacado = models.BooleanField(default=False, verbose_name="¿Es producto destacado?")
     activo = models.BooleanField(default=True, verbose_name="¿Está disponible en el menú?")
     creado_en = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
-    archivado = models.BooleanField(default=False, db_index=True, verbose_name='Archivado')
     actualizado_en = models.DateTimeField(auto_now=True, verbose_name="Última actualización")
 
     class Meta:
@@ -180,6 +179,7 @@ class Pedido(models.Model):
     )
     estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE', verbose_name="Estado del Pedido")
     creado_en = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
+    archivado = models.BooleanField(default=False, db_index=True, verbose_name='Archivado')
 
     class Meta:
         verbose_name = "Pedido"
