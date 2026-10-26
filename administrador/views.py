@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal, InvalidOperation
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login, logout, authenticate
@@ -479,6 +480,41 @@ def actualizar_inventario(request):
             "es_stock_bajo": inventario.es_stock_bajo
         }
     })
+
+@require_POST
+@staff_member_required(login_url='administrador:login')
+def reponer_insumo(request):
+    insumo_id = request.POST.get('insumo_id')
+    cantidad_raw = request.POST.get('cantidad_reponer', '')
+
+    try:
+        insumo_id = int(insumo_id)
+        cantidad = Decimal(cantidad_raw)
+        if not cantidad.is_finite() or cantidad <= 0:
+            raise ValueError
+    except (TypeError, ValueError, InvalidOperation):
+        return JsonResponse({
+            'status': 'error',
+            'mensaje': 'Ingresá una cantidad de reposición válida y mayor que cero.'
+        }, status=400)
+
+    with transaction.atomic():
+        insumo = get_object_or_404(Insumo.objects.select_for_update(), pk=insumo_id)
+        insumo.cantidad_disponible += cantidad
+        insumo.save(update_fields=['cantidad_disponible'])
+
+    return JsonResponse({
+        'status': 'ok',
+        'insumo': {
+            'id': insumo.id,
+            'nombre': insumo.nombre,
+            'cantidad_disponible': float(insumo.cantidad_disponible),
+            'unidad_medida': insumo.unidad_medida,
+            'stock_minimo': float(insumo.stock_minimo),
+            'stock_bajo': insumo.cantidad_disponible <= insumo.stock_minimo,
+        }
+    })
+
 
 @staff_member_required(login_url='administrador:login')
 def listar_clientes(request):
