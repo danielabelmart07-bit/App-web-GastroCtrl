@@ -54,6 +54,12 @@
     
     <!-- Estilos Personalizados -->
     <link rel="stylesheet" href="{% static 'cliente/css/inicio.css' %}">
+    <style>
+        /* El resumen y el botón de compra pertenecen exclusivamente a la vista del carrito. */
+        #drawerCarrito:has(#trackingView:not(.hidden)) #cartFooter {
+            display: none !important;
+        }
+    </style>
     {% block extra_css %}
     {% endblock %}
 
