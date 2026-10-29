@@ -310,10 +310,14 @@ def menu(request):
             Q(nombre__icontains=query) | Q(descripcion__icontains=query)
         )
 
+    # Comprobar explícitamente si la búsqueda devolvió resultados.
+    hay_resultados = productos.exists()
+
     # 5. Obtener todas las categorías para pintar la barra de filtros
     categorias = Categoria.objects.all()
 
     contexto = {
+        'hay_resultados': hay_resultados,
         'productos': productos,
         'categorias': categorias,
         'query_actual': query,
