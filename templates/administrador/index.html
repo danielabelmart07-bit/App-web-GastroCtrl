@@ -821,6 +821,24 @@
         </div>
     </div>
 
+    <!-- MODAL: CONFIRMACIÓN UNIFICADA PARA ELIMINAR PRODUCTOS Y CATEGORÍAS -->
+    <div id="deleteConfirmModal" class="fixed inset-0 bg-coffee-900/45 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-cream-200 animate-fade-in text-center space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center mx-auto text-xl">
+                <i id="deleteConfirmIcon" class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 id="deleteConfirmTitle" class="font-serif-title font-bold text-xl text-coffee-900">¿Eliminar este elemento?</h3>
+            <p class="text-sm text-coffee-600">Vas a eliminar <span id="deleteConfirmType" class="font-bold text-coffee-900"></span> <span id="deleteConfirmName" class="font-bold text-coffee-900 break-words"></span>.</p>
+            <p id="deleteConfirmDescription" class="text-xs text-coffee-600 bg-cream-50 border border-cream-200 rounded-xl p-3"></p>
+            <div class="flex items-center gap-2 pt-2">
+                <button type="button" onclick="closeDeleteConfirmModal()" class="w-full min-h-11 py-2.5 rounded-xl bg-cream-100 hover:bg-cream-200 font-bold text-sm text-coffee-800 transition-colors">Cancelar</button>
+                <button type="button" id="confirmDeleteItemButton" onclick="confirmDeleteItem()" class="w-full min-h-11 py-2.5 rounded-xl bg-rose-700 hover:bg-rose-800 font-bold text-sm text-white transition-colors inline-flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-trash-can"></i><span>Sí, eliminar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL 5: LOGOUT CONFIRMATION -->
     <div id="logoutModal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl border border-cream-200 animate-fade-in text-center space-y-4">
@@ -857,6 +875,7 @@
     window.ADMIN_CREAR_PRODUCTO_URL = "{% url 'administrador:crear_producto' %}";
     window.ADMIN_EDITAR_PRODUCTO_URL = "{% url 'administrador:editar_producto' %}";
     window.ADMIN_ELIMINAR_PRODUCTO_URL = "{% url 'administrador:eliminar_producto' %}";
+    window.ADMIN_ELIMINAR_CATEGORIA_URL = "{% url 'administrador:eliminar_categoria' %}";
     window.semanaLabels = {{ semana_labels_json|safe }};
     window.semanaData = {{ semana_data_json|safe }};
     window.trendDataReal = {{ trend_data_json|safe }};
