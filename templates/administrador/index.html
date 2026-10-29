@@ -41,11 +41,7 @@
             </div>
         </div>
         
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-coffee-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                V
-            </div>
-        </div>
+
     </div>
 
     <!-- Sidebar -->
@@ -69,17 +65,9 @@
                 </button>
             </div>
 
-            <!-- Active User Profile Card -->
-            <div class="p-3.5 rounded-2xl bg-cream-50 border border-cream-200/80 flex items-center gap-3 shadow-2xs">
-                <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" 
-                        alt="Valentina" class="w-11 h-11 rounded-xl object-cover border border-cream-300 shadow-xs">
-                    <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" title="Sesión Activa"></span>
-                </div>
-                <div class="flex flex-col min-w-0">
-                    <span class="font-bold text-sm text-coffee-900 truncate">Valentina</span>
-                    <span class="text-[11px] text-coffee-600 font-medium truncate">Administradora General</span>
-                </div>
+            <!-- Perfil del usuario autenticado: sin nombre, foto ni cargo ficticios -->
+            <div class="px-3.5 py-4 rounded-2xl bg-cream-50 border border-cream-200/80 shadow-2xs">
+                <span class="block font-bold text-sm text-coffee-900 truncate" title="{{ request.user.get_full_name|default:request.user.username }}">{{ request.user.get_full_name|default:request.user.username }}</span>
             </div>
         </div>
 
