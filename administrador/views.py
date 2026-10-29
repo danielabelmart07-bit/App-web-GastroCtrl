@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST, require_http_methods
 from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo
-from .models import ConfiguracionSistema, PerfilAdministrador
+from .models import BitacoraAccion, ConfiguracionSistema, PerfilAdministrador
 from django.db import transaction
 from .forms import ProductoForm, CategoriaForm, PerfilAdministradorForm
 from django.db import transaction
@@ -17,6 +17,16 @@ from django.db.models import Count, Q
 from django.db.models import Sum
 from django.utils import timezone
 from administrador.utils import generar_datos_dashboard
+
+
+
+def registrar_accion(request, accion, detalles=""):
+    """Guarda una acción operativa realizada por un administrador autenticado."""
+    BitacoraAccion.objects.create(
+        usuario=request.user,
+        accion=accion,
+        detalles=detalles,
+    )
 
 
 def admin_required(view_func):
@@ -347,6 +357,8 @@ def crear_producto(request):
                 cantidad_disponible=stock
             )
 
+        registrar_accion(request, "Creación de producto", producto.nombre)
+
     except (ValueError, TypeError):
         return JsonResponse({
             "status": "error",
@@ -418,6 +430,8 @@ def editar_producto(request):
                 inventario.cantidad_disponible = stock
                 inventario.save(update_fields=['cantidad_disponible'])
 
+    registrar_accion(request, "Edición de producto", producto.nombre)
+
     return JsonResponse({
         "status": "ok",
         "producto": {
@@ -465,7 +479,9 @@ def eliminar_producto(request):
 
     producto = get_object_or_404(Producto, pk=producto_id)
 
+    nombre_producto = producto.nombre
     producto.delete()
+    registrar_accion(request, "Eliminación de producto", nombre_producto)
 
     return JsonResponse({
         "status": "ok",
@@ -484,6 +500,7 @@ def crear_categoria(request):
         }, status=400)
 
     categoria = form.save()
+    registrar_accion(request, "Creación de categoría", categoria.nombre)
 
     return JsonResponse({
         "status": "ok",
@@ -518,6 +535,7 @@ def editar_categoria(request):
         }, status=400)
 
     categoria = form.save()
+    registrar_accion(request, "Edición de categoría", categoria.nombre)
 
     return JsonResponse({
         "status": "ok",
