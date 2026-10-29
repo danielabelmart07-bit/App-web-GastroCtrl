@@ -111,37 +111,32 @@
                         <!-- Profile Dropdown Menu -->
                         <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-cream-200 py-2 z-50 transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
                             
-                            <!-- State 1: Not Authenticated -->
-                            <div id="loggedOutView" class="py-1">
+                            <!-- Visitantes: acceso a ambas cuentas -->
+                            <div id="loggedOutView" class="{% if request.user.is_authenticated %}hidden{% endif %} py-1">
                                 <div class="px-4 py-2 border-b border-cream-100">
-                                    <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Acceso Administrativo</p>
-                                    <p class="text-sm font-medium text-coffee-900">Ingreso exclusivo para administradores</p>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Acceso</p>
+                                    <p class="text-sm font-medium text-coffee-900">Ingresá o creá tu cuenta</p>
                                 </div>
-                                <a href="{% url 'administrador:login' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3 transition-colors"><i class="fa-solid fa-user-shield text-coffee-500"></i><span>Iniciar sesión Admin</span></a>
-                                <a href="{% url 'cliente:login' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3 transition-colors"><i class="fa-regular fa-user text-coffee-500"></i><span>Ingresar como cliente</span></a>
-                                <a href="{% url 'cliente:registro' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3 transition-colors"><i class="fa-solid fa-user-plus text-coffee-500"></i><span>Crear cuenta de cliente</span></a>
+                                <a href="{% url 'administrador:login' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3"><i class="fa-solid fa-user-shield text-coffee-500"></i><span>Iniciar sesión Admin</span></a>
+                                <a href="{% url 'cliente:login' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3"><i class="fa-regular fa-user text-coffee-500"></i><span>Ingresar como cliente</span></a>
+                                <a href="{% url 'cliente:registro' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3"><i class="fa-solid fa-user-plus text-coffee-500"></i><span>Crear cuenta de cliente</span></a>
                             </div>
 
-                            <!-- State 2: Authenticated as Admin -->
-                            <div id="loggedInView" class="hidden py-1">
+                            <!-- Cuenta autenticada: mostrar las opciones adecuadas al tipo de usuario -->
+                            <div id="loggedInView" class="{% if not request.user.is_authenticated %}hidden{% endif %} py-1">
                                 <div class="px-4 py-3 border-b border-cream-100 bg-cream-50/50">
-                                    <div class="flex items-center space-x-2">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                        <p id="adminNameDisplay" class="text-sm font-semibold text-coffee-900">
-                                            Admin: Valentina
-                                        </p>
-                                    </div>
-                                    <p class="text-xs text-coffee-600 mt-0.5">Sesión activa como administrador</p>
+                                    <p class="text-sm font-semibold text-coffee-900">{{ request.user.username }}</p>
+                                    <p class="text-xs text-coffee-600 mt-0.5">Sesión iniciada</p>
                                 </div>
-                                <a href="#adminDashboard" class="px-4 py-2.5 text-xs text-gray-600 hover:bg-cream-50 flex items-center gap-2">
-                                    <i class="fa-solid fa-sliders"></i>
-                                    <span>Panel de Control</span>
-                                </a>
-                                <div class="border-t border-cream-100 my-1"></div>
-                                <button id="logoutBtn" class="w-full text-left px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 flex items-center gap-3 transition-colors">
-                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                    <span>Cerrar sesión</span>
-                                </button>
+                                {% if request.user.is_staff %}
+                                    <a href="{% url 'administrador:dashboard' %}" class="block px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50"><i class="fa-solid fa-sliders mr-2"></i>Panel administrativo</a>
+                                {% elif request.user.perfil_cliente %}
+                                    <a href="{% url 'cliente:perfil' %}" class="block px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50"><i class="fa-regular fa-user mr-2"></i>Mi perfil</a>
+                                    <form method="post" action="{% url 'cliente:logout' %}" class="border-t border-cream-100">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full text-left px-4 py-3 text-sm text-rose-600 hover:bg-rose-50"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Cerrar sesión</button>
+                                    </form>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
