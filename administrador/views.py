@@ -205,6 +205,7 @@ def archivar_pedido(request, codigo):
         }, status=400)
     pedido.archivado = True
     pedido.save(update_fields=['archivado'])
+    registrar_accion(request, "Archivo de pedido", pedido.codigo_seguimiento)
     return JsonResponse({'status': 'ok', 'mensaje': 'Pedido archivado. La venta y sus detalles se conservaron.'})
 
 
@@ -216,6 +217,7 @@ def restaurar_pedido(request, codigo):
         return JsonResponse({'status': 'ok', 'mensaje': 'El pedido ya está en la gestión activa.'})
     pedido.archivado = False
     pedido.save(update_fields=['archivado'])
+    registrar_accion(request, "Restauración de pedido", pedido.codigo_seguimiento)
     return JsonResponse({'status': 'ok', 'mensaje': 'Pedido restaurado a la gestión activa.'})
 
 
@@ -276,6 +278,12 @@ def actualizar_estado_pedido(request, codigo):
 
         pedido.estado = nuevo_estado
         pedido.save(update_fields=['estado'])
+
+    registrar_accion(
+        request,
+        "Cambio de estado de pedido",
+        f"{pedido.codigo_seguimiento}: {estado_anterior} → {nuevo_estado}",
+    )
 
     return JsonResponse({
         'status': 'ok',
@@ -628,6 +636,11 @@ def actualizar_inventario(request):
             inventario.stock_minimo = stock_min_int
 
         inventario.save()
+        registrar_accion(
+            request,
+            "Actualización de inventario",
+            f"{producto.nombre}: disponible {inventario.cantidad_disponible}, mínimo {inventario.stock_minimo}",
+        )
 
     except (ValueError, TypeError):
         return JsonResponse({
