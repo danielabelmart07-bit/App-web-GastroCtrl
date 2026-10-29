@@ -8,6 +8,16 @@ urlpatterns = [
     path('productos/<int:producto_id>/eliminar/confirmar/', views.confirmar_eliminar_producto, name='confirmar_eliminar_producto'),
     path('categorias/<int:categoria_id>/eliminar/confirmar/', views.confirmar_eliminar_categoria, name='confirmar_eliminar_categoria'),
     path(
+        'api/pedidos/<str:codigo>/archivar/',
+        views.archivar_pedido,
+        name='archivar_pedido',
+    ),
+    path(
+        'api/pedidos/<str:codigo>/restaurar/',
+        views.restaurar_pedido,
+        name='restaurar_pedido',
+    ),
+    path(
         'api/pedidos/<str:codigo>/estado/',
         views.actualizar_estado_pedido,
         name='actualizar_estado_pedido',
