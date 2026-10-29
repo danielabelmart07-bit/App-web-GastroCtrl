@@ -25,6 +25,7 @@
 </head>
 <body class="bg-cream-50 text-coffee-900 min-h-screen flex flex-col md:flex-row antialiased selection:bg-coffee-500 selection:text-white overflow-x-hidden">
     {% csrf_token %}
+    {% if messages %}<div class="fixed top-4 right-4 z-[100] max-w-md space-y-2 px-4" aria-live="polite">{% for message in messages %}<div role="status" class="rounded-xl border px-4 py-3 text-sm shadow-lg {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-800{% else %}border-emerald-200 bg-emerald-50 text-emerald-800{% endif %}">{{ message }}</div>{% endfor %}</div>{% endif %}
 
     <!-- Mobile Top Header -->
     <div class="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-cream-200 px-4 py-3 flex items-center justify-between shadow-xs">
