@@ -117,11 +117,9 @@
                                     <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Acceso Administrativo</p>
                                     <p class="text-sm font-medium text-coffee-900">Ingreso exclusivo para administradores</p>
                                 </div>
-                                <a href="{% url 'administrador:login' %}"
-                                    class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3 transition-colors">
-                                    <i class="fa-solid fa-user-shield text-coffee-500"></i>
-                                    <span>Iniciar sesión Admin</span>
-                                </a>
+                                <a href="{% url 'administrador:login' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3 transition-colors"><i class="fa-solid fa-user-shield text-coffee-500"></i><span>Iniciar sesión Admin</span></a>
+                                <a href="{% url 'cliente:login' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3 transition-colors"><i class="fa-regular fa-user text-coffee-500"></i><span>Ingresar como cliente</span></a>
+                                <a href="{% url 'cliente:registro' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3 transition-colors"><i class="fa-solid fa-user-plus text-coffee-500"></i><span>Crear cuenta de cliente</span></a>
                             </div>
 
                             <!-- State 2: Authenticated as Admin -->
@@ -165,8 +163,14 @@
         </div>
     </header>
 
+    {% if messages %}
+    <section aria-live="polite" class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
+        {% for message in messages %}
+        <div role="status" class="mb-3 rounded-xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-800{% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-800{% else %}border-cream-300 bg-white text-coffee-800{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </section>
+    {% endif %}
     <main class="flex-grow">
-    {% block content %}
     {% endblock %}
     </main>
 
