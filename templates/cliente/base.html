@@ -129,7 +129,11 @@
                                     <p class="text-xs text-coffee-600 mt-0.5">Sesión iniciada</p>
                                 </div>
                                 {% if request.user.is_staff %}
-                                    <a href="{% url 'administrador:dashboard' %}" class="block px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50"><i class="fa-solid fa-sliders mr-2"></i>Panel administrativo</a>
+                                    <a href="{% url 'administrador:dashboard' %}" class="block px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50"><i class="fa-solid fa-sliders mr-2"></i>Panel de administrador</a>
+                                    <form method="post" action="{% url 'administrador:logout' %}" onsubmit="return cerrarSesionAdminDesdeMenu(event, this)" class="border-t border-cream-100">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full text-left px-4 py-3 text-sm text-rose-600 hover:bg-rose-50"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Cerrar sesión</button>
+                                    </form>
                                 {% elif request.user.perfil_cliente %}
                                     <a href="{% url 'cliente:perfil' %}" class="block px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50"><i class="fa-regular fa-user mr-2"></i>Mi perfil</a>
                                     <form method="post" action="{% url 'cliente:logout' %}" class="border-t border-cream-100">
@@ -564,6 +568,29 @@
     </aside>
 
 </div>
+
+<script>
+    async function cerrarSesionAdminDesdeMenu(event, formulario) {
+        event.preventDefault();
+        try {
+            const respuesta = await fetch(formulario.action, {
+                method: "POST",
+                body: new FormData(formulario),
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+                credentials: "same-origin"
+            });
+            const datos = await respuesta.json();
+            if (respuesta.ok && datos.redirect_url) {
+                window.location.href = datos.redirect_url;
+            } else {
+                window.location.reload();
+            }
+        } catch (error) {
+            window.location.href = formulario.action;
+        }
+        return false;
+    }
+</script>
 
 </body>
 </html>
