@@ -58,6 +58,43 @@ class CarritoTests(TestCase):
         self.assertEqual(self.carrito.obtener_total_unidades(), 0)
         self.assertEqual(self.carrito.obtener_precio_total(), Decimal("0"))
 
+class BusquedaMenuTests(TestCase):
+    def setUp(self):
+        self.categoria = Categoria.objects.create(nombre="Panadería", slug="panaderia")
+        self.producto = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Medialuna de manteca",
+            descripcion="Clásica medialuna",
+            precio=Decimal("1200.00"),
+            activo=True,
+        )
+        Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Pan integral",
+            descripcion="Pan de semillas",
+            precio=Decimal("1800.00"),
+            activo=True,
+        )
+
+    def test_busqueda_get_filtra_productos_y_precarga_el_termino(self):
+        response = self.client.get(reverse("cliente:menu"), {"q": "medialuna"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["query_actual"], "medialuna")
+        self.assertTrue(response.context["hay_resultados"])
+        self.assertQuerySetEqual(
+            response.context["productos"],
+            [self.producto],
+        )
+
+    def test_busqueda_get_sin_coincidencias_informa_lista_vacia(self):
+        response = self.client.get(reverse("cliente:menu"), {"q": "producto inexistente"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["hay_resultados"])
+        self.assertEqual(response.context["productos"].count(), 0)
+
+
 class CheckoutTests(TestCase):
     def setUp(self):
         self.categoria = Categoria.objects.create(
