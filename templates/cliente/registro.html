@@ -1,0 +1,8 @@
+{% extends "cliente/base.html" %}
+{% block title %}Crear cuenta | GastroCtrl{% endblock %}
+{% block content %}
+<section class="max-w-xl mx-auto px-4 py-12"><div class="bg-white rounded-3xl border border-cream-200 shadow-xl p-6 sm:p-9">
+<p class="text-xs uppercase tracking-[0.2em] text-coffee-500 font-bold">Cuenta de cliente</p><h1 class="font-serif-title text-3xl font-bold text-coffee-900 mt-2">Crear cuenta</h1><p class="text-sm text-coffee-700 mt-2 mb-6">Guardá tus datos para que tus próximas compras sean más simples.</p>
+<form method="post" class="space-y-4">{% csrf_token %}{% for field in form %}<div><label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-coffee-800 mb-1">{{ field.label }}</label>{{ field }}{% if field.help_text %}<div class="text-xs text-coffee-600 mt-1">{{ field.help_text|safe }}</div>{% endif %}{% for error in field.errors %}<p class="text-sm text-red-700 mt-1">{{ error }}</p>{% endfor %}</div>{% endfor %}{% if form.non_field_errors %}<div role="alert" class="rounded-xl bg-red-50 text-red-700 p-3 text-sm">{{ form.non_field_errors }}</div>{% endif %}
+<button type="submit" class="w-full rounded-xl bg-coffee-600 hover:bg-coffee-700 text-white font-bold py-3">Crear cuenta</button></form><p class="text-sm text-coffee-700 mt-5 text-center">¿Ya tenés cuenta? <a class="font-bold text-coffee-600 underline" href="{% url 'cliente:login' %}">Ingresá acá</a>.</p></div></section>
+{% endblock %}
