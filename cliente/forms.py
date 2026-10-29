@@ -26,7 +26,7 @@ class RegistroClienteForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ("username", "email", "password1", "password2")
+        fields = ("username", "email")
         widgets = {"username": forms.TextInput(attrs={"class": "w-full rounded-xl border border-cream-300 px-4 py-3", "autocomplete": "username"})}
 
     def clean_telefono(self):
