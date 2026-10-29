@@ -92,6 +92,7 @@ def dashboard(request):
             'price': float(producto.precio),
             'stock': producto.inventario.cantidad_disponible if getattr(producto, 'inventario', None) else 0,
             'status': 'active' if producto.activo else 'inactive',
+            'featured': producto.es_destacado,
             'image': producto.imagen.url if producto.imagen else '',
         }
         for producto in productos
