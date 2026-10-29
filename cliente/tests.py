@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.test import TestCase
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpRequest
-from .models import Categoria, Producto
+from .models import Categoria, Producto, Cliente
 from .carrito import Carrito
 from django.urls import reverse
 from .models import Inventario, Pedido, DetallePedido
@@ -73,6 +73,10 @@ class CheckoutTests(TestCase):
             producto=self.producto,
             cantidad_disponible=5,
         )
+        from django.contrib.auth.models import User
+        usuario = User.objects.create_user(username="cliente_checkout", password="ClaveSegura2026")
+        Cliente.objects.create(user=usuario, nombre="Cliente Checkout", telefono="1199001122")
+        self.client.force_login(usuario)
 
         session = self.client.session
         session["carrito"] = {
@@ -85,6 +89,16 @@ class CheckoutTests(TestCase):
             }
         }
         session.save()
+
+    def test_checkout_sin_sesion_redirige_a_registro(self):
+        self.client.logout()
+        session = self.client.session
+        session["carrito"] = {str(self.producto.id): {"producto_id": self.producto.id, "nombre": self.producto.nombre, "precio": str(self.producto.precio), "cantidad": 1, "imagen": ""}}
+        session.save()
+        respuesta = self.client.get(reverse("cliente:checkout"))
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertIn(reverse("cliente:registro"), respuesta.url)
+        self.assertIn("next=", respuesta.url)
 
     def test_checkout_descuenta_stock_y_crea_pedido(self):
         respuesta = self.client.post(
@@ -151,6 +165,7 @@ class CuentaClienteTests(TestCase):
             "nombre": "Cliente Nuevo",
             "telefono": "1133445566",
             "direccion_habitual": "Calle 123",
+            "ciudad": "Hurlingham",
             "password1": "UnaClaveSegura2026!",
             "password2": "UnaClaveSegura2026!",
         })
@@ -159,6 +174,7 @@ class CuentaClienteTests(TestCase):
         usuario = User.objects.get(username="cliente_nuevo")
         self.assertEqual(usuario.perfil_cliente.nombre, "Cliente Nuevo")
         self.assertEqual(usuario.perfil_cliente.telefono, "1133445566")
+        self.assertEqual(usuario.perfil_cliente.ciudad, "Hurlingham")
 
     def test_perfil_requiere_autenticacion(self):
         response = self.client.get(reverse("cliente:perfil"))
@@ -173,6 +189,8 @@ class CuentaClienteTests(TestCase):
         response = self.client.post(reverse("cliente:login"), {
             "username": "cliente_existente",
             "password": "UnaClaveSegura2026!",
+            "next": reverse("cliente:checkout"),
         })
-        self.assertRedirects(response, reverse("cliente:perfil"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("cliente:checkout"))
         self.assertEqual(self.client.get(reverse("cliente:perfil")).status_code, 200)
