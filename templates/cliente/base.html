@@ -213,7 +213,7 @@
                 <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-8">
                     
                     <!-- Section 1: Ubicación y Horario -->
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         <h4 class="font-serif-title text-base font-bold text-white tracking-wide border-b border-white/15 pb-2">
                             Ubicación & Horario
                         </h4>
@@ -332,20 +332,24 @@
 
     <!-- Panel -->
     <aside
-        class="absolute top-0 right-0 h-full w-full sm:max-w-md bg-white shadow-2xl translate-x-full transition-transform duration-300 flex flex-col"
+        class="absolute top-0 right-0 h-full w-full sm:max-w-lg bg-white shadow-2xl translate-x-full transition-transform duration-300 flex flex-col"
     >
 
         <!-- Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-cream-200">
+        <div class="flex items-center justify-between px-5 sm:px-6 py-5 border-b border-cream-200 bg-cream-50/80">
 
-            <div>
-                <h2 class="font-serif-title text-xl font-bold text-coffee-900">
-                    Tu pedido
-                </h2>
-
-                <p class="text-xs text-coffee-700/70 mt-0.5">
-                    Revisá tus productos antes de continuar
-                </p>
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-white border border-cream-200 text-coffee-600 flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="font-serif-title text-xl font-bold text-coffee-900">
+                        Tu pedido
+                    </h2>
+                    <p class="text-xs text-coffee-700/70 mt-1">
+                        Revisá tus productos antes de continuar
+                    </p>
+                </div>
             </div>
 
             <button
@@ -361,15 +365,15 @@
 
 
         <!-- Tabs -->
-        <div class="px-5 pt-4">
+        <div class="px-5 sm:px-6 pt-5">
 
-            <div class="grid grid-cols-2 gap-2 p-1 rounded-full bg-cream-100">
+            <div class="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-cream-100 border border-cream-200/80">
 
                 <button
                     id="cartTab"
                     type="button"
                     onclick="mostrarCarrito()"
-                    class="bg-coffee-600 text-white rounded-full py-2.5 text-xs font-bold transition-colors"
+                    class="bg-coffee-600 text-white rounded-xl py-3 text-xs font-bold shadow-sm transition-all"
                 >
                     <i class="fa-solid fa-bag-shopping mr-1"></i>
                     Mi Carrito
@@ -379,7 +383,7 @@
                     id="trackingTab"
                     type="button"
                     onclick="mostrarSeguimiento()"
-                    class="text-coffee-700 rounded-full py-2.5 text-xs font-bold hover:bg-white transition-colors"
+                    class="text-coffee-700 rounded-xl py-3 text-xs font-bold hover:bg-white transition-all"
                 >
                     <i class="fa-solid fa-location-dot mr-1"></i>
                     Seguir Pedido
@@ -396,7 +400,7 @@
 
         <div
             id="cartView"
-            class="flex-1 overflow-y-auto px-5 py-5"
+            class="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-5"
         >
 
             <!-- Carrito vacío -->
@@ -429,17 +433,17 @@
 
 
             <!-- Modalidad de entrega -->
-            <div class="mb-5 p-4 rounded-2xl bg-cream-50 border border-cream-200">
+            <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-cream-50 border border-cream-200 shadow-sm">
                 <p class="text-xs font-bold text-coffee-900 mb-3">
                     ¿Cómo querés recibir tu pedido?
                 </p>
 
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
                         id="deliveryPickupBtn"
                         type="button"
                         onclick="seleccionarModalidadEntrega('RETIRO')"
-                        class="delivery-option-btn rounded-xl border border-coffee-600 bg-white px-3 py-3 text-left transition-all"
+                        class="delivery-option-btn rounded-2xl border border-coffee-600 bg-white px-3.5 py-4 text-left transition-all min-h-[86px]"
                     >
                         <span class="flex items-center gap-2 text-xs font-bold text-coffee-900">
                             <i class="fa-solid fa-store text-coffee-600"></i>
@@ -454,7 +458,7 @@
                         id="deliveryHomeBtn"
                         type="button"
                         onclick="seleccionarModalidadEntrega('DELIVERY')"
-                        class="delivery-option-btn rounded-xl border border-cream-200 bg-white px-3 py-3 text-left transition-all"
+                        class="delivery-option-btn rounded-2xl border border-cream-200 bg-white px-3.5 py-4 text-left transition-all min-h-[86px]"
                     >
                         <span class="flex items-center gap-2 text-xs font-bold text-coffee-900">
                             <i class="fa-solid fa-motorcycle text-coffee-600"></i>
@@ -482,7 +486,7 @@
 
         <div
             id="trackingView"
-            class="hidden flex-1 overflow-y-auto px-5 py-5"
+            class="hidden flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-6"
         >
 
             <div class="text-center mb-6">
@@ -544,10 +548,10 @@
 
         <div
             id="cartFooter"
-            class="border-t border-cream-200 px-5 py-4 bg-white"
+            class="border-t border-cream-200 px-5 sm:px-6 py-5 bg-cream-50/90 shadow-[0_-8px_24px_rgba(70,45,30,0.04)]"
         >
 
-            <div class="space-y-2 mb-4 text-xs">
+            <div class="space-y-3 mb-4 text-xs">
                 <div class="flex items-center justify-between">
                     <span class="text-coffee-600">Subtotal</span>
                     <span id="cartSubtotal" class="font-semibold text-coffee-900">$0</span>
@@ -558,16 +562,16 @@
                     <span id="cartShipping" class="font-semibold text-coffee-900">$0</span>
                 </div>
 
-                <div class="flex items-center justify-between pt-2 border-t border-cream-200">
-                    <span class="text-sm font-bold text-coffee-700">Total</span>
-                    <span id="cartTotal" class="text-xl font-bold text-coffee-900">$0</span>
+                <div class="flex items-center justify-between pt-3 mt-1 border-t border-cream-200">
+                    <span class="text-sm font-bold text-coffee-800">Total del pedido</span>
+                    <span id="cartTotal" class="text-2xl font-bold text-coffee-900">$0</span>
                 </div>
             </div>
 
             <a
                 id="checkoutBtn"
                 href="{% url 'cliente:checkout' %}"
-                class="block w-full text-center py-3 rounded-2xl bg-coffee-600 hover:bg-coffee-700 text-white text-sm font-bold transition-colors"
+                class="block w-full text-center py-3.5 rounded-2xl bg-coffee-600 hover:bg-coffee-700 active:scale-[0.99] text-white text-sm font-bold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-coffee-400 focus:ring-offset-2"
             >
                 Realizar compra
             </a>
