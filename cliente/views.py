@@ -345,7 +345,8 @@ def registro_cliente(request):
     if request.user.is_authenticated:
         if Cliente.objects.filter(user=request.user).exists():
             return redirect("cliente:perfil")
-        logout(request)
+        messages.info(request, "Ya hay una sesión administrativa activa. Cerrala desde el panel antes de crear una cuenta de cliente.")
+        return redirect("cliente:home")
     form = RegistroClienteForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         with transaction.atomic():
@@ -366,7 +367,8 @@ def login_cliente(request):
     if request.user.is_authenticated:
         if Cliente.objects.filter(user=request.user).exists():
             return redirect("cliente:perfil")
-        logout(request)
+        messages.info(request, "Ya hay una sesión administrativa activa. Cerrala desde el panel antes de ingresar como cliente.")
+        return redirect("cliente:home")
     form = AuthenticationForm(request, data=request.POST or None)
     for name, field in form.fields.items():
         field.widget.attrs.update({"class": "w-full rounded-xl border border-cream-300 px-4 py-3 focus:border-coffee-500 focus:outline-none", "autocomplete": "username" if name == "username" else "current-password"})
@@ -383,7 +385,10 @@ def login_cliente(request):
 
 @login_required(login_url="cliente:login")
 def perfil_cliente(request):
-    cliente = get_object_or_404(Cliente, user=request.user)
+    cliente = Cliente.objects.filter(user=request.user).first()
+    if cliente is None:
+        messages.info(request, "No hay un perfil de cliente asociado a esta cuenta.")
+        return redirect("cliente:home")
     form = PerfilClienteForm(request.POST or None, instance=cliente)
     if request.method == "POST" and form.is_valid():
         cliente = form.save()
@@ -396,6 +401,7 @@ def perfil_cliente(request):
 
 @require_POST
 def logout_cliente(request):
-    logout(request)
-    messages.info(request, "Cerraste sesión correctamente.")
+    if request.user.is_authenticated and Cliente.objects.filter(user=request.user).exists():
+        logout(request)
+        messages.info(request, "Cerraste sesión correctamente.")
     return redirect("cliente:home")
