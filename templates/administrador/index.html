@@ -67,9 +67,13 @@
 
             <!-- Perfil del administrador -->
             <div class="px-3.5 py-4 rounded-2xl bg-cream-50 border border-cream-200/80 shadow-2xs flex items-center gap-3">
-                <div class="w-11 h-11 shrink-0 rounded-full bg-coffee-500/15 border border-coffee-500/25 text-coffee-700 flex items-center justify-center shadow-sm" aria-hidden="true">
-                    <i class="fa-solid fa-user text-lg"></i>
-                </div>
+                {% if perfil_admin.foto %}
+                    <img src="{{ perfil_admin.foto.url }}" alt="Foto de {{ request.user.get_full_name|default:request.user.username }}" class="w-11 h-11 shrink-0 rounded-full object-cover border border-coffee-500/25 shadow-sm">
+                {% else %}
+                    <div class="w-11 h-11 shrink-0 rounded-full bg-coffee-500/15 border border-coffee-500/25 text-coffee-700 flex items-center justify-center shadow-sm" aria-hidden="true">
+                        <i class="fa-solid fa-user text-lg"></i>
+                    </div>
+                {% endif %}
                 <div class="min-w-0 flex-1">
                     <span class="block text-[10px] uppercase tracking-wider font-semibold text-coffee-600 mb-1">Administrador</span>
                     <span class="block font-bold text-sm text-coffee-900 truncate" title="{{ request.user.get_full_name|default:request.user.username }}">{{ request.user.get_full_name|default:request.user.username }}</span>
@@ -596,6 +600,35 @@
             <!-- SECTION 8: CONFIGURACIÓN -->
             <section id="section-settings" class="tab-content hidden space-y-6 animate-fade-in">
                 <div class="bg-white p-6 sm:p-8 rounded-3xl border border-cream-200/80 shadow-sm max-w-2xl space-y-6">
+                    <h2 class="font-serif-title font-bold text-xl text-coffee-900 border-b border-cream-200 pb-3">Perfil del administrador</h2>
+                    <form action="{% url 'administrador:actualizar_perfil_admin' %}" method="post" enctype="multipart/form-data" class="space-y-4">
+                        {% csrf_token %}
+                        <div class="flex items-center gap-4">
+                            {% if perfil_admin.foto %}
+                                <img src="{{ perfil_admin.foto.url }}" alt="Foto de perfil actual" class="w-20 h-20 rounded-full object-cover border border-cream-300">
+                            {% else %}
+                                <div class="w-20 h-20 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center text-coffee-600">
+                                    <i class="fa-solid fa-user text-2xl"></i>
+                                </div>
+                            {% endif %}
+                            <div class="min-w-0">
+                                <p class="font-bold text-sm text-coffee-900">{{ request.user.get_full_name|default:request.user.username }}</p>
+                                <p class="text-xs text-coffee-600 mt-1">JPG, PNG o WEBP. Tamaño máximo: 2 MB.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="id_foto" class="block mb-1 text-coffee-700 font-bold text-xs">Elegir nueva foto</label>
+                            <input type="file" name="foto" id="id_foto" accept="image/jpeg,image/png,image/webp" class="w-full rounded-xl border border-cream-300 bg-white px-4 py-3 text-sm">
+                        </div>
+                        <div class="pt-2 flex justify-end">
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-coffee-600 hover:bg-coffee-700 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-2">
+                                <i class="fa-solid fa-camera"></i><span>Guardar foto de perfil</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-cream-200/80 shadow-sm max-w-2xl space-y-6">
                     <h2 class="font-serif-title font-bold text-xl text-coffee-900 border-b border-cream-200 pb-3">Configuración de la Cafetería</h2>
                     
                     <form onsubmit="saveSettings(event)" class="space-y-4 text-xs font-medium text-coffee-900">
@@ -890,5 +923,10 @@
 </script>
 
 <script src="{% static 'administrador/js/dashboard.js' %}"></script>
+<script>
+        if (new URLSearchParams(window.location.search).get("tab") === "settings") {
+            switchTab("settings");
+        }
+    </script>
 </body>
 </html>
