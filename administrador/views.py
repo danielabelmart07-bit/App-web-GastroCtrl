@@ -70,7 +70,7 @@ def dashboard(request):
         for insumo in insumos
     ]
 
-    productos = Producto.objects.select_related('categoria').all()
+    productos = Producto.objects.select_related('categoria', 'inventario').all()
 
     productos_data = [
         {
@@ -79,7 +79,7 @@ def dashboard(request):
             'category': producto.categoria.slug,
             'category_id': producto.categoria_id,
             'price': float(producto.precio),
-            'stock': producto.inventario.cantidad_disponible,
+            'stock': producto.inventario.cantidad_disponible if getattr(producto, 'inventario', None) else 0,
             'status': 'active' if producto.activo else 'inactive',
             'image': producto.imagen.url if producto.imagen else '',
         }
