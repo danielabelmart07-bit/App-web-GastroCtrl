@@ -414,48 +414,13 @@ function editProduct(id) {
 
 function deleteProduct(id) {
     const producto = products.find(p => p.id === id);
-
     if (!producto) {
         showToast('No se encontró el producto.');
         return;
     }
 
-    const confirmar = confirm(
-        `¿Estás seguro de que querés eliminar "${producto.name}"? Esta acción no se puede deshacer.`
-    );
-
-    if (!confirmar) {
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('id', id);
-
-    fetch(window.ADMIN_ELIMINAR_PRODUCTO_URL, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: formData
-    })
-    .then(async response => {
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.mensaje || 'No se pudo eliminar el producto.'
-            );
-        }
-
-        return data;
-    })
-    .then(data => {
-        showToast(data.mensaje || 'Producto eliminado correctamente');
-        setTimeout(() => window.location.reload(), 700);
-    })
-    .catch(error => {
-        showToast(error.message);
-    });
+    // La eliminación pasa por una página de confirmación GET; el borrado real es POST con CSRF.
+    window.location.href = `/gestion/productos/${id}/eliminar/confirmar/`;
 }
 
 function saveProduct(event) {
