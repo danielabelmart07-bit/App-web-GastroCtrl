@@ -295,14 +295,42 @@ function renderOrdersWorkflow() {
                 <span class="text-[10px] text-coffee-500 font-normal"><i class="fa-regular fa-clock"></i> ${o.time}</span>
             </div>
 
-            <div class="pt-1 flex items-center justify-between gap-2">
-                <button onclick="openOrderDetailModal('${o.id}')" class="w-full py-2 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+            <div class="pt-1 flex flex-col sm:flex-row items-stretch gap-2">
+                <button onclick="openOrderDetailModal('${o.id}')" class="flex-1 py-2 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-eye text-xs"></i>
                     <span>Ver y Gestionar</span>
                 </button>
+                ${['entregado', 'cancelado'].includes(o.status) ? `
+                <button onclick="archiveOrder('${o.id}')" class="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-600 hover:text-white text-amber-800 border border-amber-200 font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-box-archive"></i><span>Archivar</span>
+                </button>` : ''}
             </div>
         </div>
     `).join('');
+}
+
+async function archiveOrder(orderId) {
+    const codigo = String(orderId).replace(/^#/, '');
+    if (!window.confirm('¿Archivar el pedido ' + codigo + '? La venta y sus detalles se conservarán en la base de datos.')) return;
+
+    try {
+        const response = await fetch('/gestion/api/pedidos/' + encodeURIComponent(codigo) + '/archivar/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': obtenerCsrfTokenAdmin(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        const data = await response.json();
+        if (!response.ok || data.status !== 'ok') {
+            throw new Error(data.mensaje || 'No se pudo archivar el pedido.');
+        }
+        orders = orders.filter(order => order.id !== orderId);
+        renderOrdersWorkflow();
+        showToast(data.mensaje || 'Pedido archivado.');
+    } catch (error) {
+        showToast(error.message || 'Error al archivar el pedido.', 'error');
+    }
 }
 
 function filterProductsCategory(cat) {
