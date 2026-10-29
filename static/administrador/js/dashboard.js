@@ -928,6 +928,7 @@ async function loadCustomersFromDatabase() {
         customers = (data.clientes || []).map(cliente => ({
             id: cliente.id,
             name: cliente.nombre,
+            city: cliente.ciudad || 'Sin ciudad',
             email: cliente.email || 'Sin email',
             phone: cliente.telefono || 'Sin teléfono',
             ordersCount: cliente.total_pedidos || 0,
@@ -937,7 +938,7 @@ async function loadCustomersFromDatabase() {
     } catch (error) {
         console.error('Error cargando clientes reales:', error);
         const tbody = document.getElementById('customersTableBody');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-coffee-600">No se pudieron cargar los clientes.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-coffee-600">No se pudieron cargar los clientes.</td></tr>';
     }
 }
 
@@ -945,13 +946,14 @@ function renderCustomersTable() {
     const tbody = document.getElementById('customersTableBody');
     if (!tbody) return;
     if (!customers.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-coffee-600">Todavía no hay clientes registrados.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-coffee-600">Todavía no hay clientes registrados.</td></tr>';
         return;
     }
     tbody.innerHTML = customers.map(c => `
         <tr class="hover:bg-cream-50/80 transition-colors">
             <td class="py-3 px-3 font-bold text-coffee-900">${escapeHtml(c.name)}</td>
             <td class="py-3 px-3 text-coffee-600">${escapeHtml(c.email)} <br> <span class="text-[10px]">${escapeHtml(c.phone)}</span></td>
+            <td class="py-3 px-3 text-coffee-600">${escapeHtml(c.city)}</td>
             <td class="py-3 px-3 font-bold">${c.ordersCount} pedidos</td>
             <td class="py-3 px-3 font-bold text-coffee-900">$${c.spent.toLocaleString('es-AR')}</td>
             <td class="py-3 px-3">
