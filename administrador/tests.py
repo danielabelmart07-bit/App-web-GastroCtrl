@@ -1,4 +1,6 @@
 import json
+import base64
+from django.core.files.uploadedfile import SimpleUploadedFile
 from cliente.models import Cliente
 from cliente.utils import vincular_o_crear_cliente
 from django.test import TestCase
@@ -568,3 +570,38 @@ class ConfirmacionEliminacionTests(AdminTestCase):
         response = self.client.post(reverse("administrador:confirmar_eliminar_categoria", kwargs={"categoria_id": self.categoria.id}))
         self.assertRedirects(response, reverse("administrador:dashboard"))
         self.assertTrue(Categoria.objects.filter(pk=self.categoria.pk).exists())
+
+
+class PerfilAdministradorTests(AdminTestCase):
+    def test_dashboard_crea_perfil_individual_del_administrador(self):
+        from administrador.models import PerfilAdministrador
+
+        response = self.client.get(reverse("administrador:dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(PerfilAdministrador.objects.filter(usuario=self.admin).exists())
+
+    def test_guardar_foto_de_perfil(self):
+        from administrador.models import PerfilAdministrador
+
+        imagen_png = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/n9sAAAAASUVORK5CYII="
+        )
+        archivo = SimpleUploadedFile(
+            "avatar.png",
+            imagen_png,
+            content_type="image/png",
+        )
+
+        response = self.client.post(
+            reverse("administrador:actualizar_perfil_admin"),
+            {"foto": archivo},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("administrador:dashboard") + "?tab=settings",
+            fetch_redirect_response=False,
+        )
+        perfil = PerfilAdministrador.objects.get(usuario=self.admin)
+        self.assertTrue(perfil.foto.name.startswith("perfiles_admin/"))
