@@ -629,3 +629,60 @@ body, main, #sidebarDrawer, .tab-content {
         font-size: 0.72rem;
     }
 }
+
+
+/* Filtros de categoría: compactos, ordenados y sin ocupar todo el ancho. */
+#productCategoryFilters {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    min-width: 0;
+    max-width: 100%;
+}
+
+#productCategoryFilters .prod-cat-btn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    min-width: fit-content;
+    max-width: none;
+    padding: 0.55rem 0.9rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    letter-spacing: normal;
+    transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+@media (max-width: 767px) {
+    #productCategoryFilters {
+        width: 100%;
+        gap: 0.45rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0.2rem 0 0.55rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    #productCategoryFilters .prod-cat-btn {
+        flex-shrink: 0 !important;
+        padding: 0.55rem 0.8rem;
+        font-size: 0.72rem;
+    }
+}
+
+@media (min-width: 768px) {
+    #productCategoryFilters {
+        width: auto;
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+}
