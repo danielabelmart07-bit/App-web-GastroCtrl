@@ -142,3 +142,37 @@ class CheckoutTests(TestCase):
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(Pedido.objects.count(), 0)
+
+class CuentaClienteTests(TestCase):
+    def test_registro_crea_usuario_y_perfil_relacionado(self):
+        response = self.client.post(reverse("cliente:registro"), {
+            "username": "cliente_nuevo",
+            "email": "cliente@example.com",
+            "nombre": "Cliente Nuevo",
+            "telefono": "1133445566",
+            "direccion_habitual": "Calle 123",
+            "password1": "UnaClaveSegura2026!",
+            "password2": "UnaClaveSegura2026!",
+        })
+        self.assertRedirects(response, reverse("cliente:login"))
+        from django.contrib.auth.models import User
+        usuario = User.objects.get(username="cliente_nuevo")
+        self.assertEqual(usuario.perfil_cliente.nombre, "Cliente Nuevo")
+        self.assertEqual(usuario.perfil_cliente.telefono, "1133445566")
+
+    def test_perfil_requiere_autenticacion(self):
+        response = self.client.get(reverse("cliente:perfil"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("cliente:login"), response.url)
+
+    def test_cliente_puede_iniciar_sesion_y_ver_perfil(self):
+        from django.contrib.auth.models import User
+        from .models import Cliente
+        usuario = User.objects.create_user(username="cliente_existente", password="UnaClaveSegura2026!")
+        Cliente.objects.create(user=usuario, nombre="Cliente Existente", telefono="1198765432")
+        response = self.client.post(reverse("cliente:login"), {
+            "username": "cliente_existente",
+            "password": "UnaClaveSegura2026!",
+        })
+        self.assertRedirects(response, reverse("cliente:perfil"))
+        self.assertEqual(self.client.get(reverse("cliente:perfil")).status_code, 200)
