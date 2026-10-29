@@ -43,6 +43,7 @@ let categories = (window.ADMIN_CATEGORIAS || []).map(cat => ({
 }));
 
 let orders = window.ADMIN_PEDIDOS || [];
+let archivedOrders = window.ADMIN_PEDIDOS_ARCHIVADOS || [];
 
 let inventoryItems = (window.ADMIN_INSUMOS || []).map(insumo => ({
     id: insumo.id,
@@ -254,59 +255,94 @@ function getStatusBadgeHTML(status) {
 function filterOrders(status) {
     activeOrderFilter = status;
     document.querySelectorAll('.order-filter-btn').forEach(btn => {
-        if (btn.dataset.status === status) {
-            btn.className = "order-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-coffee-600 text-white shadow-xs";
-        } else {
-            btn.className = "order-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-cream-100 text-coffee-800 hover:bg-cream-200";
-        }
+        const selected = btn.dataset.status === status;
+        btn.className = "order-filter-btn px-4 py-2 rounded-full text-xs font-bold " +
+            (selected
+                ? "bg-coffee-600 text-white shadow-xs"
+                : "bg-cream-100 text-coffee-800 hover:bg-cream-200");
+        btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     renderOrdersWorkflow();
 }
 
 function renderOrdersWorkflow() {
-    const searchVal = document.getElementById('orderSearchInput').value.toLowerCase();
+    const searchInput = document.getElementById('orderSearchInput');
+    const searchVal = (searchInput?.value || '').toLowerCase().trim();
     const grid = document.getElementById('ordersKanbanGrid');
+    if (!grid) return;
 
-    let filtered = orders.filter(o => {
-        const matchesFilter = activeOrderFilter === 'todos' || o.status === activeOrderFilter;
-        const matchesSearch = o.customer.toLowerCase().includes(searchVal) || o.id.toLowerCase().includes(searchVal);
+    const showingArchived = activeOrderFilter === 'archivados';
+    const sourceOrders = showingArchived ? archivedOrders : orders;
+    let filtered = sourceOrders.filter(o => {
+        const matchesFilter = showingArchived || activeOrderFilter === 'todos' || o.status === activeOrderFilter;
+        const matchesSearch = (o.customer || '').toLowerCase().includes(searchVal) ||
+            (o.id || '').toLowerCase().includes(searchVal);
         return matchesFilter && matchesSearch;
     });
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-12 text-center text-coffee-500 font-medium">No se encontraron pedidos en esta sección.</div>`;
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-coffee-500 font-medium">${showingArchived ? 'No hay pedidos archivados.' : 'No se encontraron pedidos en esta sección.'}</div>`;
         return;
     }
 
     grid.innerHTML = filtered.map(o => `
-        <div class="bg-white p-5 rounded-3xl border border-cream-200/80 shadow-sm space-y-3 hover-lift">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-coffee-500 uppercase tracking-wider">${o.id}</span>
+        <div class="bg-white p-5 rounded-3xl border border-cream-200/80 shadow-sm hover-lift flex flex-col h-full min-w-0">
+            <div class="flex items-center justify-between gap-2 min-h-7 mb-3">
+                <span class="text-xs font-bold text-coffee-500 uppercase tracking-wider break-all">${o.id}</span>
                 ${getStatusBadgeHTML(o.status)}
             </div>
-            
-            <div>
-                <h3 class="font-serif-title font-bold text-base text-coffee-900">${o.customer}</h3>
-                <p class="text-xs text-coffee-600 mt-0.5 line-clamp-2">${o.items}</p>
+
+            <div class="mb-4">
+                <h3 class="font-serif-title font-bold text-base text-coffee-900 break-words">${o.customer}</h3>
+                <p class="text-xs text-coffee-600 mt-1 line-clamp-2 min-h-8">${o.items}</p>
             </div>
 
-            <div class="flex items-center justify-between text-xs font-bold text-coffee-800 pt-2 border-t border-cream-100">
+            <div class="flex items-center justify-between gap-3 text-xs font-bold text-coffee-800 py-3 border-t border-cream-100 mt-auto">
                 <span>$${o.total.toLocaleString()}</span>
-                <span class="text-[10px] text-coffee-500 font-normal"><i class="fa-regular fa-clock"></i> ${o.time}</span>
+                <span class="text-[10px] text-coffee-500 font-normal text-right"><i class="fa-regular fa-clock"></i> ${o.time}</span>
             </div>
 
-            <div class="pt-1 flex flex-col sm:flex-row items-stretch gap-2">
-                <button onclick="openOrderDetailModal('${o.id}')" class="flex-1 py-2 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+            <div class="pt-1 grid grid-cols-1 ${showingArchived ? '' : 'sm:grid-cols-2'} items-stretch gap-2">
+                <button onclick="openOrderDetailModal('${o.id}')" class="w-full min-h-10 px-3 py-2 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors inline-flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-eye text-xs"></i>
                     <span>Ver y Gestionar</span>
                 </button>
-                ${['entregado', 'cancelado'].includes(o.status) ? `
-                <button onclick="archiveOrder('${o.id}')" class="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-600 hover:text-white text-amber-800 border border-amber-200 font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+                ${showingArchived ? `
+                <button onclick="restoreOrder('${o.id}')" class="w-full min-h-10 px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-800 border border-emerald-200 font-bold text-xs transition-colors inline-flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-box-open"></i><span>Restaurar</span>
+                </button>` : (['entregado', 'cancelado'].includes(o.status) ? `
+                <button onclick="archiveOrder('${o.id}')" class="w-full min-h-10 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-600 hover:text-white text-amber-800 border border-amber-200 font-bold text-xs transition-colors inline-flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-box-archive"></i><span>Archivar</span>
-                </button>` : ''}
+                </button>` : '')}
             </div>
         </div>
     `).join('');
+}
+
+async function restoreOrder(orderId) {
+    const codigo = String(orderId).replace(/^#/, '');
+    try {
+        const response = await fetch('/gestion/api/pedidos/' + encodeURIComponent(codigo) + '/restaurar/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': obtenerCsrfTokenAdmin(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        const data = await response.json();
+        if (!response.ok || data.status !== 'ok') {
+            throw new Error(data.mensaje || 'No se pudo restaurar el pedido.');
+        }
+        const restoredOrder = archivedOrders.find(order => order.id === orderId);
+        archivedOrders = archivedOrders.filter(order => order.id !== orderId);
+        if (restoredOrder && !orders.some(order => order.id === orderId)) {
+            orders.unshift(restoredOrder);
+        }
+        renderOrdersWorkflow();
+        showToast(data.mensaje || 'Pedido restaurado.');
+    } catch (error) {
+        showToast(error.message || 'Error al restaurar el pedido.', 'error');
+    }
 }
 
 async function archiveOrder(orderId) {
@@ -325,7 +361,11 @@ async function archiveOrder(orderId) {
         if (!response.ok || data.status !== 'ok') {
             throw new Error(data.mensaje || 'No se pudo archivar el pedido.');
         }
+        const archivedOrder = orders.find(order => order.id === orderId);
         orders = orders.filter(order => order.id !== orderId);
+        if (archivedOrder && !archivedOrders.some(order => order.id === orderId)) {
+            archivedOrders.unshift(archivedOrder);
+        }
         renderOrdersWorkflow();
         showToast(data.mensaje || 'Pedido archivado.');
     } catch (error) {
