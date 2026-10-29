@@ -113,6 +113,7 @@ class Cliente(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre completo")
     telefono = models.CharField(max_length=20, unique=True, verbose_name="Teléfono / WhatsApp")
     direccion_habitual = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección habitual")
+    ciudad = models.CharField(max_length=100, blank=True, default="", verbose_name="Ciudad")
     email = models.EmailField(blank=True, null=True, verbose_name="Correo electrónico")
     notas = models.TextField(blank=True, null=True, verbose_name="Notas del cliente (ej. preferencias, alergias)")
     fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de registro")
