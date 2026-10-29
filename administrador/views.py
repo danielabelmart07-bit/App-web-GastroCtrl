@@ -9,10 +9,9 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST, require_http_methods
 from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo
-from .models import ConfiguracionSistema
+from .models import ConfiguracionSistema, PerfilAdministrador
 from django.db import transaction
-from .forms import ProductoForm
-from .forms import ProductoForm, CategoriaForm
+from .forms import ProductoForm, CategoriaForm, PerfilAdministradorForm
 from django.db import transaction
 from django.db.models import Count, Q
 from administrador.utils import generar_datos_dashboard
@@ -131,6 +130,7 @@ def dashboard(request):
     ]
 
     configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
+    perfil_admin, _ = PerfilAdministrador.objects.get_or_create(usuario=request.user)
 
     return render(
         request,
@@ -141,6 +141,7 @@ def dashboard(request):
             'pedidos_archivados_json': json.dumps(pedidos_archivados_data),
             'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,
+            'perfil_admin': perfil_admin,
             'categorias': categorias,
             'categorias_data_json': json.dumps(categorias_data, ensure_ascii=False),
             'ingresos_mes': datos_dashboard['kpis']['ingresos_mes'],
@@ -249,6 +250,20 @@ def actualizar_estado_pedido(request, codigo):
         'estado': pedido.estado,
         'estado_display': pedido.get_estado_display(),
     })
+
+
+@require_POST
+@admin_required
+def actualizar_perfil_admin(request):
+    perfil, _ = PerfilAdministrador.objects.get_or_create(usuario=request.user)
+    form = PerfilAdministradorForm(request.POST, request.FILES, instance=perfil)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Tu foto de perfil se guardó correctamente.")
+    else:
+        error = next(iter(form.errors.values()), ["No se pudo guardar la imagen."])[0]
+        messages.error(request, error)
+    return redirect(f"{reverse('administrador:dashboard')}?tab=settings")
 
 
 @require_POST
