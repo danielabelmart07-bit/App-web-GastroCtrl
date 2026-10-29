@@ -1,4 +1,5 @@
 from decimal import Decimal
+from copy import deepcopy
 from .models import Producto
 
 class Carrito:
@@ -92,7 +93,8 @@ class Carrito:
         """
         producto_ids = self.carrito.keys()
         productos = Producto.objects.filter(id__in=producto_ids)
-        carrito_copia = self.carrito.copy()
+        # Copia profunda: el iterador agrega campos calculados y nunca debe mutar la sesión.
+        carrito_copia = deepcopy(self.carrito)
 
         for item in carrito_copia.values():
             item['precio_decimal'] = Decimal(item['precio'])
