@@ -345,9 +345,31 @@ async function restoreOrder(orderId) {
     }
 }
 
-async function archiveOrder(orderId) {
+let pendingArchiveOrderId = null;
+
+function archiveOrder(orderId) {
+    pendingArchiveOrderId = orderId;
+    const modal = document.getElementById('archiveOrderModal');
+    const codeEl = document.getElementById('archiveOrderCode');
+    if (codeEl) codeEl.textContent = String(orderId);
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeArchiveOrderModal() {
+    const modal = document.getElementById('archiveOrderModal');
+    if (modal) modal.classList.add('hidden');
+    pendingArchiveOrderId = null;
+}
+
+async function confirmArchiveOrder() {
+    if (!pendingArchiveOrderId) return;
+    const orderId = pendingArchiveOrderId;
     const codigo = String(orderId).replace(/^#/, '');
-    if (!window.confirm('¿Archivar el pedido ' + codigo + '? La venta y sus detalles se conservarán en la base de datos.')) return;
+    const confirmButton = document.getElementById('confirmArchiveOrderButton');
+    if (confirmButton) {
+        confirmButton.disabled = true;
+        confirmButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Archivando...</span>';
+    }
 
     try {
         const response = await fetch('/gestion/api/pedidos/' + encodeURIComponent(codigo) + '/archivar/', {
@@ -366,10 +388,16 @@ async function archiveOrder(orderId) {
         if (archivedOrder && !archivedOrders.some(order => order.id === orderId)) {
             archivedOrders.unshift(archivedOrder);
         }
+        closeArchiveOrderModal();
         renderOrdersWorkflow();
         showToast(data.mensaje || 'Pedido archivado.');
     } catch (error) {
         showToast(error.message || 'Error al archivar el pedido.', 'error');
+    } finally {
+        if (confirmButton) {
+            confirmButton.disabled = false;
+            confirmButton.innerHTML = '<i class="fa-solid fa-box-archive"></i><span>Sí, archivar pedido</span>';
+        }
     }
 }
 
