@@ -124,9 +124,18 @@
 
                             <!-- Cuenta autenticada: mostrar las opciones adecuadas al tipo de usuario -->
                             <div id="loggedInView" class="{% if not request.user.is_authenticated %}hidden{% endif %} py-1">
-                                <div class="px-4 py-3 border-b border-cream-100 bg-cream-50/50">
-                                    <p class="text-sm font-semibold text-coffee-900">{{ request.user.username }}</p>
-                                    <p class="text-xs text-coffee-600 mt-0.5">Sesión iniciada</p>
+                                <div class="px-4 py-3 border-b border-cream-100 bg-cream-50/50 flex items-center gap-3">
+                                    {% if request.user.is_staff %}
+                                        {% if request.user.perfil_admin.foto %}
+                                            <img src="{{ request.user.perfil_admin.foto.url }}" alt="Foto de perfil" class="w-10 h-10 rounded-full object-cover border border-cream-200 shrink-0">
+                                        {% else %}
+                                            <span class="w-10 h-10 rounded-full bg-cream-200 text-coffee-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user"></i></span>
+                                        {% endif %}
+                                    {% endif %}
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-semibold text-coffee-900 truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
+                                        <p class="text-xs text-coffee-600 mt-0.5">Sesión iniciada</p>
+                                    </div>
                                 </div>
                                 {% if request.user.is_staff %}
                                     <a href="{% url 'administrador:dashboard' %}" class="block px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50"><i class="fa-solid fa-sliders mr-2"></i>Panel de administrador</a>
