@@ -109,17 +109,17 @@
                         </button>
 
                         <!-- Profile Dropdown Menu -->
-                        <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-cream-200 py-2 z-50 transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
+                        <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-[min(19rem,calc(100vw-2rem))] bg-white rounded-2xl shadow-2xl border border-cream-200 p-2 z-50 transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
                             
                             <!-- Visitantes: acceso a ambas cuentas -->
                             <div id="loggedOutView" class="{% if request.user.is_authenticated %}hidden{% endif %} py-1">
-                                <div class="px-4 py-2 border-b border-cream-100">
+                                <div class="px-3 py-3 mb-2 rounded-xl bg-cream-50 border border-cream-200/80">
                                     <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Acceso</p>
                                     <p class="text-sm font-medium text-coffee-900">Ingresá o creá tu cuenta</p>
                                 </div>
-                                <a href="{% url 'administrador:login' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3"><i class="fa-solid fa-user-shield text-coffee-500"></i><span>Iniciar sesión Admin</span></a>
-                                <a href="{% url 'cliente:login' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3"><i class="fa-regular fa-user text-coffee-500"></i><span>Ingresar como cliente</span></a>
-                                <a href="{% url 'cliente:registro' %}" class="w-full text-left px-4 py-3 text-sm text-coffee-800 hover:bg-cream-50 flex items-center gap-3"><i class="fa-solid fa-user-plus text-coffee-500"></i><span>Crear cuenta de cliente</span></a>
+                                <a href="{% url 'administrador:login' %}" class="w-full text-left px-3 py-3 mb-1 rounded-xl text-sm text-coffee-800 hover:bg-cream-50 border border-transparent hover:border-cream-200 flex items-center gap-3 transition-colors"><span class="w-9 h-9 shrink-0 rounded-lg bg-coffee-100 text-coffee-700 flex items-center justify-center"><i class="fa-solid fa-user-shield"></i></span><span class="flex-1 font-semibold">Acceso administrativo<small class="block mt-0.5 text-xs font-normal text-coffee-600">Gestioná pedidos y productos</small></span><i class="fa-solid fa-chevron-right text-[10px] text-coffee-400"></i></a>
+                                <a href="{% url 'cliente:login' %}" class="w-full text-left px-3 py-3 mb-1 rounded-xl text-sm text-coffee-800 hover:bg-cream-50 border border-transparent hover:border-cream-200 flex items-center gap-3 transition-colors"><span class="w-9 h-9 shrink-0 rounded-lg bg-cream-100 text-coffee-700 flex items-center justify-center"><i class="fa-regular fa-user"></i></span><span class="flex-1 font-semibold">Ingresar como cliente<small class="block mt-0.5 text-xs font-normal text-coffee-600">Accedé a tu cuenta y perfil</small></span><i class="fa-solid fa-chevron-right text-[10px] text-coffee-400"></i></a>
+                                <a href="{% url 'cliente:registro' %}" class="w-full text-left px-3 py-3 rounded-xl text-sm text-coffee-800 hover:bg-cream-50 border border-transparent hover:border-cream-200 flex items-center gap-3 transition-colors"><span class="w-9 h-9 shrink-0 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center"><i class="fa-solid fa-user-plus"></i></span><span class="flex-1 font-semibold">Crear cuenta de cliente<small class="block mt-0.5 text-xs font-normal text-coffee-600">Registrate en pocos pasos</small></span><i class="fa-solid fa-chevron-right text-[10px] text-coffee-400"></i></a>
                             </div>
 
                             <!-- Cuenta autenticada: mostrar las opciones adecuadas al tipo de usuario -->
