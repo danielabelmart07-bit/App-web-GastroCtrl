@@ -51,6 +51,7 @@ def dashboard(request):
         )
 
     pedidos = pedidos_qs.order_by('-id')
+    pedidos_archivados = Pedido.objects.prefetch_related('detalles__producto').filter(archivado=True).order_by('-id')
 
     datos_dashboard = generar_datos_dashboard()
 
@@ -113,6 +114,22 @@ def dashboard(request):
         for pedido in pedidos
     ]
 
+    pedidos_archivados_data = [
+        {
+            'id': f'#{pedido.codigo_seguimiento}',
+            'codigo': pedido.codigo_seguimiento,
+            'customer': pedido.nombre_cliente,
+            'items': ', '.join(
+                f'{detalle.cantidad}x {detalle.producto.nombre if detalle.producto else "Producto eliminado"}'
+                for detalle in pedido.detalles.all()
+            ) or 'Sin detalle',
+            'total': float(pedido.monto_total),
+            'status': pedido.estado.lower(),
+            'time': pedido.creado_en.strftime('%d/%m/%Y %H:%M'),
+        }
+        for pedido in pedidos_archivados
+    ]
+
     configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
 
     return render(
@@ -121,6 +138,7 @@ def dashboard(request):
         {
             'pedidos': pedidos,
             'pedidos_json': json.dumps(pedidos_data),
+            'pedidos_archivados_json': json.dumps(pedidos_archivados_data),
             'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,
             'categorias': categorias,
