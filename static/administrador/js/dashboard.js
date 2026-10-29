@@ -319,60 +319,57 @@ function renderOrdersWorkflow() {
     `).join('');
 }
 
-async function restoreOrder(orderId) {
-    const codigo = String(orderId).replace(/^#/, '');
-    try {
-        const response = await fetch('/gestion/api/pedidos/' + encodeURIComponent(codigo) + '/restaurar/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': obtenerCsrfTokenAdmin(),
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-        });
-        const data = await response.json();
-        if (!response.ok || data.status !== 'ok') {
-            throw new Error(data.mensaje || 'No se pudo restaurar el pedido.');
-        }
-        const restoredOrder = archivedOrders.find(order => order.id === orderId);
-        archivedOrders = archivedOrders.filter(order => order.id !== orderId);
-        if (restoredOrder && !orders.some(order => order.id === orderId)) {
-            orders.unshift(restoredOrder);
-        }
-        renderOrdersWorkflow();
-        showToast(data.mensaje || 'Pedido restaurado.');
-    } catch (error) {
-        showToast(error.message || 'Error al restaurar el pedido.', 'error');
-    }
-}
+let pendingOrderAction = null;
 
-let pendingArchiveOrderId = null;
+function openOrderActionModal(action, orderId) {
+    pendingOrderAction = { action, orderId };
+    const isArchive = action === 'archive';
+    const modal = document.getElementById('orderActionModal');
+    document.getElementById('orderActionTitle').textContent = isArchive ? '¿Archivar este pedido?' : '¿Restaurar este pedido?';
+    document.getElementById('orderActionCode').textContent = String(orderId);
+    document.getElementById('orderActionDescription').textContent = isArchive
+        ? 'El pedido dejará de aparecer en la gestión activa. La venta y sus detalles se conservarán en el historial y podrás restaurarlo cuando quieras.'
+        : 'El pedido volverá a la gestión activa para que puedas consultarlo junto con los demás pedidos.';
+    const icon = document.getElementById('orderActionIcon');
+    icon.className = 'fa-solid ' + (isArchive ? 'fa-box-archive' : 'fa-box-open');
+    const iconWrap = document.getElementById('orderActionIconWrap');
+    iconWrap.className = 'w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-xl border ' +
+        (isArchive ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
+    const button = document.getElementById('confirmOrderActionButton');
+    button.className = 'w-full min-h-11 py-2.5 rounded-xl font-bold text-sm text-white transition-colors inline-flex items-center justify-center gap-2 ' +
+        (isArchive ? 'bg-coffee-700 hover:bg-coffee-800' : 'bg-emerald-700 hover:bg-emerald-800');
+    button.innerHTML = isArchive
+        ? '<i class="fa-solid fa-box-archive"></i><span>Sí, archivar pedido</span>'
+        : '<i class="fa-solid fa-box-open"></i><span>Sí, restaurar pedido</span>';
+    modal.classList.remove('hidden');
+}
 
 function archiveOrder(orderId) {
-    pendingArchiveOrderId = orderId;
-    const modal = document.getElementById('archiveOrderModal');
-    const codeEl = document.getElementById('archiveOrderCode');
-    if (codeEl) codeEl.textContent = String(orderId);
-    if (modal) modal.classList.remove('hidden');
+    openOrderActionModal('archive', orderId);
 }
 
-function closeArchiveOrderModal() {
-    const modal = document.getElementById('archiveOrderModal');
+function restoreOrder(orderId) {
+    openOrderActionModal('restore', orderId);
+}
+
+function closeOrderActionModal() {
+    const modal = document.getElementById('orderActionModal');
     if (modal) modal.classList.add('hidden');
-    pendingArchiveOrderId = null;
+    pendingOrderAction = null;
 }
 
-async function confirmArchiveOrder() {
-    if (!pendingArchiveOrderId) return;
-    const orderId = pendingArchiveOrderId;
+async function confirmOrderAction() {
+    if (!pendingOrderAction) return;
+    const { action, orderId } = pendingOrderAction;
     const codigo = String(orderId).replace(/^#/, '');
-    const confirmButton = document.getElementById('confirmArchiveOrderButton');
-    if (confirmButton) {
-        confirmButton.disabled = true;
-        confirmButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Archivando...</span>';
-    }
+    const button = document.getElementById('confirmOrderActionButton');
+    const isArchive = action === 'archive';
+    button.disabled = true;
+    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>' + (isArchive ? 'Archivando...' : 'Restaurando...') + '</span>';
 
     try {
-        const response = await fetch('/gestion/api/pedidos/' + encodeURIComponent(codigo) + '/archivar/', {
+        const endpoint = isArchive ? 'archivar' : 'restaurar';
+        const response = await fetch('/gestion/api/pedidos/' + encodeURIComponent(codigo) + '/' + endpoint + '/', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': obtenerCsrfTokenAdmin(),
@@ -381,23 +378,29 @@ async function confirmArchiveOrder() {
         });
         const data = await response.json();
         if (!response.ok || data.status !== 'ok') {
-            throw new Error(data.mensaje || 'No se pudo archivar el pedido.');
+            throw new Error(data.mensaje || (isArchive ? 'No se pudo archivar el pedido.' : 'No se pudo restaurar el pedido.'));
         }
-        const archivedOrder = orders.find(order => order.id === orderId);
-        orders = orders.filter(order => order.id !== orderId);
-        if (archivedOrder && !archivedOrders.some(order => order.id === orderId)) {
-            archivedOrders.unshift(archivedOrder);
+
+        if (isArchive) {
+            const order = orders.find(item => item.id === orderId);
+            orders = orders.filter(item => item.id !== orderId);
+            if (order && !archivedOrders.some(item => item.id === orderId)) archivedOrders.unshift(order);
+        } else {
+            const order = archivedOrders.find(item => item.id === orderId);
+            archivedOrders = archivedOrders.filter(item => item.id !== orderId);
+            if (order && !orders.some(item => item.id === orderId)) orders.unshift(order);
         }
-        closeArchiveOrderModal();
+
+        closeOrderActionModal();
         renderOrdersWorkflow();
-        showToast(data.mensaje || 'Pedido archivado.');
+        showToast(data.mensaje || (isArchive ? 'Pedido archivado.' : 'Pedido restaurado.'));
     } catch (error) {
-        showToast(error.message || 'Error al archivar el pedido.', 'error');
+        showToast(error.message || (isArchive ? 'Error al archivar el pedido.' : 'Error al restaurar el pedido.'), 'error');
     } finally {
-        if (confirmButton) {
-            confirmButton.disabled = false;
-            confirmButton.innerHTML = '<i class="fa-solid fa-box-archive"></i><span>Sí, archivar pedido</span>';
-        }
+        button.disabled = false;
+        button.innerHTML = isArchive
+            ? '<i class="fa-solid fa-box-archive"></i><span>Sí, archivar pedido</span>'
+            : '<i class="fa-solid fa-box-open"></i><span>Sí, restaurar pedido</span>';
     }
 }
 
