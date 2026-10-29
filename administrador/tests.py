@@ -51,6 +51,13 @@ class CRUDProductosTests(AdminTestCase):
         self.assertTrue(hasattr(producto, 'inventario'))
         self.assertEqual(producto.inventario.cantidad_disponible, 15)
 
+        from administrador.models import BitacoraAccion
+        self.assertTrue(BitacoraAccion.objects.filter(
+            usuario=self.admin,
+            accion="Creación de producto",
+            detalles="Cafe Espresso",
+        ).exists())
+
     def test_editar_producto_exitoso(self):
         producto = Producto.objects.create(
             categoria=self.categoria,
@@ -468,6 +475,16 @@ class GestionClientesTests(AdminTestCase):
         self.assertEqual(datos['clientes'][0]['telefono'], "1199887766")
         self.assertEqual(datos['clientes'][0]['ciudad'], "Hurlingham")
         self.assertEqual(datos['clientes'][0]['total_gastado'], 4500.0)
+        self.assertTrue(datos['hay_resultados'])
+
+    def test_busqueda_clientes_sin_coincidencias_informa_resultado_vacio(self):
+        url = reverse('administrador:listar_clientes') + '?q=NombreInexistente'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        datos = response.json()
+        self.assertFalse(datos['hay_resultados'])
+        self.assertIn('No se encontraron clientes', datos['mensaje'])
 
     def test_detalle_cliente_api(self):
         url = reverse('administrador:detalle_cliente', kwargs={'cliente_id': self.cliente.id})
@@ -622,6 +639,14 @@ class ConfirmacionEliminacionTests(AdminTestCase):
         response = self.client.get(reverse("administrador:confirmar_eliminar_producto", kwargs={"producto_id": self.producto.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Producto.objects.filter(pk=self.producto.pk).exists())
+
+    def test_get_confirmacion_categoria_no_elimina(self):
+        response = self.client.get(reverse(
+            "administrador:confirmar_eliminar_categoria",
+            kwargs={"categoria_id": self.categoria.id},
+        ))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Categoria.objects.filter(pk=self.categoria.pk).exists())
 
     def test_post_confirma_eliminacion(self):
         response = self.client.post(reverse("administrador:confirmar_eliminar_producto", kwargs={"producto_id": self.producto.id}))
