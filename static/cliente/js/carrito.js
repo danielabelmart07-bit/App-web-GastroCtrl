@@ -475,7 +475,12 @@ function mostrarSeguimiento() {
 
     carritoView.classList.add('hidden');
     seguimientoView.classList.remove('hidden');
-    cartFooter?.classList.add('hidden');
+
+    if (cartFooter) {
+        cartFooter.classList.add('hidden');
+        cartFooter.style.display = 'none';
+        cartFooter.setAttribute('aria-hidden', 'true');
+    }
 
     carritoTab?.classList.remove('bg-coffee-600', 'text-white', 'shadow-sm');
     carritoTab?.classList.add('text-coffee-700');
@@ -503,7 +508,12 @@ function mostrarCarrito() {
 
     seguimientoView.classList.add('hidden');
     carritoView.classList.remove('hidden');
-    cartFooter?.classList.remove('hidden');
+
+    if (cartFooter) {
+        cartFooter.classList.remove('hidden');
+        cartFooter.style.display = '';
+        cartFooter.removeAttribute('aria-hidden');
+    }
 
     seguimientoTab?.classList.remove(
         'bg-coffee-600',
