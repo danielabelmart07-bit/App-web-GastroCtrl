@@ -1,12 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import json
 from django.db.models import Q
 from django.db import transaction
-from .models import Categoria, Producto, Pedido, DetallePedido
+from .models import Categoria, Producto, Pedido, DetallePedido, Cliente
 from administrador.models import ConfiguracionSistema
 from .carrito import Carrito
-from .forms import PedidoForm
+from .forms import PedidoForm, RegistroClienteForm, PerfilClienteForm
 
 def checkout(request):
     carrito = Carrito(request)
@@ -277,7 +282,7 @@ def home(request):
 
 def menu(request):
     # 1. Obtener parámetros de búsqueda o filtrado de la URL (ej. ?q=cafe&categoria=panaderia)
-    query = request.GET.get('q', '')
+    query = request.GET.get('q', '').strip()
     categoria_slug = request.GET.get('categoria', '')
 
     # 2. Consultar solo productos que estén marcados como activos
@@ -334,3 +339,61 @@ def actualizar_modalidad_carrito(request):
         'total': float(subtotal + envio),
     })
 
+
+
+def registro_cliente(request):
+    if request.user.is_authenticated:
+        if Cliente.objects.filter(user=request.user).exists():
+            return redirect("cliente:perfil")
+        logout(request)
+    form = RegistroClienteForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        with transaction.atomic():
+            user = form.save()
+            Cliente.objects.create(
+                user=user,
+                nombre=form.cleaned_data["nombre"].strip(),
+                telefono=form.cleaned_data["telefono"],
+                direccion_habitual=form.cleaned_data.get("direccion_habitual", "").strip(),
+                email=user.email or None,
+            )
+        messages.success(request, "Tu cuenta fue creada. Ya podés iniciar sesión.")
+        return redirect("cliente:login")
+    return render(request, "cliente/registro.html", {"form": form})
+
+
+def login_cliente(request):
+    if request.user.is_authenticated:
+        if Cliente.objects.filter(user=request.user).exists():
+            return redirect("cliente:perfil")
+        logout(request)
+    form = AuthenticationForm(request, data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.get_user()
+        if not Cliente.objects.filter(user=user).exists():
+            form.add_error(None, "Esta cuenta no tiene un perfil de cliente asociado.")
+        else:
+            login(request, user)
+            messages.success(request, "Iniciaste sesión correctamente.")
+            return redirect("cliente:perfil")
+    return render(request, "cliente/login.html", {"form": form})
+
+
+@login_required(login_url="cliente:login")
+def perfil_cliente(request):
+    cliente = get_object_or_404(Cliente, user=request.user)
+    form = PerfilClienteForm(request.POST or None, instance=cliente)
+    if request.method == "POST" and form.is_valid():
+        cliente = form.save()
+        request.user.email = cliente.email or ""
+        request.user.save(update_fields=["email"])
+        messages.success(request, "Tus datos fueron actualizados.")
+        return redirect("cliente:perfil")
+    return render(request, "cliente/perfil.html", {"form": form, "cliente": cliente})
+
+
+@require_POST
+def logout_cliente(request):
+    logout(request)
+    messages.info(request, "Cerraste sesión correctamente.")
+    return redirect("cliente:home")
