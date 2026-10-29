@@ -804,17 +804,18 @@
         </div>
     </div>
 
-    <!-- MODAL: CONFIRMACIÓN PARA ARCHIVAR PEDIDOS -->
-    <div id="archiveOrderModal" class="fixed inset-0 bg-coffee-900/45 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="archiveOrderTitle">
+    <!-- MODAL UNIFICADO: CONFIRMAR ARCHIVAR O RESTAURAR PEDIDO -->
+    <div id="orderActionModal" class="fixed inset-0 bg-coffee-900/45 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="orderActionTitle">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-cream-200 animate-fade-in text-center space-y-4">
-            <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center mx-auto text-xl">
-                <i class="fa-solid fa-box-archive"></i>
+            <div id="orderActionIconWrap" class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center mx-auto text-xl">
+                <i id="orderActionIcon" class="fa-solid fa-box-archive"></i>
             </div>
-            <h3 id="archiveOrderTitle" class="font-serif-title font-bold text-xl text-coffee-900">¿Archivar este pedido?</h3>
-            <p class="text-sm text-coffee-600">Vas a archivar el pedido <span id="archiveOrderCode" class="font-bold text-coffee-900 break-all"></span>. La venta y sus detalles se conservarán en el historial y podrás restaurarlo cuando quieras.</p>
+            <h3 id="orderActionTitle" class="font-serif-title font-bold text-xl text-coffee-900">¿Archivar este pedido?</h3>
+            <p class="text-sm text-coffee-600">Pedido <span id="orderActionCode" class="font-bold text-coffee-900 break-all"></span></p>
+            <p id="orderActionDescription" class="text-xs text-coffee-600 bg-cream-50 border border-cream-200 rounded-xl p-3"></p>
             <div class="flex items-center gap-2 pt-2">
-                <button type="button" onclick="closeArchiveOrderModal()" class="w-full min-h-11 py-2.5 rounded-xl bg-cream-100 hover:bg-cream-200 font-bold text-sm text-coffee-800 transition-colors">Cancelar</button>
-                <button type="button" id="confirmArchiveOrderButton" onclick="confirmArchiveOrder()" class="w-full min-h-11 py-2.5 rounded-xl bg-coffee-700 hover:bg-coffee-800 font-bold text-sm text-white transition-colors inline-flex items-center justify-center gap-2">
+                <button type="button" onclick="closeOrderActionModal()" class="w-full min-h-11 py-2.5 rounded-xl bg-cream-100 hover:bg-cream-200 font-bold text-sm text-coffee-800 transition-colors">Cancelar</button>
+                <button type="button" id="confirmOrderActionButton" onclick="confirmOrderAction()" class="w-full min-h-11 py-2.5 rounded-xl bg-coffee-700 hover:bg-coffee-800 font-bold text-sm text-white transition-colors inline-flex items-center justify-center gap-2">
                     <i class="fa-solid fa-box-archive"></i><span>Sí, archivar pedido</span>
                 </button>
             </div>
