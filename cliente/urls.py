@@ -8,6 +8,12 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('menu/', views.menu, name='menu'),
 
+    # Cuenta de cliente
+    path('cuenta/registro/', views.registro_cliente, name='registro'),
+    path('cuenta/ingresar/', views.login_cliente, name='login'),
+    path('cuenta/perfil/', views.perfil_cliente, name='perfil'),
+    path('cuenta/cerrar-sesion/', views.logout_cliente, name='logout'),
+
     # Carrito
     path('carrito/', views.ver_carrito, name='ver_carrito'),
     path('carrito/agregar/<int:producto_id>/', views.agregar_al_carrito, name='agregar_al_carrito'),
