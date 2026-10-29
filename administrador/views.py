@@ -35,7 +35,7 @@ def admin_required(view_func):
 
 @admin_required
 def dashboard(request):
-    pedidos_qs = Pedido.objects.prefetch_related('detalles__producto').all()
+    pedidos_qs = Pedido.objects.prefetch_related('detalles__producto').filter(archivado=False)
 
     estado_filtro = request.GET.get('estado', '').strip()
     estados_validos = {valor for valor, _ in Pedido.ESTADOS}
@@ -138,6 +138,33 @@ def dashboard(request):
             'top_productos': datos_dashboard['top_productos'],
         }
     )
+
+
+@require_POST
+@admin_required
+def archivar_pedido(request, codigo):
+    pedido = get_object_or_404(Pedido, codigo_seguimiento__iexact=codigo.strip())
+    if pedido.archivado:
+        return JsonResponse({'status': 'ok', 'mensaje': 'El pedido ya estaba archivado.'})
+    if pedido.estado not in ('ENTREGADO', 'CANCELADO'):
+        return JsonResponse({
+            'status': 'error',
+            'mensaje': 'Solo se pueden archivar pedidos entregados o cancelados.'
+        }, status=400)
+    pedido.archivado = True
+    pedido.save(update_fields=['archivado'])
+    return JsonResponse({'status': 'ok', 'mensaje': 'Pedido archivado. La venta y sus detalles se conservaron.'})
+
+
+@require_POST
+@admin_required
+def restaurar_pedido(request, codigo):
+    pedido = get_object_or_404(Pedido, codigo_seguimiento__iexact=codigo.strip())
+    if not pedido.archivado:
+        return JsonResponse({'status': 'ok', 'mensaje': 'El pedido ya está en la gestión activa.'})
+    pedido.archivado = False
+    pedido.save(update_fields=['archivado'])
+    return JsonResponse({'status': 'ok', 'mensaje': 'Pedido restaurado a la gestión activa.'})
 
 
 @require_POST
