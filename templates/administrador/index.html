@@ -65,9 +65,15 @@
                 </button>
             </div>
 
-            <!-- Perfil del usuario autenticado: sin nombre, foto ni cargo ficticios -->
-            <div class="px-3.5 py-4 rounded-2xl bg-cream-50 border border-cream-200/80 shadow-2xs">
-                <span class="block font-bold text-sm text-coffee-900 truncate" title="{{ request.user.get_full_name|default:request.user.username }}">{{ request.user.get_full_name|default:request.user.username }}</span>
+            <!-- Perfil del administrador -->
+            <div class="px-3.5 py-4 rounded-2xl bg-cream-50 border border-cream-200/80 shadow-2xs flex items-center gap-3">
+                <div class="w-11 h-11 shrink-0 rounded-full bg-coffee-500/15 border border-coffee-500/25 text-coffee-700 flex items-center justify-center shadow-sm" aria-hidden="true">
+                    <i class="fa-solid fa-user text-lg"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <span class="block text-[10px] uppercase tracking-wider font-semibold text-coffee-600 mb-1">Administrador</span>
+                    <span class="block font-bold text-sm text-coffee-900 truncate" title="{{ request.user.get_full_name|default:request.user.username }}">{{ request.user.get_full_name|default:request.user.username }}</span>
+                </div>
             </div>
         </div>
 
