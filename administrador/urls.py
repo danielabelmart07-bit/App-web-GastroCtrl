@@ -7,6 +7,8 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('productos/<int:producto_id>/eliminar/confirmar/', views.confirmar_eliminar_producto, name='confirmar_eliminar_producto'),
     path('categorias/<int:categoria_id>/eliminar/confirmar/', views.confirmar_eliminar_categoria, name='confirmar_eliminar_categoria'),
+    path('productos/<int:id>/editar/', views.editar_producto_form, name='editar_producto_form'),
+    path('categorias/<int:id>/editar/', views.editar_categoria_form, name='editar_categoria_form'),
     path(
         'api/pedidos/<str:codigo>/archivar/',
         views.archivar_pedido,
