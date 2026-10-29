@@ -169,7 +169,7 @@ class CuentaClienteTests(TestCase):
             "password1": "UnaClaveSegura2026!",
             "password2": "UnaClaveSegura2026!",
         })
-        self.assertRedirects(response, reverse("cliente:login"))
+        self.assertRedirects(response, reverse("cliente:home"))
         from django.contrib.auth.models import User
         usuario = User.objects.get(username="cliente_nuevo")
         self.assertEqual(usuario.perfil_cliente.nombre, "Cliente Nuevo")
