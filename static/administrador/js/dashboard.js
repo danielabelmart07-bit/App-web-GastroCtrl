@@ -545,49 +545,22 @@ function closeDeleteConfirmModal() {
     pendingDelete = null;
 }
 
-async function confirmDeleteItem() {
+function confirmDeleteItem() {
     if (!pendingDelete) return;
 
     const item = pendingDelete;
-    const button = document.getElementById('confirmDeleteItemButton');
-    button.disabled = true;
-    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Eliminando...</span>';
+    const baseUrl = item.type === 'producto'
+        ? window.ADMIN_CONFIRMAR_ELIMINAR_PRODUCTO_URL
+        : window.ADMIN_CONFIRMAR_ELIMINAR_CATEGORIA_URL;
 
-    const endpoint = item.type === 'producto'
-        ? window.ADMIN_ELIMINAR_PRODUCTO_URL
-        : window.ADMIN_ELIMINAR_CATEGORIA_URL;
-    const formData = new FormData();
-    formData.append('id', item.id);
-
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') },
-            body: formData,
-        });
-        const data = await response.json();
-
-        if (!response.ok || data.status !== 'ok') {
-            throw new Error(data.mensaje || 'No se pudo eliminar. Revisá si tiene elementos asociados.');
-        }
-
-        if (item.type === 'producto') {
-            products = products.filter(product => product.id !== item.id);
-            renderProductsTable();
-        } else {
-            categories = categories.filter(category => category.id !== item.id);
-            renderCategoriesGrid();
-        }
-
-        closeDeleteConfirmModal();
-        showToast(data.mensaje || 'Elemento eliminado correctamente.');
-        setTimeout(() => window.location.reload(), 650);
-    } catch (error) {
-        showToast(error.message, 'info');
-    } finally {
-        button.disabled = false;
-        button.innerHTML = '<i class="fa-solid fa-trash-can"></i><span>Sí, eliminar</span>';
+    if (!baseUrl) {
+        showToast('No se pudo abrir la confirmación de eliminación.', 'info');
+        return;
     }
+
+    // Se abre la pantalla GET; la eliminación se procesa únicamente
+    // al confirmar su formulario POST protegido con CSRF.
+    window.location.href = baseUrl.replace('123456789', encodeURIComponent(item.id));
 }
 
 function saveProduct(event) {
