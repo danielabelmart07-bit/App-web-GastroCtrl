@@ -354,6 +354,9 @@
                         <button onclick="filterOrders('entregado')" class="order-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-cream-100 text-coffee-800 hover:bg-cream-200" data-status="entregado">
                             Entregados
                         </button>
+                        <button onclick="filterOrders('archivados')" class="order-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-cream-100 text-coffee-800 hover:bg-cream-200" data-status="archivados" aria-pressed="false">
+                            <i class="fa-solid fa-box-archive mr-1"></i> Archivados
+                        </button>
                     </div>
 
                     <div class="relative w-full sm:w-64">
@@ -826,6 +829,7 @@
 
 <script>
     window.ADMIN_PEDIDOS = {{ pedidos_json|safe }};
+    window.ADMIN_PEDIDOS_ARCHIVADOS = {{ pedidos_archivados_json|safe }};
     window.ADMIN_PEDIDOS_URL = "{% url 'administrador:actualizar_estado_pedido' '__CODIGO__' %}";
     window.ADMIN_PRODUCTOS = {{ productos_data|safe }};
     window.ADMIN_INSUMOS = {{ insumos_data|safe }};
