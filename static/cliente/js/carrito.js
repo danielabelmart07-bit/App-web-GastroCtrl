@@ -469,14 +469,18 @@ function mostrarSeguimiento() {
     const carritoTab = document.getElementById('cartTab');
     const seguimientoTab =
         document.getElementById('trackingTab');
+    const cartFooter = document.getElementById('cartFooter');
 
     if (!carritoView || !seguimientoView) return;
 
     carritoView.classList.add('hidden');
     seguimientoView.classList.remove('hidden');
+    cartFooter?.classList.add('hidden');
 
-    carritoTab?.classList.remove('bg-coffee-600', 'text-white');
-    seguimientoTab?.classList.add('bg-coffee-600', 'text-white');
+    carritoTab?.classList.remove('bg-coffee-600', 'text-white', 'shadow-sm');
+    carritoTab?.classList.add('text-coffee-700');
+    seguimientoTab?.classList.remove('text-coffee-700');
+    seguimientoTab?.classList.add('bg-coffee-600', 'text-white', 'shadow-sm');
 }
 
 
@@ -493,20 +497,26 @@ function mostrarCarrito() {
     const carritoTab = document.getElementById('cartTab');
     const seguimientoTab =
         document.getElementById('trackingTab');
+    const cartFooter = document.getElementById('cartFooter');
 
     if (!carritoView || !seguimientoView) return;
 
     seguimientoView.classList.add('hidden');
     carritoView.classList.remove('hidden');
+    cartFooter?.classList.remove('hidden');
 
     seguimientoTab?.classList.remove(
         'bg-coffee-600',
-        'text-white'
+        'text-white',
+        'shadow-sm'
     );
+    seguimientoTab?.classList.add('text-coffee-700');
 
+    carritoTab?.classList.remove('text-coffee-700');
     carritoTab?.classList.add(
         'bg-coffee-600',
-        'text-white'
+        'text-white',
+        'shadow-sm'
     );
 
     cargarCarrito();
