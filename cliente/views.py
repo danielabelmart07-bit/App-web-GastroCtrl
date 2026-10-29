@@ -378,10 +378,7 @@ def registro_cliente(request):
                 email=user.email or None,
             )
         messages.success(request, "Tu cuenta fue creada. Ya podés iniciar sesión.")
-        url_login = reverse("cliente:login")
-        if destino:
-            url_login = f"{url_login}?{urlencode({'next': destino})}"
-        return redirect(url_login)
+        return redirect("cliente:home")
     return render(request, "cliente/registro.html", {"form": form, "next": destino})
 
 
