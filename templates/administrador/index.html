@@ -598,8 +598,8 @@
             </section>
 
             <!-- SECTION 8: CONFIGURACIÓN -->
-            <section id="section-settings" class="tab-content hidden space-y-6 animate-fade-in">
-                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-cream-200/80 shadow-sm max-w-2xl space-y-6">
+            <section id="section-settings" class="tab-content hidden grid grid-cols-1 xl:grid-cols-2 gap-6 content-start animate-fade-in">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-cream-200/80 shadow-sm space-y-6 h-full">
                     <h2 class="font-serif-title font-bold text-xl text-coffee-900 border-b border-cream-200 pb-3">Perfil del administrador</h2>
                     <form action="{% url 'administrador:actualizar_perfil_admin' %}" method="post" enctype="multipart/form-data" class="space-y-4">
                         {% csrf_token %}
@@ -628,7 +628,7 @@
                     </form>
                 </div>
 
-                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-cream-200/80 shadow-sm max-w-2xl space-y-6">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-cream-200/80 shadow-sm space-y-6 h-full">
                     <h2 class="font-serif-title font-bold text-xl text-coffee-900 border-b border-cream-200 pb-3">Configuración de la Cafetería</h2>
                     
                     <form onsubmit="saveSettings(event)" class="space-y-4 text-xs font-medium text-coffee-900">
