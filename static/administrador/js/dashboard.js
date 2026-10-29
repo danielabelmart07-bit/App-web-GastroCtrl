@@ -648,7 +648,7 @@ function getCookie(name) {
 }
 
 function openOrderDetailModal(orderId) {
-    const order = orders.find(o => o.id === orderId);
+    const order = orders.find(o => o.id === orderId) || archivedOrders.find(o => o.id === orderId);
     if (!order) return;
 
     currentActiveOrder = order;
