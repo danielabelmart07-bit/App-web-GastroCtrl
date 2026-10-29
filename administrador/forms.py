@@ -51,3 +51,24 @@ class ProductoForm(forms.ModelForm):
             'es_destacado': forms.CheckboxInput(attrs={'class': 'h-4 w-4 rounded border-cream-300 text-coffee-600 focus:ring-coffee-500'}),
             'activo': forms.CheckboxInput(attrs={'class': 'h-4 w-4 rounded border-cream-300 text-coffee-600 focus:ring-coffee-500'}),
         }
+
+from .models import PerfilAdministrador
+
+
+class PerfilAdministradorForm(forms.ModelForm):
+    class Meta:
+        model = PerfilAdministrador
+        fields = ["foto"]
+        labels = {"foto": "Foto de perfil"}
+        widgets = {
+            "foto": forms.ClearableFileInput(attrs={
+                "accept": "image/jpeg,image/png,image/webp",
+                "class": "w-full rounded-xl border border-cream-300 bg-white px-4 py-3 text-sm",
+            }),
+        }
+
+    def clean_foto(self):
+        foto = self.cleaned_data.get("foto")
+        if foto and foto.size > 2 * 1024 * 1024:
+            raise forms.ValidationError("La imagen no puede superar los 2 MB.")
+        return foto
