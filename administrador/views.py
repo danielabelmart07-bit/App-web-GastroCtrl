@@ -14,7 +14,7 @@ from django.db import transaction
 from .forms import ProductoForm
 from .forms import ProductoForm, CategoriaForm
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Count, Q
 from administrador.utils import generar_datos_dashboard
 
 
@@ -54,7 +54,18 @@ def dashboard(request):
 
     datos_dashboard = generar_datos_dashboard()
 
-    categorias = Categoria.objects.all()
+    categorias = Categoria.objects.annotate(total_productos=Count('productos')).order_by('nombre')
+    categorias_data = [
+        {
+            'id': categoria.id,
+            'name': categoria.nombre,
+            'slug': categoria.slug,
+            'count': categoria.total_productos,
+            'icon': 'fa-tag',
+            'desc': 'Categoría de productos',
+        }
+        for categoria in categorias
+    ]
 
     insumos = Insumo.objects.all()
 
@@ -113,6 +124,11 @@ def dashboard(request):
             'productos_data': productos_data,
             'costo_envio': configuracion.costo_envio,
             'categorias': categorias,
+            'categorias_data_json': json.dumps(categorias_data, ensure_ascii=False),
+            'ingresos_mes': datos_dashboard['kpis']['ingresos_mes'],
+            'ticket_promedio': datos_dashboard['kpis']['ticket_promedio'],
+            'cantidad_pedidos': datos_dashboard['kpis']['cantidad_pedidos'],
+            'producto_estrella': datos_dashboard['top_productos'][0] if datos_dashboard['top_productos'] else None,
             'insumos_data': json.dumps(insumos_data),
             'kpis': datos_dashboard['kpis'],
             'semana_labels_json': json.dumps(datos_dashboard['semana_labels']),
