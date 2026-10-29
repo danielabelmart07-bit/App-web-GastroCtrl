@@ -9,8 +9,10 @@ class CategoriaForm(forms.ModelForm):
             'nombre',
             'slug',
         ]
+        labels = {'nombre': 'Nombre de la categoría', 'slug': 'Identificador (slug)'}
         widgets = {
-            'slug': forms.TextInput(attrs={'placeholder': 'Opcional (se genera automaticamente )'})
+            'nombre': forms.TextInput(attrs={'class': 'w-full rounded-xl border border-cream-300 px-4 py-3', 'placeholder': 'Ej. Panadería'}),
+            'slug': forms.TextInput(attrs={'class': 'w-full rounded-xl border border-cream-300 px-4 py-3', 'placeholder': 'Opcional; se genera automáticamente'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -39,3 +41,13 @@ class ProductoForm(forms.ModelForm):
             'es_destacado',
             'activo',
         ]
+        labels = {'categoria': 'Categoría', 'nombre': 'Nombre del producto', 'descripcion': 'Descripción', 'precio': 'Precio ($)', 'imagen': 'Imagen del producto', 'es_destacado': 'Mostrar como destacado', 'activo': 'Disponible en el menú'}
+        widgets = {
+            'categoria': forms.Select(attrs={'class': 'w-full rounded-xl border border-cream-300 px-4 py-3'}),
+            'nombre': forms.TextInput(attrs={'class': 'w-full rounded-xl border border-cream-300 px-4 py-3', 'placeholder': 'Ej. Medialuna de manteca'}),
+            'descripcion': forms.Textarea(attrs={'class': 'w-full rounded-xl border border-cream-300 px-4 py-3', 'placeholder': 'Describí brevemente el producto', 'rows': 3}),
+            'precio': forms.NumberInput(attrs={'class': 'w-full rounded-xl border border-cream-300 px-4 py-3', 'placeholder': 'Ej. 1500.00', 'min': '0', 'step': '0.01'}),
+            'imagen': forms.ClearableFileInput(attrs={'class': 'w-full rounded-xl border border-cream-300 px-4 py-3'}),
+            'es_destacado': forms.CheckboxInput(attrs={'class': 'h-4 w-4 rounded border-cream-300 text-coffee-600 focus:ring-coffee-500'}),
+            'activo': forms.CheckboxInput(attrs={'class': 'h-4 w-4 rounded border-cream-300 text-coffee-600 focus:ring-coffee-500'}),
+        }
