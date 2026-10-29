@@ -364,7 +364,8 @@ class GestionClientesTests(AdminTestCase):
         self.cliente = Cliente.objects.create(
             nombre="Laura Gómez",
             telefono="1199887766",
-            direccion_habitual="Av. Rivadavia 1234"
+            direccion_habitual="Av. Rivadavia 1234",
+            ciudad="Hurlingham"
         )
         self.pedido = Pedido.objects.create(
             cliente=self.cliente,
@@ -406,6 +407,7 @@ class GestionClientesTests(AdminTestCase):
         self.assertEqual(datos['status'], 'ok')
         self.assertEqual(len(datos['clientes']), 1)
         self.assertEqual(datos['clientes'][0]['telefono'], "1199887766")
+        self.assertEqual(datos['clientes'][0]['ciudad'], "Hurlingham")
         self.assertEqual(datos['clientes'][0]['total_gastado'], 4500.0)
 
     def test_detalle_cliente_api(self):
@@ -416,6 +418,7 @@ class GestionClientesTests(AdminTestCase):
         datos = response.json()
         self.assertEqual(datos['status'], 'ok')
         self.assertEqual(datos['cliente']['nombre'], "Laura Gómez")
+        self.assertEqual(datos['cliente']['ciudad'], "Hurlingham")
         self.assertEqual(len(datos['cliente']['pedidos']), 1)
         self.assertEqual(datos['cliente']['pedidos'][0]['codigo'], "CLIE1234")
 
