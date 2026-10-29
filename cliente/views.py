@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from urllib.parse import urlencode
 import json
 from django.db.models import Q
 from django.db import transaction
@@ -18,6 +21,14 @@ def checkout(request):
 
     if len(carrito.carrito) == 0:
         return redirect('cliente:menu')
+
+    if not request.user.is_authenticated:
+        destino = reverse('cliente:checkout')
+        return redirect(f"{reverse('cliente:registro')}?{urlencode({'next': destino})}")
+
+    if not Cliente.objects.filter(user=request.user).exists():
+        messages.info(request, "Para finalizar una compra necesitás ingresar con una cuenta de cliente.")
+        return redirect('cliente:home')
 
     configuracion, _ = ConfiguracionSistema.objects.get_or_create(pk=1)
     modalidad = carrito.obtener_modalidad_entrega()
@@ -341,12 +352,19 @@ def actualizar_modalidad_carrito(request):
 
 
 
+def _destino_interno(request, destino):
+    if destino and url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return destino
+    return ""
+
+
 def registro_cliente(request):
     if request.user.is_authenticated:
         if Cliente.objects.filter(user=request.user).exists():
             return redirect("cliente:perfil")
         messages.info(request, "Ya hay una sesión administrativa activa. Cerrala desde el panel antes de crear una cuenta de cliente.")
         return redirect("cliente:home")
+    destino = _destino_interno(request, request.POST.get("next") or request.GET.get("next", ""))
     form = RegistroClienteForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         with transaction.atomic():
@@ -356,11 +374,15 @@ def registro_cliente(request):
                 nombre=form.cleaned_data["nombre"].strip(),
                 telefono=form.cleaned_data["telefono"],
                 direccion_habitual=form.cleaned_data.get("direccion_habitual", "").strip(),
+                ciudad=form.cleaned_data.get("ciudad", "").strip(),
                 email=user.email or None,
             )
         messages.success(request, "Tu cuenta fue creada. Ya podés iniciar sesión.")
-        return redirect("cliente:login")
-    return render(request, "cliente/registro.html", {"form": form})
+        url_login = reverse("cliente:login")
+        if destino:
+            url_login = f"{url_login}?{urlencode({'next': destino})}"
+        return redirect(url_login)
+    return render(request, "cliente/registro.html", {"form": form, "next": destino})
 
 
 def login_cliente(request):
@@ -369,6 +391,7 @@ def login_cliente(request):
             return redirect("cliente:perfil")
         messages.info(request, "Ya hay una sesión administrativa activa. Cerrala desde el panel antes de ingresar como cliente.")
         return redirect("cliente:home")
+    destino = _destino_interno(request, request.POST.get("next") or request.GET.get("next", ""))
     form = AuthenticationForm(request, data=request.POST or None)
     for name, field in form.fields.items():
         field.widget.attrs.update({"class": "w-full rounded-xl border border-cream-300 px-4 py-3 focus:border-coffee-500 focus:outline-none", "autocomplete": "username" if name == "username" else "current-password"})
@@ -379,8 +402,8 @@ def login_cliente(request):
         else:
             login(request, user)
             messages.success(request, "Iniciaste sesión correctamente.")
-            return redirect("cliente:perfil")
-    return render(request, "cliente/login.html", {"form": form})
+            return redirect(destino or "cliente:perfil")
+    return render(request, "cliente/login.html", {"form": form, "next": destino})
 
 
 @login_required(login_url="cliente:login")
