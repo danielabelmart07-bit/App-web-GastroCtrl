@@ -1,9 +1,11 @@
 import json
+from functools import wraps
 
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo
 from .models import ConfiguracionSistema
@@ -14,7 +16,23 @@ from django.db import transaction
 from django.db.models import Q
 from administrador.utils import generar_datos_dashboard
 
-@login_required(login_url='administrador:login')
+
+def admin_required(view_func):
+    """Limita las vistas de gestión a usuarios autenticados con permiso de staff."""
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            if request.path.startswith('/gestion/api/'):
+                return JsonResponse({'status': 'error', 'mensaje': 'Debés iniciar sesión.'}, status=401)
+            return redirect(f"{reverse('administrador:login')}?next={request.get_full_path()}")
+        if not request.user.is_staff:
+            if request.path.startswith('/gestion/api/'):
+                return JsonResponse({'status': 'error', 'mensaje': 'No tenés permisos para esta operación.'}, status=403)
+            return HttpResponseForbidden('No tenés permisos para acceder al panel administrativo.')
+        return view_func(request, *args, **kwargs)
+    return _wrapped
+
+@admin_required
 def dashboard(request):
     pedidos_qs = Pedido.objects.prefetch_related('detalles__producto').all()
 
@@ -106,6 +124,7 @@ def dashboard(request):
 
 
 @require_POST
+@admin_required
 def actualizar_estado_pedido(request, codigo):
     pedido = get_object_or_404(Pedido, codigo_seguimiento__iexact=codigo.strip())
 
@@ -171,6 +190,7 @@ def actualizar_estado_pedido(request, codigo):
 
 
 @require_POST
+@admin_required
 def actualizar_configuracion_envio(request):
     try:
         data = json.loads(request.body or '{}')
@@ -190,6 +210,7 @@ def actualizar_configuracion_envio(request):
     })
 
 @require_POST
+@admin_required
 def crear_producto(request):
     form = ProductoForm(request.POST, request.FILES)
 
@@ -243,6 +264,7 @@ def crear_producto(request):
     })
 
 @require_POST
+@admin_required
 def editar_producto(request):
     producto_id = request.POST.get("id")
 
@@ -307,6 +329,7 @@ def editar_producto(request):
     })
 
 @require_POST
+@admin_required
 def eliminar_producto(request):
     producto_id = request.POST.get("id")
 
@@ -328,6 +351,7 @@ def eliminar_producto(request):
     })
 
 @require_POST
+@admin_required
 def crear_categoria(request):
     form = CategoriaForm(request.POST)
 
@@ -349,6 +373,7 @@ def crear_categoria(request):
     })
 
 @require_POST
+@admin_required
 def editar_categoria(request):
     categoria_id = request.POST.get("id")
 
@@ -382,6 +407,7 @@ def editar_categoria(request):
     })
 
 @require_POST
+@admin_required
 def eliminar_categoria(request):
     categoria_id = request.POST.get("id")
 
@@ -409,6 +435,7 @@ def eliminar_categoria(request):
     })
 
 @require_POST
+@admin_required
 def actualizar_inventario(request):
     producto_id = request.POST.get("producto_id")
 
@@ -459,6 +486,7 @@ def actualizar_inventario(request):
         }
     })
 
+@admin_required
 def listar_clientes(request):
     busqueda = request.GET.get('q', '').strip()
     clientes_qs = Cliente.objects.prefetch_related('pedidos').all()
@@ -487,6 +515,7 @@ def listar_clientes(request):
     return JsonResponse({'status': 'ok', 'clientes': clientes_data})
 
 
+@admin_required
 def detalle_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, pk=cliente_id)
     pedidos = cliente.pedidos.all().order_by('-id')
@@ -520,24 +549,37 @@ def detalle_cliente(request, cliente_id):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('administrador:dashboard')
+        if request.user.is_staff:
+            return redirect('administrador:dashboard')
+        return HttpResponseForbidden('Esta cuenta no tiene acceso al panel administrativo.')
 
     error_message = None
     if request.method == 'POST':
         usuario = request.POST.get('username', '').strip()
-        clave = request.POST.get('password', '').strip()
-
+        clave = request.POST.get('password', '')
         user = authenticate(request, username=usuario, password=clave)
-        if user is not None:
+
+        if user is not None and user.is_staff:
             login(request, user)
-            next_url = request.GET.get('next', 'administrador:dashboard')
-            return redirect(next_url)
-        else:
-            error_message = "Usuario o contraseña incorrectos."
+            next_url = request.GET.get('next', '')
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
+            return redirect('administrador:dashboard')
+
+        error_message = "Usuario o contraseña incorrectos."
 
     return render(request, 'administrador/login.html', {'error': error_message})
 
 
+@admin_required
+@require_POST
 def logout_view(request):
     logout(request)
-    return redirect('administrador:login')
+    return JsonResponse({
+        'status': 'ok',
+        'redirect_url': reverse('administrador:login'),
+    })

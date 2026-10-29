@@ -10,8 +10,15 @@ from django.utils import timezone
 from cliente.models import Pedido, DetallePedido, Categoria, Producto, Inventario
 from django.contrib.auth.models import User
 
-class CRUDProductosTests(TestCase):
+class AdminTestCase(TestCase):
     def setUp(self):
+        self.admin = User.objects.create_user(username='test_admin', password='Password123!', is_staff=True)
+        self.client.login(username='test_admin', password='Password123!')
+
+
+class CRUDProductosTests(AdminTestCase):
+    def setUp(self):
+        super().setUp()
         self.categoria = Categoria.objects.create(
             nombre='Cafeteria',
             slug='cafeteria'
@@ -91,7 +98,7 @@ class CRUDProductosTests(TestCase):
         self.assertEqual(response.json()['status'], 'ok')
         self.assertFalse(Producto.objects.filter(id=producto.id).exists())
 
-class CRUDCategoriasTests(TestCase):
+class CRUDCategoriasTests(AdminTestCase):
     def test_crear_categoria_con_slug_autogenerado(self):
         url = reverse('administrador:crear_categoria')
         datos = {'nombre': 'Bebidas Calientes'}
@@ -149,8 +156,9 @@ class CRUDCategoriasTests(TestCase):
         self.assertEqual(response.json()['status'], 'error')
         self.assertTrue(Categoria.objects.filter(id=categoria.id).exists())
 
-class InventarioTests(TestCase):
+class InventarioTests(AdminTestCase):
     def setUp(self):
+        super().setUp()
         self.categoria = Categoria.objects.create(nombre='Panaderia' , slug='panaderia')
         self.producto = Producto.objects.create(
             categoria=self.categoria,
@@ -208,10 +216,11 @@ class InventarioTests(TestCase):
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 10)
 
-class GestionPedidosTests(TestCase):
+class GestionPedidosTests(AdminTestCase):
     def setUp(self):
+        super().setUp()
 
-        self.user = User.objects.create_user(username='admin_pedidos', password='password123')
+        self.user = User.objects.create_user(username='admin_pedidos', password='password123', is_staff=True)
         self.client.login(username='admin_pedidos', password='password123')
 
         self.categoria = Categoria.objects.create(nombre="Pastelería", slug="pasteleria")
@@ -302,8 +311,9 @@ class GestionPedidosTests(TestCase):
         self.assertEqual(len(pedidos_contexto), 1)
         self.assertEqual(pedidos_contexto[0].codigo_seguimiento, "TEST1234")
 
-class GestionClientesTests(TestCase):
+class GestionClientesTests(AdminTestCase):
     def setUp(self):
+        super().setUp()
         self.cliente = Cliente.objects.create(
             nombre="Laura Gómez",
             telefono="1199887766",
@@ -362,10 +372,11 @@ class GestionClientesTests(TestCase):
         self.assertEqual(len(datos['cliente']['pedidos']), 1)
         self.assertEqual(datos['cliente']['pedidos'][0]['codigo'], "CLIE1234")
 
-class DashboardMetricasTests(TestCase):
+class DashboardMetricasTests(AdminTestCase):
     def setUp(self):
+        super().setUp()
 
-        self.user = User.objects.create_user(username='admin_metricas', password='password123')
+        self.user = User.objects.create_user(username='admin_metricas', password='password123', is_staff=True)
         self.client.login(username='admin_metricas', password='password123')
 
         self.categoria = Categoria.objects.create(
@@ -435,7 +446,8 @@ class AutenticacionSeguridadTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='admin_test',
-            password='Password123!'
+            password='Password123!',
+            is_staff=True
         )
 
     def test_dashboard_requiere_login(self):
@@ -470,7 +482,22 @@ class AutenticacionSeguridadTests(TestCase):
     def test_logout_cierra_sesion(self):
         self.client.login(username='admin_test', password='Password123!')
         url = reverse('administrador:logout')
-        response = self.client.get(url)
+        response = self.client.post(url)
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('administrador:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+        self.assertEqual(response.json()['redirect_url'], reverse('administrador:login'))
+
+    def test_usuario_no_staff_no_puede_iniciar_sesion_admin(self):
+        User.objects.create_user(username='cliente_normal', password='Password123!')
+        response = self.client.post(reverse('administrador:login'), {
+            'username': 'cliente_normal',
+            'password': 'Password123!',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['error'], 'Usuario o contraseña incorrectos.')
+
+    def test_api_administrativa_requiere_staff(self):
+        self.client.logout()
+        response = self.client.post(reverse('administrador:eliminar_producto'), {'id': 1})
+        self.assertEqual(response.status_code, 401)

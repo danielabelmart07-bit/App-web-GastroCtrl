@@ -831,7 +831,22 @@ function closeLogoutModal() {
 
 function confirmLogout() {
     closeLogoutModal();
-    window.location.href = '/';
+    fetch('/gestion/logout/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': obtenerCsrfTokenAdmin(),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json().then(data => ({ok: response.ok, data})))
+    .then(({ok, data}) => {
+        if (!ok || data.status !== 'ok') {
+            showToast(data.mensaje || 'No se pudo cerrar la sesión.', 'error');
+            return;
+        }
+        window.location.href = data.redirect_url || '/gestion/login/';
+    })
+    .catch(() => showToast('No se pudo cerrar la sesión. Intentá nuevamente.', 'error'));
 }
 
 function showToast(message, type = 'success') {
