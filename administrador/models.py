@@ -35,3 +35,26 @@ class ConfiguracionSistema(models.Model):
 
     def __str__(self):
         return "Configuración de GastroCtrl"
+
+
+class PerfilAdministrador(models.Model):
+    """Foto de perfil propia de cada usuario administrador."""
+    usuario = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="perfil_admin",
+        verbose_name="Administrador",
+    )
+    foto = models.ImageField(
+        upload_to="perfiles_admin/",
+        blank=True,
+        null=True,
+        verbose_name="Foto de perfil",
+    )
+
+    class Meta:
+        verbose_name = "Perfil de administrador"
+        verbose_name_plural = "Perfiles de administradores"
+
+    def __str__(self):
+        return f"Perfil de {self.usuario.username}"
