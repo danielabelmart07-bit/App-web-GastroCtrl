@@ -11,6 +11,8 @@ from administrador.utils import generar_datos_dashboard
 from django.utils import timezone
 from cliente.models import Pedido, DetallePedido, Categoria, Producto, Inventario
 from django.contrib.auth.models import User
+from PIL import Image
+from io import BytesIO
 
 class AdminTestCase(TestCase):
     def setUp(self):
@@ -587,9 +589,10 @@ class PerfilAdministradorTests(AdminTestCase):
     def test_guardar_foto_de_perfil(self):
         from administrador.models import PerfilAdministrador
 
-        imagen_png = base64.b64decode(
-            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/n9sAAAAASUVORK5CYII="
-        )
+        buffer = BytesIO()
+        Image.new("RGB", (1, 1), color="white").save(buffer, format="PNG")
+        imagen_png = buffer.getvalue()
+
         archivo = SimpleUploadedFile(
             "avatar.png",
             imagen_png,

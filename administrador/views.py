@@ -14,6 +14,8 @@ from django.db import transaction
 from .forms import ProductoForm, CategoriaForm, PerfilAdministradorForm
 from django.db import transaction
 from django.db.models import Count, Q
+from django.db.models import Sum
+from django.utils import timezone
 from administrador.utils import generar_datos_dashboard
 
 
@@ -54,6 +56,23 @@ def dashboard(request):
 
     datos_dashboard = generar_datos_dashboard()
 
+    # Métricas del día actual según la zona horaria de Argentina.
+    hoy = timezone.localdate()
+
+    pedidos_hoy = Pedido.objects.filter(
+        creado_en__date=hoy
+    ).exclude(estado="CANCELADO")
+
+    ventas_hoy = pedidos_hoy.aggregate(
+        total=Sum("monto_total")
+    )["total"] or 0
+
+    cantidad_pedidos_hoy = pedidos_hoy.count()
+
+    unidades_hoy = pedidos_hoy.aggregate(
+        total=Sum("detalles__cantidad")
+    )["total"] or 0
+
     categorias = Categoria.objects.annotate(total_productos=Count('productos')).order_by('nombre')
     categorias_data = [
         {
@@ -92,6 +111,7 @@ def dashboard(request):
             'price': float(producto.precio),
             'stock': producto.inventario.cantidad_disponible if getattr(producto, 'inventario', None) else 0,
             'status': 'active' if producto.activo else 'inactive',
+            'es_destacado': producto.es_destacado,
             'image': producto.imagen.url if producto.imagen else '',
         }
         for producto in productos
@@ -139,7 +159,10 @@ def dashboard(request):
             'pedidos': pedidos,
             'pedidos_json': json.dumps(pedidos_data),
             'pedidos_archivados_json': json.dumps(pedidos_archivados_data),
-            'productos_data': productos_data,
+            'ventas_hoy': ventas_hoy,
+            'cantidad_pedidos_hoy': cantidad_pedidos_hoy,
+            'unidades_hoy': unidades_hoy,
+            'productos_data_json': json.dumps(productos_data, ensure_ascii=False),
             'costo_envio': configuracion.costo_envio,
             'perfil_admin': perfil_admin,
             'categorias': categorias,

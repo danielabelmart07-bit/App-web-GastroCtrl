@@ -475,6 +475,8 @@ function openProductModal(productId = null) {
             document.getElementById('modalProdStock').value = prod.stock;
             document.getElementById('modalProdStatus').value =
                 prod.status === 'active' ? 'true' : 'false';
+            document.getElementById('modalProdFeatured').checked =
+                prod.es_destacado === true;
         }
     } else {
         document.getElementById('productModalTitle').innerText = "Nuevo Producto";
