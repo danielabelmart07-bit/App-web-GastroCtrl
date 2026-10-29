@@ -598,6 +598,9 @@ def listar_clientes(request):
             Q(email__icontains=busqueda)
         )
 
+    # Comprobar si la búsqueda devolvió coincidencias antes de serializar los datos.
+    hay_resultados = clientes_qs.exists()
+
     clientes_data = [
         {
             'id': c.id,
@@ -613,7 +616,12 @@ def listar_clientes(request):
         for c in clientes_qs
     ]
 
-    return JsonResponse({'status': 'ok', 'clientes': clientes_data})
+    return JsonResponse({
+        'status': 'ok',
+        'clientes': clientes_data,
+        'hay_resultados': hay_resultados,
+        'mensaje': '' if hay_resultados else 'No se encontraron clientes que coincidan con la búsqueda.',
+    })
 
 
 @admin_required
