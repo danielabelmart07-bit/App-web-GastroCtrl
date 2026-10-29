@@ -951,12 +951,12 @@ function renderCustomersTable() {
     }
     tbody.innerHTML = customers.map(c => `
         <tr class="hover:bg-cream-50/80 transition-colors">
-            <td class="py-3 px-3 font-bold text-coffee-900">${escapeHtml(c.name)}</td>
-            <td class="py-3 px-3 text-coffee-600">${escapeHtml(c.email)} <br> <span class="text-[10px]">${escapeHtml(c.phone)}</span></td>
-            <td class="py-3 px-3 text-coffee-600">${escapeHtml(c.city)}</td>
-            <td class="py-3 px-3 font-bold">${c.ordersCount} pedidos</td>
-            <td class="py-3 px-3 font-bold text-coffee-900">$${c.spent.toLocaleString('es-AR')}</td>
-            <td class="py-3 px-3">
+            <td class="py-3 px-4 font-bold text-coffee-900 min-w-[150px]">${escapeHtml(c.name)}</td>
+            <td class="py-3 px-4 text-coffee-600 min-w-[220px] break-words">${escapeHtml(c.email)}<span class="block text-[10px] mt-1">${escapeHtml(c.phone)}</span></td>
+            <td class="py-3 px-4 text-coffee-600 whitespace-nowrap min-w-[130px]">${escapeHtml(c.city)}</td>
+            <td class="py-3 px-4 font-bold whitespace-nowrap min-w-[120px]">${c.ordersCount} pedidos</td>
+            <td class="py-3 px-4 font-bold text-coffee-900 whitespace-nowrap min-w-[130px]">${c.spent.toLocaleString('es-AR')}</td>
+            <td class="py-3 px-4 whitespace-nowrap min-w-[130px]">
                 <button onclick="showToast('El contacto directo se puede integrar más adelante.', 'info')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-xs transition-colors border border-emerald-200 inline-flex items-center gap-1">
                     <i class="fa-brands fa-whatsapp text-xs"></i> Contactar
                 </button>
