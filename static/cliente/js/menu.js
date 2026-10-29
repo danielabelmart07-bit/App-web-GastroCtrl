@@ -1,5 +1,5 @@
 let activeCategory = "todos";
-let searchQuery = "";
+let searchQuery = document.getElementById("searchInput")?.value || "";
 let currentSort = "featured";
 
 // ============================================================
