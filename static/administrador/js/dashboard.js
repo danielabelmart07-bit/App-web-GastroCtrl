@@ -490,6 +490,8 @@ function editProduct(id) {
 }
 
 
+let pendingDelete = null;
+
 function deleteProduct(id) {
     const producto = products.find(p => p.id === id);
     if (!producto) {
@@ -497,8 +499,90 @@ function deleteProduct(id) {
         return;
     }
 
-    // La eliminación pasa por una página de confirmación GET; el borrado real es POST con CSRF.
-    window.location.href = `/gestion/productos/${id}/eliminar/confirmar/`;
+    openDeleteConfirmModal({
+        type: 'producto',
+        id,
+        name: producto.name,
+        description: 'Se eliminará este producto. Los detalles de pedidos anteriores se conservarán en el historial.',
+        icon: 'fa-cake-candles',
+    });
+}
+
+function deleteCategory(id) {
+    const categoria = categories.find(cat => cat.id === id);
+    if (!categoria) {
+        showToast('No se encontró la categoría.');
+        return;
+    }
+
+    openDeleteConfirmModal({
+        type: 'categoria',
+        id,
+        name: categoria.name,
+        description: categoria.count > 0
+            ? 'Esta categoría tiene productos asociados y no se podrá eliminar hasta que quede vacía.'
+            : 'Esta acción eliminará la categoría de forma permanente.',
+        icon: 'fa-tags',
+    });
+}
+
+function openDeleteConfirmModal(item) {
+    pendingDelete = item;
+    document.getElementById('deleteConfirmType').textContent = item.type;
+    document.getElementById('deleteConfirmName').textContent = item.name;
+    document.getElementById('deleteConfirmDescription').textContent = item.description;
+    document.getElementById('deleteConfirmIcon').className = `fa-solid ${item.icon}`;
+    document.getElementById('deleteConfirmModal').classList.remove('hidden');
+}
+
+function closeDeleteConfirmModal() {
+    document.getElementById('deleteConfirmModal').classList.add('hidden');
+    pendingDelete = null;
+}
+
+async function confirmDeleteItem() {
+    if (!pendingDelete) return;
+
+    const item = pendingDelete;
+    const button = document.getElementById('confirmDeleteItemButton');
+    button.disabled = true;
+    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Eliminando...</span>';
+
+    const endpoint = item.type === 'producto'
+        ? window.ADMIN_ELIMINAR_PRODUCTO_URL
+        : window.ADMIN_ELIMINAR_CATEGORIA_URL;
+    const formData = new FormData();
+    formData.append('id', item.id);
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: formData,
+        });
+        const data = await response.json();
+
+        if (!response.ok || data.status !== 'ok') {
+            throw new Error(data.mensaje || 'No se pudo eliminar. Revisá si tiene elementos asociados.');
+        }
+
+        if (item.type === 'producto') {
+            products = products.filter(product => product.id !== item.id);
+            renderProductsTable();
+        } else {
+            categories = categories.filter(category => category.id !== item.id);
+            renderCategoriesGrid();
+        }
+
+        closeDeleteConfirmModal();
+        showToast(data.mensaje || 'Elemento eliminado correctamente.');
+        setTimeout(() => window.location.reload(), 650);
+    } catch (error) {
+        showToast(error.message, 'info');
+    } finally {
+        button.disabled = false;
+        button.innerHTML = '<i class="fa-solid fa-trash-can"></i><span>Sí, eliminar</span>';
+    }
 }
 
 function saveProduct(event) {
@@ -734,9 +818,7 @@ function renderCategoriesGrid() {
         return;
     }
 
-    const deleteBase = window.ADMIN_CONFIRMAR_ELIMINAR_CATEGORIA_URL || '';
     grid.innerHTML = categories.map(cat => {
-        const deleteUrl = deleteBase.replace('123456789', String(cat.id));
         return `
         <div class="bg-white p-5 rounded-3xl border border-cream-200/80 shadow-sm space-y-3 hover-lift flex flex-col justify-between">
             <div>
@@ -750,7 +832,7 @@ function renderCategoriesGrid() {
                 <span class="text-xs font-bold text-coffee-800">${cat.count} productos</span>
                 <div class="flex items-center gap-2">
                     <button onclick="editCategory(${cat.id})" class="px-2.5 py-1.5 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors">Editar</button>
-                    <a href="${deleteUrl}" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 border border-rose-200 font-bold text-xs transition-colors" aria-label="Eliminar categoría ${escapeHtml(cat.name)}">Eliminar</a>
+                    <button type="button" onclick="deleteCategory(${cat.id})" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 border border-rose-200 font-bold text-xs transition-colors" aria-label="Eliminar categoría ${escapeHtml(cat.name)}">Eliminar</button>
                 </div>
             </div>
         </div>`;
