@@ -254,3 +254,320 @@ canvas {
         padding: 0.6rem 0.75rem;
     }
 }
+
+
+/* ==========================================================================
+   RESPONSIVE REFINADO PARA TODAS LAS SECCIONES DEL PANEL
+   Evita columnas comprimidas, palabras cortadas y desbordes en móvil.
+   ========================================================================== */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body, main, #sidebarDrawer, .tab-content {
+    min-width: 0;
+}
+
+.tab-content {
+    width: 100%;
+    max-width: 100%;
+}
+
+.tab-content h1,
+.tab-content h2,
+.tab-content h3,
+.tab-content p,
+.tab-content label,
+.tab-content span {
+    overflow-wrap: break-word;
+}
+
+.tab-content button,
+.tab-content input,
+.tab-content select,
+.tab-content textarea {
+    max-width: 100%;
+    min-width: 0;
+}
+
+.tab-content button {
+    word-break: normal;
+    overflow-wrap: normal;
+}
+
+.tab-content input,
+.tab-content select,
+.tab-content textarea {
+    width: 100%;
+}
+
+.tab-content .grid > *,
+.tab-content .flex > * {
+    min-width: 0;
+}
+
+.tab-content canvas {
+    display: block;
+    max-width: 100%;
+}
+
+@media (max-width: 767px) {
+    /* Espaciado y encabezados consistentes en todas las pestañas. */
+    main > header {
+        position: sticky;
+        top: 0;
+        padding: 0.85rem 1rem;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    main > header > div,
+    main > header .flex {
+        min-width: 0;
+    }
+
+    #pageTitle {
+        max-width: 100%;
+        font-size: clamp(1.05rem, 4.5vw, 1.3rem);
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        overflow-wrap: normal;
+        word-break: normal;
+    }
+
+    main > div.p-4,
+    main > div.sm\:p-6,
+    main > div.lg\:p-8 {
+        padding: 1rem;
+    }
+
+    .tab-content {
+        width: 100%;
+        overflow: visible;
+    }
+
+    .tab-content > .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tab-content .rounded-3xl,
+    .tab-content .rounded-2xl {
+        min-width: 0;
+    }
+
+    /* Evita que encabezados y acciones se aplasten dentro de las tarjetas. */
+    .tab-content .flex.items-center.justify-between {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .tab-content .flex.items-center.justify-between > * {
+        min-width: 0;
+    }
+
+    .tab-content h2 {
+        line-height: 1.3;
+        overflow-wrap: normal;
+        word-break: normal;
+    }
+
+    /* Las tablas se desplazan dentro de su propio contenedor, nunca toda la página. */
+    .tab-content .overflow-x-auto {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+
+    .tab-content .overflow-x-auto > table {
+        width: max-content;
+        min-width: 620px;
+        max-width: none;
+        table-layout: auto;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .tab-content .overflow-x-auto th {
+        white-space: nowrap;
+        word-break: normal;
+        overflow-wrap: normal;
+        letter-spacing: 0.035em;
+        line-height: 1.35;
+    }
+
+    .tab-content .overflow-x-auto td {
+        white-space: normal;
+        word-break: normal;
+        overflow-wrap: break-word;
+        line-height: 1.45;
+        vertical-align: top;
+    }
+
+    .tab-content .overflow-x-auto td .inline-flex,
+    .tab-content .overflow-x-auto td button,
+    .tab-content .overflow-x-auto td a {
+        white-space: nowrap;
+        word-break: normal;
+        flex-shrink: 0;
+    }
+
+    /* Dashboard: ancho de tabla explícito para que cada columna conserve su espacio. */
+    #section-dashboard .overflow-x-auto > table {
+        width: 760px;
+        min-width: 760px;
+    }
+
+    #section-dashboard .overflow-x-auto th,
+    #section-dashboard .overflow-x-auto td {
+        padding: 0.75rem 0.8rem;
+    }
+
+    #section-dashboard .overflow-x-auto td:nth-child(3) {
+        min-width: 180px;
+        max-width: 260px;
+        white-space: normal;
+    }
+
+    /* Pedidos: filtros en una sola línea con desplazamiento horizontal. */
+    #section-orders .order-filter-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: auto;
+        min-width: max-content;
+        max-width: none;
+        white-space: nowrap;
+        word-break: normal;
+        overflow-wrap: normal;
+        line-height: 1.25;
+        padding: 0.65rem 0.9rem;
+    }
+
+    #section-orders .overflow-x-auto {
+        scrollbar-width: thin;
+    }
+
+    /* Tarjetas de productos/categorías y controles de búsqueda. */
+    #section-products .grid,
+    #section-categories .grid,
+    #section-customers .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tab-content form {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .tab-content input,
+    .tab-content select,
+    .tab-content textarea {
+        font-size: 16px;
+    }
+
+    /* Gráficos: evitar que el canvas empuje el ancho de la página. */
+    #section-analytics .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #section-analytics canvas {
+        width: 100% !important;
+    }
+
+    /* Modales: margen seguro y scroll vertical en móviles pequeños. */
+    #productModal,
+    #categoryModal,
+    #orderDetailModal,
+    #restockModal,
+    #logoutModal {
+        padding: 0.75rem;
+        align-items: flex-start;
+        overflow-y: auto;
+    }
+
+    #productModal > div,
+    #categoryModal > div,
+    #orderDetailModal > div,
+    #restockModal > div,
+    #logoutModal > div {
+        width: 100%;
+        max-width: 34rem;
+        max-height: calc(100dvh - 1.5rem);
+        margin-top: auto;
+        margin-bottom: auto;
+        overflow-y: auto;
+    }
+
+    /* Los textos de badges y botones no deben partirse letra por letra. */
+    .tab-content .rounded-full,
+    .tab-content .rounded-xl button {
+        word-break: normal;
+        overflow-wrap: normal;
+    }
+}
+
+@media (max-width: 480px) {
+    main > div.p-4,
+    main > div.sm\:p-6,
+    main > div.lg\:p-8 {
+        padding: 0.75rem;
+    }
+
+    #section-dashboard > div.bg-white {
+        padding: 1rem;
+    }
+
+    #section-dashboard .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #section-dashboard .overflow-x-auto > table {
+        width: 720px;
+        min-width: 720px;
+    }
+
+    .tab-content .text-xs {
+        line-height: 1.45;
+    }
+
+    .tab-content button {
+        min-height: 2.5rem;
+    }
+
+    #section-orders .order-filter-btn {
+        font-size: 0.75rem;
+        padding: 0.6rem 0.75rem;
+    }
+
+    #toastNotification {
+        left: 0.75rem;
+        right: 0.75rem;
+        width: auto;
+    }
+}
+
+@media (max-width: 360px) {
+    main > header {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    #pageTitle {
+        font-size: 1rem;
+    }
+
+    .tab-content .p-6 {
+        padding: 1rem;
+    }
+
+    .tab-content .p-5 {
+        padding: 0.875rem;
+    }
+}
