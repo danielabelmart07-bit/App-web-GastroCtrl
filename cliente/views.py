@@ -368,8 +368,8 @@ def login_cliente(request):
             return redirect("cliente:perfil")
         logout(request)
     form = AuthenticationForm(request, data=request.POST or None)
-    for field in form.fields.values():
-        field.widget.attrs.update({"class": "w-full rounded-xl border border-cream-300 px-4 py-3 focus:border-coffee-500 focus:outline-none", "autocomplete": "username" if field.name == "username" else "current-password"})
+    for name, field in form.fields.items():
+        field.widget.attrs.update({"class": "w-full rounded-xl border border-cream-300 px-4 py-3 focus:border-coffee-500 focus:outline-none", "autocomplete": "username" if name == "username" else "current-password"})
     if request.method == "POST" and form.is_valid():
         user = form.get_user()
         if not Cliente.objects.filter(user=user).exists():
