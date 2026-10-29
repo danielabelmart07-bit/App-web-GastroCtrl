@@ -501,3 +501,25 @@ class AutenticacionSeguridadTests(TestCase):
         self.client.logout()
         response = self.client.post(reverse('administrador:eliminar_producto'), {'id': 1})
         self.assertEqual(response.status_code, 401)
+
+
+class ConfirmacionEliminacionTests(AdminTestCase):
+    def setUp(self):
+        super().setUp()
+        self.categoria = Categoria.objects.create(nombre="Confirmación", slug="confirmacion")
+        self.producto = Producto.objects.create(categoria=self.categoria, nombre="Producto a eliminar", precio=1000)
+
+    def test_get_muestra_confirmacion_sin_eliminar(self):
+        response = self.client.get(reverse("administrador:confirmar_eliminar_producto", kwargs={"producto_id": self.producto.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Producto.objects.filter(pk=self.producto.pk).exists())
+
+    def test_post_confirma_eliminacion(self):
+        response = self.client.post(reverse("administrador:confirmar_eliminar_producto", kwargs={"producto_id": self.producto.id}))
+        self.assertRedirects(response, reverse("administrador:dashboard"))
+        self.assertFalse(Producto.objects.filter(pk=self.producto.pk).exists())
+
+    def test_categoria_con_productos_no_se_elimina(self):
+        response = self.client.post(reverse("administrador:confirmar_eliminar_categoria", kwargs={"categoria_id": self.categoria.id}))
+        self.assertRedirects(response, reverse("administrador:dashboard"))
+        self.assertTrue(Categoria.objects.filter(pk=self.categoria.pk).exists())
