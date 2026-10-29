@@ -5,6 +5,8 @@ app_name = 'administrador'
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
+    path('productos/<int:producto_id>/eliminar/confirmar/', views.confirmar_eliminar_producto, name='confirmar_eliminar_producto'),
+    path('categorias/<int:categoria_id>/eliminar/confirmar/', views.confirmar_eliminar_categoria, name='confirmar_eliminar_categoria'),
     path(
         'api/pedidos/<str:codigo>/estado/',
         views.actualizar_estado_pedido,
