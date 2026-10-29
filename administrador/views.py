@@ -2,11 +2,12 @@ import json
 from functools import wraps
 
 from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from cliente.models import Categoria, Pedido, Producto, Inventario, Cliente, Insumo
 from .models import ConfiguracionSistema
 from django.db import transaction
@@ -582,4 +583,40 @@ def logout_view(request):
     return JsonResponse({
         'status': 'ok',
         'redirect_url': reverse('administrador:login'),
+    })
+
+
+@admin_required
+@require_http_methods(["GET", "POST"])
+def confirmar_eliminar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, pk=producto_id)
+    if request.method == "POST":
+        nombre = producto.nombre
+        producto.delete()
+        messages.success(request, f"El producto «{nombre}» fue eliminado correctamente.")
+        return redirect("administrador:dashboard")
+    return render(request, "administrador/confirmar_eliminacion.html", {
+        "tipo": "producto",
+        "objeto": producto,
+        "mensaje": "Se eliminará el producto. Los detalles históricos de pedidos conservarán el registro como producto eliminado.",
+    })
+
+
+@admin_required
+@require_http_methods(["GET", "POST"])
+def confirmar_eliminar_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, pk=categoria_id)
+    if request.method == "POST":
+        if categoria.productos.exists():
+            messages.error(request, "No se puede eliminar una categoría que todavía tiene productos asociados.")
+            return redirect("administrador:dashboard")
+        nombre = categoria.nombre
+        categoria.delete()
+        messages.success(request, f"La categoría «{nombre}» fue eliminada correctamente.")
+        return redirect("administrador:dashboard")
+    return render(request, "administrador/confirmar_eliminacion.html", {
+        "tipo": "categoría",
+        "objeto": categoria,
+        "mensaje": "Solo se podrá eliminar si no tiene productos asociados.",
+        "bloqueado": categoria.productos.exists(),
     })
