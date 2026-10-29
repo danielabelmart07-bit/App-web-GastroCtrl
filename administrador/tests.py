@@ -102,6 +102,63 @@ class CRUDProductosTests(AdminTestCase):
         self.assertEqual(response.json()['status'], 'ok')
         self.assertFalse(Producto.objects.filter(id=producto.id).exists())
 
+class EdicionFormularioDinamicoTests(AdminTestCase):
+    def setUp(self):
+        super().setUp()
+        self.categoria = Categoria.objects.create(nombre="Edición", slug="edicion")
+        self.producto = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Producto original",
+            descripcion="Descripción original",
+            precio=1000,
+            activo=True,
+        )
+
+    def test_get_edicion_producto_precarga_instancia(self):
+        url = reverse("administrador:editar_producto_form", kwargs={"id": self.producto.id})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["form"].instance, self.producto)
+        self.assertEqual(response.context["form"]["nombre"].value(), "Producto original")
+
+    def test_post_edicion_producto_actualiza_instancia(self):
+        url = reverse("administrador:editar_producto_form", kwargs={"id": self.producto.id})
+        response = self.client.post(url, {
+            "categoria": self.categoria.id,
+            "nombre": "Producto actualizado",
+            "descripcion": "Nueva descripción",
+            "precio": "1500.00",
+            "activo": "on",
+            "es_destacado": "on",
+        })
+
+        self.assertRedirects(response, reverse("administrador:dashboard"))
+        self.producto.refresh_from_db()
+        self.assertEqual(self.producto.nombre, "Producto actualizado")
+        self.assertEqual(self.producto.precio, 1500)
+
+    def test_get_edicion_categoria_precarga_instancia(self):
+        url = reverse("administrador:editar_categoria_form", kwargs={"id": self.categoria.id})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["form"].instance, self.categoria)
+        self.assertEqual(response.context["form"]["nombre"].value(), "Edición")
+
+    def test_post_edicion_categoria_actualiza_instancia(self):
+        url = reverse("administrador:editar_categoria_form", kwargs={"id": self.categoria.id})
+        response = self.client.post(url, {
+            "nombre": "Categoría actualizada",
+            "slug": "categoria-actualizada",
+        })
+
+        self.assertRedirects(response, reverse("administrador:dashboard"))
+        self.categoria.refresh_from_db()
+        self.assertEqual(self.categoria.nombre, "Categoría actualizada")
+        self.assertEqual(self.categoria.slug, "categoria-actualizada")
+
+
 class CRUDCategoriasTests(AdminTestCase):
     def test_crear_categoria_con_slug_autogenerado(self):
         url = reverse('administrador:crear_categoria')
