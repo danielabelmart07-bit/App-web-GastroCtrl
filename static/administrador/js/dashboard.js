@@ -963,6 +963,41 @@ function renderCustomersTable() {
     `).join('');
 }
 
+async function guardarCostoEnvioAutomatico() {
+    const input = document.getElementById('settingDeliveryFee');
+    const costoEnvio = Number(input?.value);
+
+    if (!input || input.value.trim() === '' || !Number.isFinite(costoEnvio) || costoEnvio < 0) {
+        showToast('Ingresá un costo de envío válido.', 'error');
+        return;
+    }
+
+    input.disabled = true;
+    try {
+        const response = await fetch('/gestion/api/configuracion/envio/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': obtenerCsrfTokenAdmin(),
+            },
+            body: JSON.stringify({ costo_envio: costoEnvio }),
+        });
+        const data = await response.json();
+
+        if (!response.ok || data.status !== 'ok') {
+            throw new Error(data.mensaje || 'No se pudo guardar la configuración.');
+        }
+
+        input.value = Number(data.costo_envio).toFixed(2).replace(/\\.00$/, '');
+        showToast('Costo de envío actualizado y guardado.');
+    } catch (error) {
+        console.error('Error al guardar costo de envío:', error);
+        showToast('No se pudo guardar el costo de envío.', 'error');
+    } finally {
+        input.disabled = false;
+    }
+}
+
 async function saveSettings(e) {
     e.preventDefault();
 
