@@ -428,6 +428,28 @@ def editar_producto(request):
             }
     })
 
+@admin_required
+@require_http_methods(["GET", "POST"])
+def editar_producto_form(request, id):
+    producto = get_object_or_404(Producto, pk=id)
+    form = ProductoForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=producto,
+    )
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, f"El producto «{producto.nombre}» fue actualizado correctamente.")
+        return redirect("administrador:dashboard")
+
+    return render(request, "administrador/editar_registro.html", {
+        "form": form,
+        "titulo": "Editar producto",
+        "descripcion": producto.nombre,
+    })
+
+
 @require_POST
 @admin_required
 def eliminar_producto(request):
@@ -505,6 +527,24 @@ def editar_categoria(request):
             "slug": categoria.slug
         }
     })
+
+@admin_required
+@require_http_methods(["GET", "POST"])
+def editar_categoria_form(request, id):
+    categoria = get_object_or_404(Categoria, pk=id)
+    form = CategoriaForm(request.POST or None, instance=categoria)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, f"La categoría «{categoria.nombre}» fue actualizada correctamente.")
+        return redirect("administrador:dashboard")
+
+    return render(request, "administrador/editar_registro.html", {
+        "form": form,
+        "titulo": "Editar categoría",
+        "descripcion": categoria.nombre,
+    })
+
 
 @require_POST
 @admin_required
