@@ -311,6 +311,51 @@ class GestionPedidosTests(AdminTestCase):
         self.assertEqual(len(pedidos_contexto), 1)
         self.assertEqual(pedidos_contexto[0].codigo_seguimiento, "TEST1234")
 
+    def test_archivar_pedido_finalizado_conserva_venta_y_detalles(self):
+        self.pedido.estado = 'ENTREGADO'
+        self.pedido.save(update_fields=['estado'])
+        url = reverse('administrador:archivar_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+        self.pedido.refresh_from_db()
+        self.assertTrue(self.pedido.archivado)
+        self.assertTrue(Pedido.objects.filter(pk=self.pedido.pk, monto_total=2000.00).exists())
+        self.assertTrue(DetallePedido.objects.filter(pk=self.detalle.pk, pedido=self.pedido).exists())
+
+    def test_no_permitir_archivar_pedido_pendiente(self):
+        url = reverse('administrador:archivar_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 400)
+        self.pedido.refresh_from_db()
+        self.assertFalse(self.pedido.archivado)
+
+    def test_pedido_archivado_no_aparece_en_gestion_activa(self):
+        self.pedido.estado = 'ENTREGADO'
+        self.pedido.archivado = True
+        self.pedido.save(update_fields=['estado', 'archivado'])
+
+        response = self.client.get(reverse('administrador:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['pedidos'].filter(pk=self.pedido.pk).exists())
+
+    def test_restaurar_pedido_archivado(self):
+        self.pedido.estado = 'ENTREGADO'
+        self.pedido.archivado = True
+        self.pedido.save(update_fields=['estado', 'archivado'])
+        url = reverse('administrador:restaurar_pedido', kwargs={'codigo': self.pedido.codigo_seguimiento})
+
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.pedido.refresh_from_db()
+        self.assertFalse(self.pedido.archivado)
+
+
 class GestionClientesTests(AdminTestCase):
     def setUp(self):
         super().setUp()
