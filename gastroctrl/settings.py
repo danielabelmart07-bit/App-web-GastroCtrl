@@ -138,3 +138,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'administrador:login'
 LOGIN_REDIRECT_URL = 'administrador:dashboard'
 LOGOUT_REDIRECT_URL = 'administrador:login'
+
+# Las sesiones expiran al cerrar el navegador o tras una hora de inactividad.
+SESSION_COOKIE_AGE = 60 * 60
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = True
