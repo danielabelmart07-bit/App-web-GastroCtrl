@@ -172,3 +172,85 @@ canvas {
         min-width: 96px;
     }
 }
+
+
+/* Ajustes de lectura en pantallas pequeñas */
+@media (max-width: 767px) {
+    /* La tabla de pedidos conserva un ancho legible y se desplaza dentro de su contenedor. */
+    #section-dashboard .overflow-x-auto {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border: 1px solid #efe6d8;
+        border-radius: 0.75rem;
+        background: #fff;
+    }
+
+    #section-dashboard .overflow-x-auto table {
+        width: 760px;
+        min-width: 760px;
+        table-layout: auto;
+    }
+
+    #section-dashboard .overflow-x-auto th {
+        white-space: nowrap;
+        word-break: normal;
+        overflow-wrap: normal;
+        letter-spacing: 0.04em;
+    }
+
+    #section-dashboard .overflow-x-auto td {
+        word-break: normal;
+        overflow-wrap: normal;
+        vertical-align: top;
+    }
+
+    #section-dashboard .overflow-x-auto td:nth-child(3) {
+        white-space: normal;
+        min-width: 180px;
+        max-width: 260px;
+    }
+
+    /* Los filtros de pedidos no se encogen ni parten cada palabra en varias líneas. */
+    #section-orders .order-filter-btn {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: max-content;
+        white-space: nowrap;
+        word-break: normal;
+        overflow-wrap: normal;
+        line-height: 1.25;
+        padding: 0.65rem 0.9rem;
+    }
+
+    #section-orders .bg-white > .flex.items-center.gap-2.overflow-x-auto {
+        align-items: center;
+        flex-wrap: nowrap;
+        scrollbar-width: thin;
+        max-width: 100%;
+        padding-bottom: 0.5rem;
+    }
+
+    #section-orders .bg-white > .flex.items-center.gap-2.overflow-x-auto::-webkit-scrollbar {
+        height: 4px;
+    }
+}
+
+@media (max-width: 380px) {
+    #section-dashboard > div.bg-white {
+        padding: 1rem;
+    }
+
+    #section-dashboard .overflow-x-auto table {
+        width: 720px;
+        min-width: 720px;
+    }
+
+    #section-orders .order-filter-btn {
+        font-size: 0.7rem;
+        padding: 0.6rem 0.75rem;
+    }
+}
