@@ -453,7 +453,8 @@ def editar_producto_form(request, id):
     )
 
     if request.method == "POST" and form.is_valid():
-        form.save()
+        producto = form.save()
+        registrar_accion(request, "Edición de producto", producto.nombre)
         messages.success(request, f"El producto «{producto.nombre}» fue actualizado correctamente.")
         return redirect("administrador:dashboard")
 
@@ -553,7 +554,8 @@ def editar_categoria_form(request, id):
     form = CategoriaForm(request.POST or None, instance=categoria)
 
     if request.method == "POST" and form.is_valid():
-        form.save()
+        categoria = form.save()
+        registrar_accion(request, "Edición de categoría", categoria.nombre)
         messages.success(request, f"La categoría «{categoria.nombre}» fue actualizada correctamente.")
         return redirect("administrador:dashboard")
 
@@ -760,6 +762,7 @@ def confirmar_eliminar_producto(request, producto_id):
     if request.method == "POST":
         nombre = producto.nombre
         producto.delete()
+        registrar_accion(request, "Eliminación de producto", nombre)
         messages.success(request, f"El producto «{nombre}» fue eliminado correctamente.")
         return redirect("administrador:dashboard")
     return render(request, "administrador/confirmar_eliminacion.html", {
@@ -779,6 +782,7 @@ def confirmar_eliminar_categoria(request, categoria_id):
             return redirect("administrador:dashboard")
         nombre = categoria.nombre
         categoria.delete()
+        registrar_accion(request, "Eliminación de categoría", nombre)
         messages.success(request, f"La categoría «{nombre}» fue eliminada correctamente.")
         return redirect("administrador:dashboard")
     return render(request, "administrador/confirmar_eliminacion.html", {
