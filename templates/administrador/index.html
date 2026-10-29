@@ -478,21 +478,26 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Ventas Este Mes</span>
-                        <p class="font-serif-title font-bold text-3xl text-coffee-900">$3.840.000</p>
-                        <span class="text-xs text-emerald-600 font-bold flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> +18% vs mes anterior</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Ventas del mes</span>
+                        <p class="font-serif-title font-bold text-3xl text-coffee-900">$ {{ ingresos_mes|floatformat:2 }}</p>
+                        <span class="text-xs text-coffee-600 font-medium">Pedidos no cancelados desde el inicio del mes</span>
                     </div>
 
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Ticket Promedio</span>
-                        <p class="font-serif-title font-bold text-3xl text-coffee-900">$4.620</p>
-                        <span class="text-xs text-coffee-600 font-medium">Basado en 830 pedidos</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Ticket promedio</span>
+                        <p class="font-serif-title font-bold text-3xl text-coffee-900">$ {{ ticket_promedio|floatformat:2 }}</p>
+                        <span class="text-xs text-coffee-600 font-medium">Promedio de {{ cantidad_pedidos }} pedidos no cancelados</span>
                     </div>
 
                     <div class="bg-white p-6 rounded-3xl border border-cream-200/80 shadow-sm space-y-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Producto estrella</span>
-                        <p class="font-serif-title font-bold text-xl text-coffee-900 truncate">Croissant de Almendras</p>
-                        <span class="text-xs text-coffee-600 font-medium">340 unidades vendidas</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-coffee-600">Producto más vendido</span>
+                        {% if producto_estrella %}
+                        <p class="font-serif-title font-bold text-xl text-coffee-900">{{ producto_estrella.producto__nombre }}</p>
+                        <span class="text-xs text-coffee-600 font-medium">{{ producto_estrella.unidades }} unidades registradas</span>
+                        {% else %}
+                        <p class="font-serif-title font-bold text-xl text-coffee-900">Sin ventas registradas</p>
+                        <span class="text-xs text-coffee-600 font-medium">Aparecerá cuando haya pedidos con productos</span>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -840,6 +845,10 @@
     window.ADMIN_PEDIDOS_URL = "{% url 'administrador:actualizar_estado_pedido' '__CODIGO__' %}";
     window.ADMIN_PRODUCTOS = {{ productos_data|safe }};
     window.ADMIN_INSUMOS = {{ insumos_data|safe }};
+    window.ADMIN_CATEGORIAS = {{ categorias_data_json|safe }};
+    window.ADMIN_CREAR_CATEGORIA_URL = "{% url 'administrador:crear_categoria' %}";
+    window.ADMIN_EDITAR_CATEGORIA_URL = "{% url 'administrador:editar_categoria' %}";
+    window.ADMIN_CONFIRMAR_ELIMINAR_CATEGORIA_URL = "{% url 'administrador:confirmar_eliminar_categoria' 123456789 %}";
     window.ADMIN_CREAR_PRODUCTO_URL = "{% url 'administrador:crear_producto' %}";
     window.ADMIN_EDITAR_PRODUCTO_URL = "{% url 'administrador:editar_producto' %}";
     window.ADMIN_ELIMINAR_PRODUCTO_URL = "{% url 'administrador:eliminar_producto' %}";
