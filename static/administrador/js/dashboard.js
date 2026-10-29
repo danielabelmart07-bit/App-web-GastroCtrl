@@ -33,16 +33,16 @@ tailwind.config = {
 // Estructuras de Datos / Estado de la App
 let products = window.ADMIN_PRODUCTOS;
 
-let categories = [
-    { id: 1, name: "Pastelería", slug: "pasteleria", icon: "fa-cake-candles", count: 18, desc: "Tortas, tartas y alfajores artesanales" },
-    { id: 2, name: "Cafetería", slug: "cafeteria", icon: "fa-mug-hot", count: 12, desc: "Espresso, lattes y preparaciones filtradas" },
-    { id: 3, name: "Panadería", slug: "panaderia", icon: "fa-bread-slice", count: 8, desc: "Panes de masa madre, baguettes y brioches" },
-    { id: 4, name: "Bebidas Frías", slug: "bebidas", icon: "fa-glass-water", count: 6, desc: "Cold brew, limonadas y smoothies" }
-];
+let categories = (window.ADMIN_CATEGORIAS || []).map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    icon: cat.icon || 'fa-tag',
+    count: cat.count || 0,
+    desc: cat.desc || 'Categoría de productos',
+}));
 
-let orders = (window.ADMIN_PEDIDOS && window.ADMIN_PEDIDOS.length) ? window.ADMIN_PEDIDOS : [
-    { id: '#ORD-8942', codigo: 'ORD-8942', customer: 'Camila Torres', items: '2x Flat White, 1x Croissant Almendras', total: 8800, type: 'Takeaway', status: 'en_preparacion', time: 'Hace 5 min' }
-];
+let orders = window.ADMIN_PEDIDOS || [];
 
 let inventoryItems = (window.ADMIN_INSUMOS || []).map(insumo => ({
     id: insumo.id,
@@ -53,11 +53,9 @@ let inventoryItems = (window.ADMIN_INSUMOS || []).map(insumo => ({
     unit: insumo.unidad_medida,
 }));
 
-let customers = [
-    { id: 1, name: "Camila Torres", email: "camila.t@gmail.com", phone: "+54 9 11 4521-8899", ordersCount: 14, spent: 48200 },
-    { id: 2, name: "Lucas Benítez", email: "lucas.b@hotmail.com", phone: "+54 9 11 6320-1122", ordersCount: 8, spent: 29400 },
-    { id: 3, name: "Martín Gómez", email: "mgomez@yahoo.com", phone: "+54 9 11 5544-3322", ordersCount: 22, spent: 84000 }
-];
+let customers = [];
+
+
 
 let currentActiveOrder = null;
 let activeOrderFilter = 'todos';
@@ -69,35 +67,18 @@ let pieChartInstance = null;
 let trendPeriod = 'weeks';
 let piePeriod = 'weeks';
 
-const trendData = {
-    days: {
-        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        data: [110000, 125000, 105000, 140000, 180000, 210000, 114000]
-    },
-    weeks: {
-        labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-        data: [890000, 940000, 1020000, 990000]
-    },
-    months: {
-        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-        data: [3100000, 3400000, 3200000, 3600000, 3900000, 4100000, 3800000, 4200000, 3840000, 4300000, 4500000, 4900000]
-    }
+const trendData = window.trendDataReal || {
+    days: { labels: [], data: [] },
+    weeks: { labels: [], data: [] },
+    months: { labels: [], data: [] },
 };
 
-const pieData = {
-    days: {
-        labels: ['Pastelería', 'Cafetería', 'Panadería', 'Bebidas Frías'],
-        data: [42, 35, 15, 8]
-    },
-    weeks: {
-        labels: ['Pastelería', 'Cafetería', 'Panadería', 'Bebidas Frías'],
-        data: [45, 30, 15, 10]
-    },
-    months: {
-        labels: ['Pastelería', 'Cafetería', 'Panadería', 'Bebidas Frías'],
-        data: [48, 28, 14, 10]
-    }
+const pieData = window.pieDataReal || {
+    days: { labels: [], data: [] },
+    weeks: { labels: [], data: [] },
 };
+
+
 
 function updateSalesTrendChart(period) {
     trendPeriod = period;
@@ -146,6 +127,7 @@ window.onload = function() {
     renderProductsTable();
     renderInventoryTable();
     renderCustomersTable();
+    loadCustomersFromDatabase();
     renderCategoriesGrid();
     initCharts();
 };
@@ -649,24 +631,40 @@ async function updateOrderStatusFromModal() {
 
 function renderCategoriesGrid() {
     const grid = document.getElementById('categoriesGrid');
-    grid.innerHTML = categories.map(cat => `
+    if (!grid) return;
+
+    if (!categories.length) {
+        grid.innerHTML = '<div class="col-span-full rounded-2xl border border-dashed border-cream-300 bg-white p-6 text-sm text-coffee-600">Todavía no hay categorías. Usá “Nueva Categoría” para crear la primera.</div>';
+        return;
+    }
+
+    const deleteBase = window.ADMIN_CONFIRMAR_ELIMINAR_CATEGORIA_URL || '';
+    grid.innerHTML = categories.map(cat => {
+        const deleteUrl = deleteBase.replace('123456789', String(cat.id));
+        return `
         <div class="bg-white p-5 rounded-3xl border border-cream-200/80 shadow-sm space-y-3 hover-lift flex flex-col justify-between">
             <div>
                 <div class="w-10 h-10 rounded-2xl bg-coffee-50 border border-coffee-200 text-coffee-600 flex items-center justify-center text-lg mb-3">
-                    <i class="fa-solid ${cat.icon}"></i>
+                    <i class="fa-solid ${cat.icon || 'fa-tag'}"></i>
                 </div>
-                <h3 class="font-serif-title font-bold text-base text-coffee-900">${cat.name}</h3>
-                <p class="text-xs text-coffee-600 mt-1">${cat.desc}</p>
+                <h3 class="font-serif-title font-bold text-base text-coffee-900">${escapeHtml(cat.name)}</h3>
+                <p class="text-xs text-coffee-600 mt-1">${escapeHtml(cat.slug)}</p>
             </div>
+            <div class="pt-3 border-t border-cream-100 flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-coffee-800">${cat.count} productos</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="editCategory(${cat.id})" class="px-2.5 py-1.5 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors">Editar</button>
+                    <a href="${deleteUrl}" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 border border-rose-200 font-bold text-xs transition-colors" aria-label="Eliminar categoría ${escapeHtml(cat.name)}">Eliminar</a>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
 
-            <div class="pt-3 border-t border-cream-100 flex items-center justify-between">
-                <span class="text-xs font-bold text-coffee-800">${cat.count} Productos</span>
-                <button onclick="editCategory(${cat.id})" class="px-2.5 py-1.5 rounded-xl bg-cream-100 hover:bg-coffee-600 hover:text-white text-coffee-800 font-bold text-xs transition-colors">
-                    Editar
-                </button>
-            </div>
-        </div>
-    `).join('');
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[char]));
 }
 
 function openCategoryModal(catId = null) {
@@ -679,8 +677,8 @@ function openCategoryModal(catId = null) {
             document.getElementById('categoryModalTitle').innerText = "Editar Categoría";
             document.getElementById('modalCategoryId').value = cat.id;
             document.getElementById('modalCatName').value = cat.name;
-            document.getElementById('modalCatDesc').value = cat.desc;
-            document.getElementById('modalCatIcon').value = cat.icon;
+            const slugField = document.getElementById('modalCatSlug');
+            if (slugField) slugField.value = cat.slug;
         }
     } else {
         document.getElementById('categoryModalTitle').innerText = "Nueva Categoría";
@@ -698,41 +696,85 @@ function editCategory(id) {
     openCategoryModal(id);
 }
 
-function saveCategory(event) {
+async function saveCategory(event) {
     event.preventDefault();
     const id = document.getElementById('modalCategoryId').value;
-    const name = document.getElementById('modalCatName').value;
-    const desc = document.getElementById('modalCatDesc').value;
-    const icon = document.getElementById('modalCatIcon').value || 'fa-tag';
-
-    if (id) {
-        const idx = categories.findIndex(c => c.id == id);
-        if (idx !== -1) {
-            categories[idx] = { ...categories[idx], name, desc, icon };
-        }
-        showToast('Categoría actualizada');
-    } else {
-        categories.push({
-            id: Date.now(),
-            name, desc, icon, count: 0, slug: name.toLowerCase().replace(/\s+/g, '')
-        });
-        showToast('Categoría creada');
+    const name = document.getElementById('modalCatName').value.trim();
+    const slug = document.getElementById('modalCatSlug')?.value.trim() || '';
+    if (!name) {
+        showToast('Ingresá el nombre de la categoría.', 'error');
+        return;
     }
 
-    closeCategoryModal();
-    renderCategoriesGrid();
+    const formData = new URLSearchParams({ nombre: name, slug });
+    if (id) formData.set('id', id);
+
+    try {
+        const response = await fetch(
+            id ? window.ADMIN_EDITAR_CATEGORIA_URL : window.ADMIN_CREAR_CATEGORIA_URL,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                    'X-CSRFToken': obtenerCsrfTokenAdmin(),
+                },
+                body: formData.toString(),
+            }
+        );
+        const data = await response.json();
+        if (!response.ok || data.status !== 'ok') {
+            const details = data.details ? Object.values(data.details).flat().map(e => e.message).join(' ') : '';
+            throw new Error(details || data.mensaje || 'No se pudo guardar la categoría.');
+        }
+
+        closeCategoryModal();
+        showToast(id ? 'Categoría actualizada.' : 'Categoría creada.');
+        // Volvemos a consultar la base de datos para actualizar conteos, slugs y filtros.
+        window.location.reload();
+    } catch (error) {
+        showToast(error.message || 'Error al guardar la categoría.', 'error');
+    }
+}
+
+async function loadCustomersFromDatabase() {
+    try {
+        const response = await fetch('/gestion/api/clientes/', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await response.json();
+        if (!response.ok || data.status !== 'ok') throw new Error('No se pudieron cargar los clientes.');
+
+        customers = (data.clientes || []).map(cliente => ({
+            id: cliente.id,
+            name: cliente.nombre,
+            email: cliente.email || 'Sin email',
+            phone: cliente.telefono || 'Sin teléfono',
+            ordersCount: cliente.total_pedidos || 0,
+            spent: Number(cliente.total_gastado || 0),
+        }));
+        renderCustomersTable();
+    } catch (error) {
+        console.error('Error cargando clientes reales:', error);
+        const tbody = document.getElementById('customersTableBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-coffee-600">No se pudieron cargar los clientes.</td></tr>';
+    }
 }
 
 function renderCustomersTable() {
     const tbody = document.getElementById('customersTableBody');
+    if (!tbody) return;
+    if (!customers.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-coffee-600">Todavía no hay clientes registrados.</td></tr>';
+        return;
+    }
     tbody.innerHTML = customers.map(c => `
         <tr class="hover:bg-cream-50/80 transition-colors">
-            <td class="py-3 px-3 font-bold text-coffee-900">${c.name}</td>
-            <td class="py-3 px-3 text-coffee-600">${c.email} <br> <span class="text-[10px]">${c.phone}</span></td>
+            <td class="py-3 px-3 font-bold text-coffee-900">${escapeHtml(c.name)}</td>
+            <td class="py-3 px-3 text-coffee-600">${escapeHtml(c.email)} <br> <span class="text-[10px]">${escapeHtml(c.phone)}</span></td>
             <td class="py-3 px-3 font-bold">${c.ordersCount} pedidos</td>
-            <td class="py-3 px-3 font-bold text-coffee-900">$${c.spent.toLocaleString()}</td>
+            <td class="py-3 px-3 font-bold text-coffee-900">$${c.spent.toLocaleString('es-AR')}</td>
             <td class="py-3 px-3">
-                <button onclick="showToast('Mensaje enviado a ${c.name}', 'info')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-xs transition-colors border border-emerald-200 inline-flex items-center gap-1">
+                <button onclick="showToast('El contacto directo se puede integrar más adelante.', 'info')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-xs transition-colors border border-emerald-200 inline-flex items-center gap-1">
                     <i class="fa-brands fa-whatsapp text-xs"></i> Contactar
                 </button>
             </td>
@@ -842,10 +884,10 @@ function initCharts() {
         weeklyChartInstance = new Chart(ctxWeekly, {
             type: 'line',
             data: {
-                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                labels: window.semanaLabels || [],
                 datasets: [{
                     label: 'Ventas ($)',
-                    data: [110000, 125000, 105000, 140000, 180000, 210000, 114000],
+                    data: window.semanaData || [],
                     borderColor: '#8c6343',
                     backgroundColor: 'rgba(140, 99, 67, 0.12)',
                     fill: true,
