@@ -383,8 +383,10 @@ def registro_cliente(request):
                 ciudad=form.cleaned_data.get("ciudad", "").strip(),
                 email=user.email or None,
             )
-        messages.success(request, "Tu cuenta fue creada. Ya podés iniciar sesión.")
-        return redirect("cliente:home")
+        # Iniciar sesión automáticamente para que pueda continuar con la compra.
+        login(request, user)
+        messages.success(request, "Tu cuenta fue creada. Ya podés continuar con tu compra.")
+        return redirect(destino or "cliente:home")
     return render(request, "cliente/registro.html", {"form": form, "next": destino})
 
 
