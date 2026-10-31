@@ -1,6 +1,7 @@
 import uuid
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 
 " CATEGORIA "
@@ -128,11 +129,17 @@ class Cliente(models.Model):
 
     @property
     def total_pedidos(self):
-        return self.pedidos.count()
+        pedidos = Pedido.objects.filter(
+            Q(cliente=self) | Q(cliente__isnull=True, telefono=self.telefono)
+        )
+        return pedidos.count()
 
     @property
     def total_gastado(self):
-        return sum(pedido.monto_total for pedido in self.pedidos.exclude(estado='CANCELADO'))
+        pedidos = Pedido.objects.filter(
+            Q(cliente=self) | Q(cliente__isnull=True, telefono=self.telefono)
+        ).exclude(estado='CANCELADO')
+        return sum(pedido.monto_total for pedido in pedidos)
 
 
 " PEDIDO "
