@@ -2,7 +2,7 @@
 
 Aplicación web de gestión gastronómica desarrollada con **Python y Django**, pensada para pequeños y medianos negocios del rubro gastronómico, como panaderías y cafeterías.
 
-GastroCtrl cuenta con un sitio público para clientes y un panel privado para administrar el negocio.
+GastroCtrl tiene un sitio público para clientes y un panel privado para administrar el negocio.
 
 ## Funcionalidades
 
