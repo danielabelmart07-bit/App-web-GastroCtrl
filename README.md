@@ -38,7 +38,7 @@ GastroCtrl cuenta con un sitio público para clientes y un panel privado para ad
 - **Pillow** para el manejo de imágenes.
 - **python-dotenv** para cargar variables de entorno desde un archivo `.env`.
 
-Las dependencias del proyecto se encuentran declaradas en `requirements.txt`.
+Las dependencias del proyecto estan declaradas en `requirements.txt`.
 
 ## Requisitos previos
 
@@ -101,8 +101,6 @@ python -c "from django.core.management.utils import get_random_secret_key; print
 ```
 
 Copiar el valor generado y colocarlo en `DJANGO_SECRET_KEY` dentro del archivo `.env`.
-
-> **Importante:** no compartir ni subir el archivo `.env` al repositorio. Este archivo contiene configuración local y claves privadas. Para un entorno de producción se debe utilizar `DJANGO_DEBUG=False` y configurar `DJANGO_ALLOWED_HOSTS` con los dominios correspondientes.
 
 ### 5. Ejecutar las migraciones de la base de datos
 
