@@ -393,7 +393,7 @@ def registro_cliente(request):
 def login_cliente(request):
     if request.user.is_authenticated:
         if Cliente.objects.filter(user=request.user).exists():
-            return redirect("cliente:perfil")
+            return redirect("cliente:home")
         messages.info(request, "Ya hay una sesión administrativa activa. Cerrala desde el panel antes de ingresar como cliente.")
         return redirect("cliente:home")
     destino = _destino_interno(request, request.POST.get("next") or request.GET.get("next", ""))
@@ -407,7 +407,7 @@ def login_cliente(request):
         else:
             login(request, user)
             messages.success(request, "Iniciaste sesión correctamente.")
-            return redirect(destino or "cliente:perfil")
+            return redirect(destino or "cliente:home")
     return render(request, "cliente/login.html", {"form": form, "next": destino})
 
 
