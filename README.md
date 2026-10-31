@@ -48,8 +48,6 @@ Las dependencias del proyecto estan declaradas en `requirements.txt`.
 
 ## Instalación y ejecución local
 
-Los siguientes pasos permiten preparar el proyecto desde una copia limpia del repositorio.
-
 ### 1. Clonar el repositorio
 
 ```bash
