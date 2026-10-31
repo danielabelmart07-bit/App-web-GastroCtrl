@@ -282,6 +282,25 @@ class CuentaClienteTests(TestCase):
         self.assertEqual(response.url, reverse("cliente:checkout"))
         self.assertEqual(self.client.get(reverse("cliente:perfil")).status_code, 200)
 
+    def test_login_sin_destino_redirige_al_inicio(self):
+        from django.contrib.auth.models import User
+        usuario = User.objects.create_user(
+            username="cliente_inicio",
+            password="UnaClaveSegura2026!",
+        )
+        Cliente.objects.create(
+            user=usuario,
+            nombre="Cliente Inicio",
+            telefono="1198765000",
+        )
+
+        response = self.client.post(reverse("cliente:login"), {
+            "username": "cliente_inicio",
+            "password": "UnaClaveSegura2026!",
+        })
+
+        self.assertRedirects(response, reverse("cliente:home"))
+
 class HistorialClienteTests(TestCase):
     def test_incluye_pedidos_anteriores_sin_relacion_por_telefono(self):
         cliente = Cliente.objects.create(
