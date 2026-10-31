@@ -26,7 +26,8 @@ def checkout(request):
         destino = reverse('cliente:checkout')
         return redirect(f"{reverse('cliente:registro')}?{urlencode({'next': destino})}")
 
-    if not Cliente.objects.filter(user=request.user).exists():
+    cliente_actual = Cliente.objects.filter(user=request.user).first()
+    if cliente_actual is None:
         messages.info(request, "Para finalizar una compra necesitás ingresar con una cuenta de cliente.")
         return redirect('cliente:home')
 
@@ -136,6 +137,7 @@ def checkout(request):
                 costo_envio = configuracion.costo_envio if modalidad == 'DELIVERY' else 0
 
                 pedido = form.save(commit=False)
+                pedido.cliente = cliente_actual
                 if modalidad == 'RETIRO':
                     pedido.direccion = 'Retiro en local'
                 pedido.monto_total = total + costo_envio
