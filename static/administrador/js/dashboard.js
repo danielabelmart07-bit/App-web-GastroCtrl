@@ -416,13 +416,29 @@ function filterProductsCategory(cat) {
     renderProductsTable();
 }
 
+function normalizarTexto(texto) {
+    return String(texto || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
 function renderProductsTable() {
-    const searchVal = (document.getElementById('productSearchInput')?.value || '').toLowerCase();
+    const searchVal = normalizarTexto(
+        document.getElementById('productSearchInput')?.value || ''
+    );
+
     const tbody = document.getElementById('productsTableBody');
 
     let filtered = products.filter(p => {
-        const matchesCat = activeProductCatFilter === 'todos' || p.category === activeProductCatFilter;
-        const matchesSearch = p.name.toLowerCase().includes(searchVal);
+        const matchesCat =
+            activeProductCatFilter === 'todos' ||
+            p.category === activeProductCatFilter;
+
+        const matchesSearch =
+            normalizarTexto(p.name).includes(searchVal);
+
         return matchesCat && matchesSearch;
     });
 
@@ -1117,6 +1133,8 @@ function initCharts() {
             }
         });
     }
+
+
 
     // 2. Gráfico Mensual / Tendencias
     const ctxMonthly = document.getElementById('monthlySalesChart')?.getContext('2d');
