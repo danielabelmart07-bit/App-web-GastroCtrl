@@ -159,8 +159,3 @@ App-web-GastroCtrl/
 └── .env                  # Variables locales (no se versiona)
 ```
 
-Los archivos multimedia cargados por la aplicación se almacenan en `media/`. Las carpetas `venv/` y `.venv/`, el archivo `.env` y la base de datos local `db.sqlite3` están excluidos del control de versiones.
-
-## Autor
-
-Desarrollado como proyecto de aplicación web para la gestión integral de un negocio gastronómico.
