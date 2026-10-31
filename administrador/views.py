@@ -700,7 +700,9 @@ def listar_clientes(request):
 @admin_required
 def detalle_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, pk=cliente_id)
-    pedidos = cliente.pedidos.all().order_by('-id')
+    pedidos = Pedido.objects.filter(
+        Q(cliente=cliente) | Q(cliente__isnull=True, telefono=cliente.telefono)
+    ).order_by('-id')
 
     pedidos_data = [
         {

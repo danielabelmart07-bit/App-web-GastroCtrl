@@ -178,9 +178,9 @@
     </header>
 
     {% if messages %}
-    <section aria-live="polite" class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
+    <section data-auto-dismiss-container aria-live="polite" class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
         {% for message in messages %}
-        <div role="status" class="mb-3 rounded-xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-800{% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-800{% else %}border-cream-300 bg-white text-coffee-800{% endif %}">{{ message }}</div>
+        <div data-auto-dismiss="message" role="status" class="mb-3 rounded-xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-800{% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-800{% else %}border-cream-300 bg-white text-coffee-800{% endif %}">{{ message }}</div>
         {% endfor %}
     </section>
     {% endif %}
@@ -617,6 +617,24 @@
     </aside>
 
 </div>
+
+<script>
+    // Los mensajes de Django se ocultan automáticamente después de cinco segundos.
+    document.querySelectorAll('[data-auto-dismiss="message"]').forEach((message) => {
+        window.setTimeout(() => {
+            message.style.transition = "opacity 300ms ease, transform 300ms ease";
+            message.style.opacity = "0";
+            message.style.transform = "translateY(-8px)";
+            window.setTimeout(() => {
+                const container = message.closest("[data-auto-dismiss-container]");
+                message.remove();
+                if (container && !container.querySelector('[data-auto-dismiss="message"]')) {
+                    container.remove();
+                }
+            }, 350);
+        }, 5000);
+    });
+</script>
 
 <script>
     async function cerrarSesionAdminDesdeMenu(event, formulario) {
