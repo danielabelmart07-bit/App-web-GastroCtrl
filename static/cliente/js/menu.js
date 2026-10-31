@@ -2,6 +2,15 @@ let activeCategory = "todos";
 let searchQuery = document.getElementById("searchInput")?.value || "";
 let currentSort = "featured";
 
+// Normaliza textos para ignorar tildes y mayúsculas.
+function normalizarTexto(texto) {
+    return String(texto || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
 // ============================================================
 // DOM ELEMENTS
 // ============================================================
@@ -21,22 +30,20 @@ const categoryBtns = document.querySelectorAll('.category-btn');
 
 function renderMenuProducts() {
 
-let filtered = MENU_PRODUCTS.filter(item => {
+    let filtered = MENU_PRODUCTS.filter(item => {
 
-    const matchesCategory =
-        activeCategory === 'todos' ||
-        item.category === activeCategory;
+        const matchesCategory =
+            activeCategory === 'todos' ||
+            item.category === activeCategory;
 
-    const query = searchQuery.toLowerCase().trim();
+        const query = normalizarTexto(searchQuery);
 
-    const matchesSearch =
-        !query ||
-        item.name.toLowerCase().includes(query) ||
-        item.description.toLowerCase().includes(query) ||
-        item.categoryLabel.toLowerCase().includes(query);
+        const matchesSearch =
+            !query ||
+            normalizarTexto(item.name).includes(query);
 
-    return matchesCategory && matchesSearch;
-});
+        return matchesCategory && matchesSearch;
+    });
 
 
 // ========================================================
@@ -195,6 +202,19 @@ return String(value)
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 
+}
+
+// ============================================================
+// NORMALIZAR TEXTO
+// Ignora mayúsculas, minúsculas y tildes.
+// ============================================================
+
+function normalizarTexto(texto) {
+    return String(texto || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
 }
 
 // ============================================================
