@@ -127,6 +127,11 @@ class CheckoutTests(TestCase):
         }
         session.save()
 
+    def test_cliente_con_sesion_puede_abrir_checkout(self):
+        respuesta = self.client.get(reverse("cliente:checkout"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertTemplateUsed(respuesta, "cliente/checkout.html")
+
     def test_checkout_sin_sesion_redirige_a_registro(self):
         self.client.logout()
         session = self.client.session
@@ -218,6 +223,45 @@ class CuentaClienteTests(TestCase):
         self.assertEqual(usuario.perfil_cliente.nombre, "Cliente Nuevo")
         self.assertEqual(usuario.perfil_cliente.telefono, "1133445566")
         self.assertEqual(usuario.perfil_cliente.ciudad, "Hurlingham")
+
+    def test_registro_desde_checkout_inicia_sesion_y_vuelve_al_checkout(self):
+        categoria = Categoria.objects.create(nombre="Bebidas", slug="bebidas")
+        producto = Producto.objects.create(
+            categoria=categoria,
+            nombre="Café",
+            precio=Decimal("1500.00"),
+        )
+        Inventario.objects.create(producto=producto, cantidad_disponible=3)
+
+        session = self.client.session
+        session["carrito"] = {
+            str(producto.id): {
+                "producto_id": producto.id,
+                "nombre": producto.nombre,
+                "precio": str(producto.precio),
+                "cantidad": 1,
+                "imagen": "",
+            }
+        }
+        session.save()
+
+        response = self.client.post(reverse("cliente:registro"), {
+            "next": reverse("cliente:checkout"),
+            "username": "cliente_desde_checkout",
+            "email": "nuevo@example.com",
+            "nombre": "Cliente Nuevo",
+            "telefono": "1133557799",
+            "direccion_habitual": "",
+            "ciudad": "",
+            "password1": "UnaClaveSegura2026!",
+            "password2": "UnaClaveSegura2026!",
+        })
+
+        self.assertRedirects(response, reverse("cliente:checkout"))
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
+        checkout = self.client.get(reverse("cliente:checkout"))
+        self.assertEqual(checkout.status_code, 200)
+        self.assertTemplateUsed(checkout, "cliente/checkout.html")
 
     def test_perfil_requiere_autenticacion(self):
         response = self.client.get(reverse("cliente:perfil"))
