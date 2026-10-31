@@ -152,6 +152,12 @@ class CheckoutTests(TestCase):
         self.assertEqual(Pedido.objects.count(), 1)
         self.assertEqual(DetallePedido.objects.count(), 1)
 
+        pedido = Pedido.objects.get()
+        cliente = Cliente.objects.get(user__username="cliente_checkout")
+        self.assertEqual(pedido.cliente, cliente)
+        self.assertEqual(cliente.total_pedidos, 1)
+        self.assertEqual(cliente.total_gastado, Decimal("10000.00"))
+
         self.inventario.refresh_from_db()
         self.assertEqual(self.inventario.cantidad_disponible, 3)
 
@@ -231,3 +237,20 @@ class CuentaClienteTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("cliente:checkout"))
         self.assertEqual(self.client.get(reverse("cliente:perfil")).status_code, 200)
+
+class HistorialClienteTests(TestCase):
+    def test_incluye_pedidos_anteriores_sin_relacion_por_telefono(self):
+        cliente = Cliente.objects.create(
+            nombre="Cliente histórico",
+            telefono="1100001122",
+        )
+        Pedido.objects.create(
+            nombre_cliente="Cliente histórico",
+            telefono="1100001122",
+            direccion="Retiro en local",
+            monto_total=Decimal("3500.00"),
+        )
+
+        self.assertEqual(cliente.total_pedidos, 1)
+        self.assertEqual(cliente.total_gastado, Decimal("3500.00"))
+
