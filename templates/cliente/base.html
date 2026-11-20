@@ -39,7 +39,11 @@
             }
         }
     </script>
-    
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'cliente/img/favicon.ico' %}?v=3" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'cliente/img/favicon.ico' %}?v=3" type="image/x-icon">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.3/jspdf.umd.min.js"></script>
@@ -72,23 +76,21 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-3 items-center h-20">
                 
-                <!-- Left: Logo + Business Name -->
-                <div class="flex items-center justify-start z-10">
-                    <a href="{% url 'cliente:home' %}" class="flex items-center gap-3 group">
-                        <div class="w-11 h-11 rounded-full bg-coffee-500/10 border border-coffee-500/20 flex items-center justify-center text-coffee-600 group-hover:bg-coffee-500 group-hover:text-white transition-all duration-300 shadow-xs">
-                            <i class="fa-solid fa-wheat-awn text-lg"></i>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="font-serif-title font-bold text-xl sm:text-2xl tracking-tight text-coffee-900 group-hover:text-coffee-600 transition-colors">
-                                GastroCtrl
-                            </span>
-                            <span class="text-[10px] tracking-widest uppercase text-coffee-600 font-semibold -mt-1">
-                                Café & Pastelería
-                            </span>
-                        </div>
-                    </a>
-                </div>
-
+                
+                        <!-- Left: Logo + Business Name -->
+            <div class="flex items-center justify-start z-10">
+                <a href="{% url 'cliente:home' %}" class="flex items-center gap-3 group">
+                    <img src="{% static 'cliente/img/favicon.ico' %}" alt="Logo GastroCtrl" class="w-11 h-11 object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105">
+                    <div class="flex flex-col">
+                        <span class="font-serif-title font-bold text-xl sm:text-2xl tracking-tight text-coffee-900 group-hover:text-coffee-600 transition-colors">
+                            GastroCtrl
+                        </span>
+                        <span class="text-[10px] tracking-widest uppercase text-coffee-600 font-semibold -mt-1">
+                            Café & Pastelería
+                        </span>
+                    </div>
+                </a>
+            </div>
                 <!-- Middle Links -->
                 <nav class="hidden md:flex items-center justify-center space-x-8 text-sm font-medium text-coffee-800">
                     <a href="{% url 'cliente:home' %}" class="hover:text-coffee-500 transition-colors">Inicio</a>
@@ -190,16 +192,14 @@
     </main>
 
     <!-- FOOTER -->
-    <footer id="contacto" class="bg-warmbrown text-cream-50 pt-16 pb-12 border-t border-cream-300/30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-white/20">
-                
+        <footer id="contacto" class="bg-warmbrown text-cream-50 pt-16 pb-12 border-t border-cream-300/30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-white/20">
+                                
                 <!-- Left Side: Logo + Description -->
                 <div class="lg:col-span-5 space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center text-white border border-white/25">
-                            <i class="fa-solid fa-wheat-awn text-lg"></i>
-                        </div>
+                        <img src="{% static 'cliente/img/favicon.ico' %}" alt="Logo GastroCtrl" class="w-10 h-10 object-contain">
                         <div class="flex flex-col">
                             <span class="font-serif-title font-bold text-2xl text-white tracking-tight">
                                 GastroCtrl
@@ -209,7 +209,7 @@
                             </span>
                         </div>
                     </div>
-
+                    
                     <p class="text-cream-50/90 text-sm leading-relaxed max-w-sm pt-2">
                         Un refugio acogedor donde el aroma a pan recién horneado y el café de especialidad crean momentos de pura calidez y placer.
                     </p>

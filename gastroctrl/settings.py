@@ -18,16 +18,9 @@ if not SECRET_KEY:
     )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+DEBUG = True
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv(
-        "DJANGO_ALLOWED_HOSTS",
-        "localhost,127.0.0.1",
-    ).split(",")
-    if host.strip()
-]
+ALLOWED_HOSTS = []
 
 
 # Application definition
