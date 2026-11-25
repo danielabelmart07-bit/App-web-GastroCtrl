@@ -1,0 +1,84 @@
+{% extends 'cliente/base.html' %}
+{% load static %}
+
+{% block title %}Listado de Mensajes - GastroCtrl{% endblock title %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="font-serif-title text-2xl sm:text-3xl font-bold text-warmbrown mb-6">
+        Consultas Recibidas de Clientes
+    </h1>
+
+    {% if mensajes %}
+        <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead class="bg-warmbrown text-white text-xs uppercase tracking-wider">
+                    <tr>
+                        <th class="py-3.5 px-4">Fecha</th>
+                        <th class="py-3.5 px-4">Nombre</th>
+                        <th class="py-3.5 px-4">Email</th>
+                        <th class="py-3.5 px-4">Mensaje</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200 text-stone-700">
+                    {% for m in mensajes %}
+                        <tr class="hover:bg-stone-50 transition-colors">
+                            <td class="py-3 px-4 whitespace-nowrap text-xs text-stone-500">
+                                {{ m.creado_en|date:"d/m/Y H:i" }}
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-stone-900">
+                                {{ m.nombre }}
+                            </td>
+                            <td class="py-3 px-4">
+                                <a href="mailto:{{ m.email }}" class="text-warmbrown hover:underline">
+                                    {{ m.email }}
+                                </a>
+                            </td>
+                            <td class="py-3 px-4">
+                                {{ m.mensaje|truncatechars:80 }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <nav class="mt-6 flex items-center justify-center gap-2 text-xs">
+            {% if mensajes.has_previous %}
+                <a href="?page={{ mensajes.previous_page_number }}" class="px-3.5 py-2 rounded-lg bg-white border border-stone-300 text-stone-700 hover:bg-stone-100">
+                    Anterior
+                </a>
+            {% else %}
+                <span class="px-3.5 py-2 rounded-lg bg-stone-100 border border-stone-200 text-stone-400 cursor-not-allowed">
+                    Anterior
+                </span>
+            {% endif %}
+
+            <span class="px-3.5 py-2 rounded-lg bg-warmbrown text-white font-semibold">
+                Página {{ mensajes.number }} de {{ mensajes.paginator.num_pages }}
+            </span>
+
+            {% if mensajes.has_next %}
+                <a href="?page={{ mensajes.next_page_number }}" class="px-3.5 py-2 rounded-lg bg-white border border-stone-300 text-stone-700 hover:bg-stone-100">
+                    Siguiente
+                </a>
+            {% else %}
+                <span class="px-3.5 py-2 rounded-lg bg-stone-100 border border-stone-200 text-stone-400 cursor-not-allowed">
+                    Siguiente
+                </span>
+            {% endif %}
+        </nav>
+    {% else %}
+        <div class="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl p-6 text-center">
+            No hay mensajes de contacto registrados todavía.
+        </div>
+    {% endif %}
+
+    <div class="mt-6">
+        <a href="{% url 'cliente:home' %}" class="inline-block px-4 py-2 rounded-lg bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-semibold transition-colors">
+            Volver al Inicio
+        </a>
+    </div>
+</section>
+{% endblock content %}

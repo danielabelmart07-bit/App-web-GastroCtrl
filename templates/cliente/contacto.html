@@ -1,0 +1,57 @@
+{% extends 'cliente/base.html' %}
+{% load static %}
+
+{% block title %}Contacto - GastroCtrl{% endblock title %}
+
+{% block content %}
+<section class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-2xl p-8 border border-stone-200 shadow-sm">
+        <h1 class="font-serif-title text-2xl sm:text-3xl font-bold text-warmbrown mb-2">
+            Contacto y Consultas
+        </h1>
+        <p class="text-xs text-stone-500 mb-6">
+            Completá el formulario y te responderemos a la brevedad.
+        </p>
+
+        <form method="POST" novalidate class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-semibold text-stone-700 mb-1">
+                    Nombre*
+                </label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                    <p class="text-xs text-red-600 mt-1">{{ form.nombre.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-stone-700 mb-1">
+                    Correo electrónico*
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-xs text-red-600 mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.mensaje.id_for_label }}" class="block text-sm font-semibold text-stone-700 mb-1">
+                    Mensaje*
+                </label>
+                {{ form.mensaje }}
+                {% if form.mensaje.errors %}
+                    <p class="text-xs text-red-600 mt-1">{{ form.mensaje.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-warmbrown hover:opacity-90 text-white font-semibold py-2.5 px-4 rounded-lg transition-opacity">
+                    Enviar Mensaje
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock content %}

@@ -2,6 +2,27 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Cliente, Pedido
+from .models import MensajeContacto
+
+class MensajeContactoForm(forms.ModelForm):
+    class Meta:
+        model = MensajeContacto
+        fields = ['nombre', 'email', 'mensaje']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-stone-800 text-sm focus:outline-none focus:border-warmbrown focus:ring-1 focus:ring-warmbrown transition-colors',
+                'placeholder': 'Tu nombre completo',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-stone-800 text-sm focus:outline-none focus:border-warmbrown focus:ring-1 focus:ring-warmbrown transition-colors',
+                'placeholder': 'tu@email.com',
+            }),
+            'mensaje': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-stone-800 text-sm focus:outline-none focus:border-warmbrown focus:ring-1 focus:ring-warmbrown transition-colors',
+                'placeholder': 'Escribinos tu consulta, pedido especial o comentario...',
+                'rows': 4,
+            }),
+        }
 
 class PedidoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

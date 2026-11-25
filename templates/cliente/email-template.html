@@ -1,0 +1,22 @@
+<table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; color: #292524;">
+    <tr style="border-bottom: 1px solid #e7e5e4;">
+        <td style="padding: 12px; font-weight: bold; background-color: #fafaf9; width: 30%;">Nombre y Apellido</td>
+        <td style="padding: 12px;">{{ nombre }}</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #e7e5e4;">
+        <td style="padding: 12px; font-weight: bold; background-color: #fafaf9;">Correo Electrónico</td>
+        <td style="padding: 12px;">{{ email }}</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #e7e5e4;">
+        <td style="padding: 12px; font-weight: bold; background-color: #fafaf9;">Asunto</td>
+        <td style="padding: 12px;">{{ asunto }}</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #e7e5e4;">
+        <td style="padding: 12px; font-weight: bold; background-color: #fafaf9;">Fecha</td>
+        <td style="padding: 12px;">{{ fecha|date:"d/m/Y H:i" }}</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #e7e5e4;">
+        <td style="padding: 12px; font-weight: bold; background-color: #fafaf9;">Mensaje</td>
+        <td style="padding: 12px;">{{ mensaje }}</td>
+    </tr>
+</table>

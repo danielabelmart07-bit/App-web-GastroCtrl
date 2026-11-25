@@ -1,0 +1,63 @@
+{% extends 'cliente/base.html' %}
+{% load static %}
+
+{% block title %}Términos y Condiciones - GastroCtrl{% endblock title %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-2xl p-8 sm:p-10 border border-stone-200 shadow-sm text-stone-800">
+        
+        <h1 class="font-serif-title text-3xl font-bold text-warmbrown border-b border-stone-200 pb-4 mb-2">
+            Términos y Condiciones de Uso
+        </h1>
+        <p class="text-xs text-stone-500 mb-8">
+            Última actualización: Noviembre de 2026.
+        </p>
+
+        <div class="space-y-6 text-sm leading-relaxed text-stone-700">
+            <div>
+                <h2 class="font-serif-title text-lg font-bold text-warmbrown mb-2">
+                    1. Aceptación de los Términos
+                </h2>
+                <p>
+                    Al acceder y utilizar el sitio web de <strong>GastroCtrl Café & Pastelería</strong>, aceptás cumplir con los presentes términos y condiciones de uso, así como con la legislación vigente aplicable en la República Argentina.
+                </p>
+            </div>
+
+            <div>
+                <h2 class="font-serif-title text-lg font-bold text-warmbrown mb-2">
+                    2. Cuentas de Usuario y Seguridad
+                </h2>
+                <p>
+                    El usuario es responsable de mantener la confidencialidad de su contraseña y de todas las actividades o pedidos realizados bajo su cuenta registrada en la plataforma.
+                </p>
+            </div>
+
+            <div>
+                <h2 class="font-serif-title text-lg font-bold text-warmbrown mb-2">
+                    3. Disponibilidad de Productos y Precios
+                </h2>
+                <p>
+                    Los pedidos están sujetos a la disponibilidad diaria de elaboración y stock del local. Los precios publicados pueden actualizarse sin previo aviso, garantizándose siempre el valor vigente al momento de confirmar la compra.
+                </p>
+            </div>
+
+            <div>
+                <h2 class="font-serif-title text-lg font-bold text-warmbrown mb-2">
+                    4. Modalidad de Entrega y Retiro
+                </h2>
+                <p>
+                    Los pedidos podrán retirarse por el local dentro de los horarios de atención informados o recibirse mediante envío a domicilio en las zonas habilitadas, respetando los tiempos estimados de preparación.
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-stone-200 flex justify-end">
+            <a href="{% url 'cliente:home' %}" class="bg-warmbrown hover:opacity-90 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-opacity">
+                Volver al Inicio
+            </a>
+        </div>
+
+    </div>
+</section>
+{% endblock content %}

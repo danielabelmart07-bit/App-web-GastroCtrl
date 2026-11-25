@@ -33,4 +33,33 @@ urlpatterns = [
         views.consultar_estado_pedido_api,
         name='api_seguimiento_pedido'
     ),
+    path(
+        'politica-privacidad/', 
+        views.politica_privacidad, 
+        name='politica_privacidad'
+        ),
+    
+    path(
+        'terminos-condiciones/', 
+        views.terminos_condiciones, 
+        name='terminos_condiciones'
+        ),
+
+    path(
+        'contacto/', 
+        views.contacto,
+        name='contacto'
+        ),
+    
+    path(
+        'gracias/', 
+        views.pagina_de_gracias,
+        name='gracias'
+        ),
+
+    path(
+        'listar-mensajes/', 
+        views.listar_mensajes,
+        name='listar_mensajes'
+    )
 ]

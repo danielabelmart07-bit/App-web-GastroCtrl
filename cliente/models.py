@@ -2,6 +2,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 
 " CATEGORIA "
@@ -219,3 +220,19 @@ class DetallePedido(models.Model):
 
     def __str__(self):
         return f"{self.cantidad}x {self.producto.nombre if self.producto else 'Producto eliminado'}"
+
+"MENSAJE DE CONTACTO"
+
+class MensajeContacto(models.Model):
+    """Mensaje enviado al negocio desde el formulario de contacto"""
+
+    # Datos de contacto y contenido proporcionado por quien envía el mensaje
+    nombre = models.CharField(max_length=100)
+    email = models.EmailField()
+    mensaje = models.TextField()
+    # Se establece automáticamente al crear el registro
+    creado_en = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        """Identifica el mensaje por el nombre y correo de quien lo envió"""
+        return f"Mensaje de {self.nombre} ({self.email})"

@@ -56,6 +56,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <!-- Estilos Personalizados -->
     <link rel="stylesheet" href="{% static 'cliente/css/inicio.css' %}">
     <style>
@@ -64,6 +66,25 @@
             display: none !important;
         }
     </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    toastr.success('{{ message }}');
+                {% elif message.tags == 'error' %}
+                    toastr.error('{{ message }}');
+                {% elif message.tags == 'warning' %}
+                    toastr.warning('{{ message }}');
+                {% elif message.tags == 'info' %}
+                    toastr.info('{{ message }}');
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </script>
+
     {% block extra_css %}
     {% endblock %}
 
@@ -191,120 +212,131 @@
     {% endblock %}
     </main>
 
-    <!-- FOOTER -->
-        <footer id="contacto" class="bg-warmbrown text-cream-50 pt-16 pb-12 border-t border-cream-300/30">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-white/20">
-                                
-                <!-- Left Side: Logo + Description -->
-                <div class="lg:col-span-5 space-y-4">
-                    <div class="flex items-center gap-3">
-                        <img src="{% static 'cliente/img/favicon.ico' %}" alt="Logo GastroCtrl" class="w-10 h-10 object-contain">
-                        <div class="flex flex-col">
-                            <span class="font-serif-title font-bold text-2xl text-white tracking-tight">
-                                GastroCtrl
-                            </span>
-                            <span class="text-[10px] tracking-widest uppercase text-cream-100 font-semibold -mt-1">
-                                Café & Pastelería
-                            </span>
-                        </div>
+<!-- FOOTER -->
+<footer id="contacto" class="bg-warmbrown text-cream-50 pt-14 pb-10 border-t border-cream-300/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Logo a la izquierda y las 4 secciones alineadas a la derecha -->
+        <div class="flex flex-col lg:flex-row lg:justify-between gap-10 pb-10 border-b border-white/20 items-start">
+                        
+            <!-- Izquierda: Logo + Descripción -->
+            <div class="lg:max-w-[285px] space-y-4">
+                <div class="flex items-center gap-3">
+                    <img src="{% static 'cliente/img/favicon.ico' %}" alt="Logo GastroCtrl" class="w-11 h-11 object-contain">
+                    <div class="flex flex-col">
+                        <span class="font-serif-title font-bold text-2xl text-white tracking-tight">
+                            GastroCtrl
+                        </span>
+                        <span class="text-[10px] tracking-widest uppercase text-cream-100 font-semibold -mt-1">
+                            Café & Pastelería
+                        </span>
                     </div>
-                    
-                    <p class="text-cream-50/90 text-sm leading-relaxed max-w-sm pt-2">
-                        Un refugio acogedor donde el aroma a pan recién horneado y el café de especialidad crean momentos de pura calidez y placer.
-                    </p>
                 </div>
-
-                <!-- Right Side: 3 Sections -->
-                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-8">
-                    
-                    <!-- Section 1: Ubicación y Horario -->
-                    <div class="space-y-4">
-                        <h4 class="font-serif-title text-base font-bold text-white tracking-wide border-b border-white/15 pb-2">
-                            Ubicación & Horario
-                        </h4>
-                        <div class="space-y-2.5 text-xs text-cream-50/90">
-                            <p class="flex items-start gap-2">
-                                <i class="fa-solid fa-location-dot mt-0.5 text-cream-200"></i>
-                                <span>Av. Libertador 1842, Palermo, CABA</span>
-                            </p>
-                            <p class="flex items-start gap-2">
-                                <i class="fa-regular fa-clock mt-0.5 text-cream-200"></i>
-                                <span>
-                                    <strong>Mar - Vie:</strong> 08:00 a 20:00 hs<br>
-                                    <strong>Sáb - Dom:</strong> 09:00 a 20:30 hs<br>
-                                    <span class="text-cream-200/80">Lunes cerrado</span>
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Section 2: Contacto -->
-                    <div class="space-y-3">
-                        <h4 class="font-serif-title text-base font-bold text-white tracking-wide border-b border-white/15 pb-2">
-                            Contacto
-                        </h4>
-                        <ul class="space-y-2.5 text-xs text-cream-50/90">
-                            <li>
-                                <a href="tel:+541145678900" class="hover:text-white flex items-center gap-2 transition-colors">
-                                    <i class="fa-solid fa-phone text-cream-200"></i>
-                                    <span>+54 11 4567-8900</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://wa.me/541145678900" target="_blank" class="hover:text-white flex items-center gap-2 transition-colors">
-                                    <i class="fa-brands fa-whatsapp text-cream-200"></i>
-                                    <span>+54 9 11 2345-6789</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="mailto:hola@gastroctrl.com" class="hover:text-white flex items-center gap-2 transition-colors">
-                                    <i class="fa-regular fa-envelope text-cream-200"></i>
-                                    <span>hola@gastroctrl.com</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Section 3: Redes Sociales -->
-                    <div class="space-y-3">
-                        <h4 class="font-serif-title text-base font-bold text-white tracking-wide border-b border-white/15 pb-2">
-                            Síguenos
-                        </h4>
-                        <p class="text-xs text-cream-100/90 mb-3">
-                            Descubre nuestras novedades y especialidades diarias.
-                        </p>
-                        <div class="flex items-center space-x-3">
-                            <a href="#" aria-label="Instagram" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors border border-white/15">
-                                <i class="fa-brands fa-instagram text-sm"></i>
-                            </a>
-                            <a href="#" aria-label="Facebook" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors border border-white/15">
-                                <i class="fa-brands fa-facebook-f text-sm"></i>
-                            </a>
-                            <a href="#" aria-label="TikTok" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors border border-white/15">
-                                <i class="fa-brands fa-tiktok text-sm"></i>
-                            </a>
-                            <a href="https://wa.me/541145678900" target="_blank" aria-label="WhatsApp" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors border border-white/15">
-                                <i class="fa-brands fa-whatsapp text-sm"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-
+                
+                <p class="text-cream-50/90 text-sm leading-relaxed">
+                    Un refugio acogedor donde el aroma a pan recién horneado y el café de especialidad crean momentos de pura calidez y placer.
+                </p>
             </div>
 
-            <!-- Bottom Copyright -->
-            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-cream-100/80 gap-4">
-                <p>© 2026 GastroCtrl. Todos los derechos reservados.</p>
-                <div class="flex space-x-6">
-                    <a href="#" class="hover:underline">Política de Privacidad</a>
-                    <a href="#" class="hover:underline">Términos de Servicio</a>
+            <!-- Derecha: Las 4 secciones juntas hacia el borde derecho -->
+            <div class="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-start gap-8 lg:gap-8">
+                
+                <!-- Sección 1: Ubicación (el ancho w-[240px] abarca el título y el mapa juntos) -->
+                <div class="w-full sm:w-[240px] space-y-3">
+                    <h4 class="font-serif-title text-base font-bold text-white tracking-wide border-b border-white/15 pb-2">
+                        Ubicación
+                    </h4>
+                    <div class="w-full h-36 rounded-lg overflow-hidden border border-white/20 shadow-sm bg-black/10">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d52503.12777676697!2d-58.657720016406174!3d-34.66870447627201!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcc76f57e3be01%3A0xa488fcdcec5b600f!2sB1708%20Mor%C3%B3n%2C%20Provincia%20de%20Buenos%20Aires!5e0!3m2!1ses-419!2sar!4v1795628102408!5m2!1ses-419!2sar" 
+                            class="w-full h-full border-0 sepia-[.20] saturate-[.85] hover:filter-none transition-all duration-300" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="strict-origin-when-cross-origin">
+                        </iframe>
+                    </div>
                 </div>
+
+                <!-- Sección 2: Horario -->
+                <div class="space-y-3 lg:min-w-[135px]">
+                    <h4 class="font-serif-title text-base font-bold text-white tracking-wide border-b border-white/15 pb-2">
+                        Horario
+                    </h4>
+                    <div class="text-xs text-cream-50/90 flex items-start gap-2">
+                        <i class="fa-regular fa-clock mt-0.5 text-cream-200"></i>
+                        <span class="leading-relaxed">
+                            <strong>Mar - Vie:</strong><br>08:00 a 20:00 hs<br>
+                            <strong>Sáb - Dom:</strong><br>09:00 a 20:30 hs<br>
+                            <span class="text-cream-200/80">Lunes cerrado</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Sección 3: Contacto -->
+                <div class="space-y-3 lg:min-w-[165px]">
+                    <h4 class="font-serif-title text-base font-bold text-white tracking-wide border-b border-white/15 pb-2">
+                        Contacto
+                    </h4>
+                    <ul class="space-y-2.5 text-xs text-cream-50/90">
+                        <li>
+                            <a href="tel:+541145678900" class="hover:text-white flex items-center gap-2 transition-colors">
+                                <i class="fa-solid fa-phone text-cream-200"></i>
+                                <span>+54 11 4567-8900</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://wa.me/541145678900" target="_blank" class="hover:text-white flex items-center gap-2 transition-colors">
+                                <i class="fa-brands fa-whatsapp text-cream-200"></i>
+                                <span>+54 9 11 2345-6789</span>
+                            </a>
+                        </li>
+                        <li class="pt-1">
+                            <a href="{% url 'cliente:contacto' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white font-semibold transition-colors border border-white/20 shadow-sm">
+                                <i class="fa-regular fa-envelope text-cream-200"></i>
+                                <span>Enviar consulta</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Sección 4: Síguenos -->
+                <div class="space-y-3 lg:max-w-[185px]">
+                    <h4 class="font-serif-title text-base font-bold text-white tracking-wide border-b border-white/15 pb-2">
+                        Síguenos
+                    </h4>
+                    <p class="text-xs text-cream-100/90 leading-relaxed">
+                        Descubre nuestras novedades y especialidades diarias.
+                    </p>
+                    <div class="flex items-center gap-2.5 pt-1">
+                        <a href="#" aria-label="Instagram" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors border border-white/15">
+                            <i class="fa-brands fa-instagram text-xs"></i>
+                        </a>
+                        <a href="#" aria-label="Facebook" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors border border-white/15">
+                            <i class="fa-brands fa-facebook-f text-xs"></i>
+                        </a>
+                        <a href="#" aria-label="TikTok" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors border border-white/15">
+                            <i class="fa-brands fa-tiktok text-xs"></i>
+                        </a>
+                        <a href="https://wa.me/541145678900" target="_blank" aria-label="WhatsApp" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors border border-white/15">
+                            <i class="fa-brands fa-whatsapp text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </footer>
 
+        <!-- Bottom Copyright -->
+        <div class="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-cream-100/80 gap-4">
+            <p>© 2026 GastroCtrl. Todos los derechos reservados. Desarrollado bajo Ley N° 25.326.</p>
+            <div class="flex space-x-6">
+                <a href="{% url 'cliente:politica_privacidad' %}" class="hover:underline">Política de Privacidad</a>
+                <a href="{% url 'cliente:terminos_condiciones' %}" class="hover:underline">Términos y Condiciones</a>
+            </div>
+        </div>
+
+    </div>
+</footer>
 
     <script>
     window.CARRITO_URLS = {
@@ -401,7 +433,7 @@
 
 
         <!-- ====================================================
-             VISTA CARRITO
+            VISTA CARRITO
         ===================================================== -->
 
         <div
@@ -487,7 +519,7 @@
 
 
         <!-- ====================================================
-             VISTA SEGUIMIENTO
+            VISTA SEGUIMIENTO
         ===================================================== -->
 
         <div
@@ -579,7 +611,7 @@
 
 
         <!-- ====================================================
-             FOOTER DEL CARRITO
+        FOOTER DEL CARRITO
         ===================================================== -->
 
         <div

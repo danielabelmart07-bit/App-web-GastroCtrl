@@ -15,6 +15,14 @@ from .models import Categoria, Producto, Pedido, DetallePedido, Cliente
 from administrador.models import ConfiguracionSistema
 from .carrito import Carrito
 from .forms import PedidoForm, RegistroClienteForm, PerfilClienteForm
+from django.shortcuts import render, redirect
+from django.core.mail import EmailMessage, send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.contrib import messages
+from django.core.paginator import Paginator
+from .models import MensajeContacto
+from .forms import MensajeContactoForm
 
 def checkout(request):
     carrito = Carrito(request)
@@ -433,3 +441,81 @@ def logout_cliente(request):
         logout(request)
         messages.info(request, "Cerraste sesión correctamente.")
     return redirect("cliente:home")
+
+def politica_privacidad(request):
+    """Vista para renderizar la página de Política de Privacidad."""
+    return render(request, 'cliente/politica_privacidad.html')
+
+def terminos_condiciones(request):
+    """Vista para renderizar la página de Términos y Condiciones."""
+    return render(request, 'cliente/terminos_condiciones.html')
+
+from django.shortcuts import render, redirect
+from django.core.mail import EmailMessage, send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.contrib import messages
+from django.core.paginator import Paginator
+from .models import MensajeContacto
+from .forms import MensajeContactoForm
+
+
+def contacto(request):
+    if request.method == 'POST':
+        form = MensajeContactoForm(request.POST)
+        if form.is_valid():
+            contacto_obj = form.save()
+
+            # 1. Correo HTML al administrador
+            template_html = render_to_string('cliente/email-template.html', {
+                'nombre': contacto_obj.nombre,
+                'email': contacto_obj.email,
+                'mensaje': contacto_obj.mensaje,
+                'fecha': contacto_obj.creado_en,
+                'asunto': 'Nueva consulta web - GastroCtrl Café & Pastelería',
+            })
+
+            email_admin = EmailMessage(
+                subject=f'Nuevo mensaje de contacto de {contacto_obj.nombre}',
+                body=template_html,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[settings.EMAIL_HOST_USER],
+            )
+            email_admin.content_subtype = 'html'
+            email_admin.send(fail_silently=True)
+
+            # 2. Respuesta automática al cliente
+            send_mail(
+                subject='Hemos recibido tu consulta - GastroCtrl Café & Pastelería',
+                message=(
+                    f'Hola {contacto_obj.nombre},\n\n'
+                    f'Gracias por comunicarte con nosotros. Hemos recibido tu mensaje y te responderemos a la brevedad.\n\n'
+                    f'Atentamente,\nEl equipo de GastroCtrl Café & Pastelería.'
+                ),
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[contacto_obj.email],
+                fail_silently=True,
+            )
+
+            messages.success(request, '¡Tu mensaje ha sido enviado con éxito!')
+            return redirect('cliente:gracias')
+    else:
+        form = MensajeContactoForm()
+
+    return render(request, 'cliente/contacto.html', {'form': form})
+
+
+def pagina_de_gracias(request):
+    return render(request, 'cliente/gracias.html')
+
+
+def listar_mensajes(request):
+    if not (request.user.is_authenticated and request.user.is_staff):
+        return redirect('cliente:home')
+
+    mensajes_listado = MensajeContacto.objects.all().order_by('-creado_en')
+    paginator = Paginator(mensajes_listado, 5)
+    page_number = request.GET.get('page')
+    mensajes = paginator.get_page(page_number)
+
+    return render(request, 'cliente/listar_mensajes.html', {'mensajes': mensajes})
